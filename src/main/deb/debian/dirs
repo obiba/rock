@@ -1,0 +1,8 @@
+# This is where ROCK_HOME is located
+var/lib/rock
+
+# Store rock log here
+var/log/rock
+
+# Store rock process id here
+var/run/rock

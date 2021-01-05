@@ -1,0 +1,32 @@
+# Defaults for rock initscript
+# sourced by /etc/init.d/rock
+# installed at /etc/default/rock by the maintainer scripts
+
+# pulled in from the init script; makes things easier.
+NAME=rock
+
+# location of java
+JAVA=/usr/bin/java
+
+# ulimit
+# Increase maximum open files for the rock process
+# Comment this out to use the system default
+MAXOPENFILES=16384
+
+# user id (or id:gid) to be run as
+ROCK_USER=rock
+
+# location of the rock distribution file
+ROCK_DIST=/usr/share/rock
+
+# rock home location
+ROCK_HOME=/var/lib/rock
+
+# rock log directory or syslog facility
+ROCK_LOG=/var/log/rock
+
+# arguments to pass to rock.
+ROCK_ARGS=""
+
+# arguments to pass to java
+JAVA_ARGS="-Xmx128M -XX:MaxPermSize=128M -XX:+UseG1GC"

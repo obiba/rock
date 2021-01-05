@@ -1,0 +1,28 @@
+sudo: required
+language: java
+jdk:
+  - openjdk8
+addons:
+  apt:
+    packages:
+    - rpm
+    - devscripts
+    - fakeroot
+    - debhelper
+deploy:
+  - provider: script
+    script: cp .travis.settings.xml $HOME/.m2/settings.xml && mvn -Prelease deploy
+    skip_cleanup: true
+    on:
+      all_branches: true
+      tags: true
+cache:
+  directories:
+  - $HOME/.cache
+  - $HOME/.m2
+notifications:
+  email:
+    recipients:
+    - dev@obiba.org
+    on_success: change
+    on_failure: always

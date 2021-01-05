@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+    <resetJUL>true</resetJUL>
+  </contextListener>
+
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ERROR</level>
+    </filter>
+    <encoder>
+      <pattern>%date - %-5level - %logger - %message%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="rock" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${ROCK_HOME}/logs/rock.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <fileNamePattern>${ROCK_HOME}/logs/rock-%i.log</fileNamePattern>
+      <maxIndex>10</maxIndex>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>10MB</maxFileSize>
+    </triggeringPolicy>
+    <encoder>
+      <pattern>%date - %-5level - %logger - %message%n</pattern>
+    </encoder>
+  </appender>
+
+  <!--hide verbose dependencies-->
+  <logger name="jetty.util.log" level="error"/>
+
+  <root level="info">
+    <appender-ref ref="console"/>
+    <appender-ref ref="rock"/>
+  </root>
+
+</configuration>

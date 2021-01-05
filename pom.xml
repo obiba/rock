@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.obiba.rock</groupId>
+  <artifactId>rock</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>rock</name>
+  <description>R server controller with REST API</description>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.4.0</version>
+  </parent>
+
+  <properties>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+
+    <install.dir>/usr/share</install.dir>
+    <rock.dir>${install.dir}/rock-${project.version}</rock.dir>
+    <package.name>rock-${project.version}</package.name>
+    <dist.location>${basedir}/target/${package.name}-dist/${package.name}</dist.location>
+    <deb.dir>${basedir}/target/deb</deb.dir>
+    <deb.version>${project.version}</deb.version>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <fileupload.version>1.3.3</fileupload.version>
+    <guava.version>30.0-jre</guava.version>
+    <junit.version>4.13.1</junit.version>
+    <slf4j.version>1.7.6</slf4j.version>
+    <rserve.version>0.6-8.1</rserve.version>
+
+    <!-- maven plugins -->
+    <github-release-plugin.version>1.2.0</github-release-plugin.version>
+    <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+    <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
+    <maven-deploy-plugin.version>2.8.1</maven-deploy-plugin.version>
+    <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
+    <rpm-maven-plugin.version>2.1.4</rpm-maven-plugin.version>
+  </properties>
+
+  <profiles>
+    <profile>
+      <!-- A profile for the builds performed by the continuous integration server -->
+      <id>release</id>
+      <build>
+
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>rpm-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>make-rpm</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>attached-rpm</goal>
+                </goals>
+                <configuration>
+                  <name>rock</name>
+                  <needarch>noarch</needarch>
+                  <version>${project.version}</version>
+                  <!--<license>see /usr/share/doc/opal/copyright</license>-->
+                  <group>Applications/Engineering</group>
+                  <packager>OBiBa</packager>
+                  <prefix>/usr/share</prefix>
+                  <changelogFile>/usr/share/changelog</changelogFile>
+                  <targetOS>Linux</targetOS>
+                  <requires>
+                    <require>R-core</require>
+                    <!-- required when attempting to install Rserve via R; contains the required source files -->
+                    <require>R-core-devel</require>
+                  </requires>
+                  <mappings>
+                    <!-- Add init.d files  -->
+                    <mapping>
+                      <directory>/etc/init.d</directory>
+                      <directoryIncluded>false</directoryIncluded>
+                      <filemode>755</filemode>
+                      <configuration>true</configuration>
+                      <sources>
+                        <source>
+                          <location>src/main/rpm/init.d</location>
+                          <includes>
+                            <include>rock</include>
+                          </includes>
+                        </source>
+                      </sources>
+                    </mapping>
+                    <mapping>
+                      <directory>${rock.dir}/bin</directory>
+                      <filemode>755</filemode>
+                      <sources>
+                        <source>
+                          <location>src/main/rpm/rock.sh</location>
+                        </source>
+                        <source>
+                          <location>src/main/rpm/update.sh</location>
+                        </source>
+                      </sources>
+                    </mapping>
+                    <mapping>
+                      <directory>/etc/rock</directory>
+                      <filemode>640</filemode>
+                      <username>rock</username>
+                      <groupname>adm</groupname>
+                      <configuration>true</configuration>
+                      <sources>
+                        <source>
+                          <location>src/dist/conf</location>
+                        </source>
+                      </sources>
+                    </mapping>
+                    <mapping>
+                      <directory>/etc/init</directory>
+                      <filemode>644</filemode>
+                      <directoryIncluded>false</directoryIncluded>
+                      <sources>
+                        <source>
+                          <location>src/main/rpm/upstart.conf</location>
+                          <destination>rock.conf</destination>
+                        </source>
+                      </sources>
+                    </mapping>
+                    <mapping>
+                      <directory>/etc/default</directory>
+                      <filemode>644</filemode>
+                      <directoryIncluded>false</directoryIncluded>
+                      <sources>
+                        <source>
+                          <location>src/main/rpm/rock.default</location>
+                          <destination>rock</destination>
+                          <filter>true</filter>
+                        </source>
+                      </sources>
+                    </mapping>
+                    <mapping>
+                      <directory>${rock.dir}/lib</directory>
+                      <filemode>755</filemode>
+                      <sources>
+                        <source>
+                          <location>${dist.location}/lib</location>
+                        </source>
+                      </sources>
+                    </mapping>
+                    <mapping>
+                      <directory>/var/lib/rock</directory>
+                      <filemode>740</filemode>
+                      <username>rock</username>
+                      <groupname>adm</groupname>
+                    </mapping>
+                    <mapping>
+                      <directory>/var/log/rock</directory>
+                      <filemode>740</filemode>
+                      <username>rock</username>
+                      <groupname>adm</groupname>
+                    </mapping>
+                    <mapping>
+                      <directory>/tmp/rock</directory>
+                      <filemode>740</filemode>
+                      <username>rock</username>
+                      <groupname>adm</groupname>
+                    </mapping>
+                  </mappings>
+                  <preinstallScriptlet>
+                    <scriptFile>src/main/rpm/scripts/preinstall.sh</scriptFile>
+                    <fileEncoding>utf-8</fileEncoding>
+                  </preinstallScriptlet>
+                  <postinstallScriptlet>
+                    <scriptFile>src/main/rpm/scripts/postinstall.sh</scriptFile>
+                    <fileEncoding>utf-8</fileEncoding>
+                  </postinstallScriptlet>
+                  <preremoveScriptlet>
+                    <scriptFile>src/main/rpm/scripts/prerm.sh</scriptFile>
+                    <fileEncoding>utf-8</fileEncoding>
+                  </preremoveScriptlet>
+                  <postremoveScriptlet>
+                    <scriptFile>src/main/rpm/scripts/postrm.sh</scriptFile>
+                    <fileEncoding>utf-8</fileEncoding>
+                  </postremoveScriptlet>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>make-deb</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <tstamp>
+                      <!-- http://www.debian.org/doc/debian-policy/ch-source.html -->
+                      <format property="deb.date" pattern="EEE, d MMM yyyy HH:mm:ss Z" locale="en" />
+                    </tstamp>
+
+                    <mkdir dir="${deb.dir}" />
+                    <copy todir="${deb.dir}">
+                      <fileset dir="src/main/deb" />
+                      <filterset>
+                        <filter token="project.version" value="${deb.version}" />
+                        <filter token="date" value="${deb.date}" />
+                      </filterset>
+                    </copy>
+
+                    <copy todir="${deb.dir}/etc/init.d" file="src/main/deb/init.d/rock" />
+                    <copy todir="${deb.dir}/etc/default" file="src/main/deb/default/rock" />
+
+                    <mkdir dir="${deb.dir}/usr/share" />
+                    <copy todir="${deb.dir}/usr/share">
+                      <fileset dir="${basedir}/target/${package.name}-dist" />
+                    </copy>
+                    <move file="${deb.dir}/usr/share/${package.name}" tofile="${deb.dir}/usr/share/${package.name}" />
+
+                    <mkdir dir="${deb.dir}/etc" />
+                    <copy todir="${deb.dir}/etc/rock">
+                      <fileset dir="${deb.dir}/usr/share/${package.name}/conf" />
+                    </copy>
+
+                    <exec executable="debuild" dir="${deb.dir}" failonerror="true" osfamily="unix">
+                      <arg value="-b" />
+                      <arg value="-i" />
+                      <arg value="-us" />
+                      <arg value="-uc" />
+                    </exec>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Upload packages to github release -->
+          <plugin>
+            <groupId>de.jutzig</groupId>
+            <artifactId>github-release-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>make-release</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>release</goal>
+                </goals>
+                <configuration>
+                  <releaseName>${project.version}</releaseName>
+                  <tag>${project.version}</tag>
+                  <fileSets>
+                    <fileSet>
+                      <directory>${project.build.directory}</directory>
+                      <includes>
+                        <include>*.zip</include>
+                        <include>*.deb</include>
+                      </includes>
+                    </fileSet>
+                    <fileSet>
+                      <directory>${project.build.directory}/rpm/${project.name}/RPMS/noarch</directory>
+                      <includes>
+                        <include>*.rpm</include>
+                      </includes>
+                    </fileSet>
+                  </fileSets>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <build>
+    <pluginManagement>
+
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>${maven-release-plugin.version}</version>
+          <configuration>
+            <!-- Use parent version as modules' version -->
+            <autoVersionSubmodules>true</autoVersionSubmodules>
+            <releaseProfiles>release</releaseProfiles>
+            <!-- Comment this profile because Jenkins crashes while performing the release -->
+            <!--<preparationGoals>clean verify install</preparationGoals>-->
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven-dependency-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${maven-antrun-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven-assembly-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>rpm-maven-plugin</artifactId>
+          <version>${rpm-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>de.jutzig</groupId>
+          <artifactId>github-release-plugin</artifactId>
+          <version>${github-release-plugin.version}</version>
+        </plugin>
+      </plugins>
+
+    </pluginManagement>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.asciidoctor</groupId>
+        <artifactId>asciidoctor-maven-plugin</artifactId>
+        <version>1.5.8</version>
+        <executions>
+          <execution>
+            <id>generate-docs</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>process-asciidoc</goal>
+            </goals>
+            <configuration>
+              <backend>html</backend>
+              <doctype>book</doctype>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-asciidoctor</artifactId>
+            <version>${spring-restdocs.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/rock.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Disable default deployer. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven-deploy-plugin.version}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>net.rforge</groupId>
+      <artifactId>Rserve</artifactId>
+      <version>${rserve.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.rforge</groupId>
+      <artifactId>REngine</artifactId>
+      <version>${rserve.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>${fileupload.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jetty</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.restdocs</groupId>
+      <artifactId>spring-restdocs-mockmvc</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>runtime</scope>
+    </dependency><dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>obiba-releases</id>
+      <name>Obiba Maven Releases Repository</name>
+      <url>https://dl.bintray.com/obiba/maven</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>obiba-snapshots</id>
+      <name>Obiba Maven Snapshots Repository</name>
+      <url>https://obiba.jfrog.io/obiba/libs-snapshot</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>obiba-bintray</id>
+      <url>https://api.bintray.com/obiba/maven/</url>
+    </repository>
+    <snapshotRepository>
+      <id>obiba-artifactory</id>
+      <url>https://obiba.jfrog.io/obiba/libs-snapshot</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <scm>
+    <connection>scm:git:https://github.com/obiba/rock.git</connection>
+    <developerConnection>scm:git:https://github.com/obiba/rock.git</developerConnection>
+    <url>https://github.com/obiba/rock</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/obiba/rock/issues</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>Travis</system>
+    <url>https://travis-ci.org/obiba/rock</url>
+  </ciManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>OBiBa Users</name>
+      <post>obiba-users@googlegroups.com</post>
+      <archive>https://groups.google.com/forum/?fromgroups#!forum/obiba-users</archive>
+    </mailingList>
+  </mailingLists>
+
+  <licenses>
+    <license>
+      <name>GNU Public License version 3</name>
+      <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+    </license>
+  </licenses>
+
+</project>

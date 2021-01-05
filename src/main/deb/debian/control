@@ -1,0 +1,24 @@
+Source: rock
+Section: devel
+Priority: extra
+Maintainer: OBiBa <info@obiba.org>
+Build-Depends: debhelper (>= 7.0.15)
+Standards-Version: 3.8.4
+Homepage: http://www.obiba.org
+
+Package: rock
+Architecture: all
+Pre-Depends: debconf, coreutils (>= 6.10)
+Depends: daemon, adduser, psmisc, r-base
+Recommends: oracle-java8-installer | openjdk-8-jdk | openjdk-8-jdk-headless | openjdk-8-jre | openjdk-8-jre-headless
+Description: OBiBa R server controller
+ R server administration tool that allows to control remotely a R server through REST
+ web services. This ensures a safe execution context of arbitrary R scripts on
+ this R server.
+ .
+ OBiBa is an international software development project committed to building a
+ full suite of open source software for biobanks. It is comprised of several
+ independent and self-funded teams around the world, each of which is producing
+ stand-alone applications that support particular biobank activities. The
+ applications can be customized and integrated to create a complete biobank
+ information management system.

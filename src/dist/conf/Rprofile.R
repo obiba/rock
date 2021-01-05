@@ -1,8 +1,15 @@
-# install R libraries in a R version independent directory
-if (!file.exists("/var/lib/rock/R/library")) {
-  dir.create("/var/lib/rock/R/library", recursive=TRUE)
+# ensure HOME system env variable
+home <- Sys.getenv("HOME")
+if (home == "") {
+    Sys.setenv(HOME="/var/lib/rock")
 }
-.libPaths("/var/lib/rock/R/library")
-# for Pandoc
-Sys.setenv(HOME="/var/lib/rock")
+# install R libraries in a R version independent directory
+libPath <- file.path(home, "R", "library")
+if (!dir.exists(libPath)) {
+  dir.create(libPath, recursive=TRUE)
+}
+.libPaths(libPath)
+# cleanup
+rm(home)
+rm(libPath)
 # newline required

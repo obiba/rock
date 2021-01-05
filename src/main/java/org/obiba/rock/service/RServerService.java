@@ -20,6 +20,7 @@ import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -97,6 +98,11 @@ public class RServerService implements RServerState {
         try {
             log.info("Shutting down R server...");
             newConnection().shutdown();
+        } catch (Exception e) {
+            // ignore
+        }
+
+        try {
             rserveStatus = -1;
             log.info("R server shut down");
             File workDir = getWorkingDirectory();
@@ -119,6 +125,20 @@ public class RServerService implements RServerState {
         } catch (RserveException e) {
             log.error("Error while connecting to R: {}", e.getMessage());
             throw new RuntimeException(e);
+        }
+    }
+
+    @Scheduled(fixedDelay = 10 * 1000)
+    public void autoRestart() {
+        if (isRunning()) {
+            try {
+                RConnection conn = newRConnection();
+                conn.close();
+            } catch (RserveException e) {
+                log.info("Rserve died, restarting...");
+                stop();
+                start();
+            }
         }
     }
 

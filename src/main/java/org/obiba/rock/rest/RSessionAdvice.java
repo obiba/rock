@@ -7,6 +7,7 @@ import org.obiba.rock.r.REvaluationRuntimeException;
 import org.obiba.rock.r.RRuntimeException;
 import org.obiba.rock.service.RSessionNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -48,6 +49,13 @@ class RSessionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ErrorMessage illegalArgumentHandler(REvaluationRuntimeException ex) {
         return new ExceptionErrorMessage(HttpStatus.BAD_REQUEST, ex);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    ErrorMessage illegalArgumentHandler(AccessDeniedException ex) {
+        return new ExceptionErrorMessage(HttpStatus.FORBIDDEN, ex);
     }
 
 }

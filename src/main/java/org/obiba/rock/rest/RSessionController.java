@@ -9,6 +9,7 @@ import org.obiba.rock.domain.RServeSession;
 import org.obiba.rock.model.RCommand;
 import org.obiba.rock.model.RSession;
 import org.obiba.rock.r.*;
+import org.obiba.rock.security.Roles;
 import org.obiba.rock.service.RSessionService;
 import org.rosuda.REngine.REXPMismatchException;
 import org.slf4j.Logger;
@@ -16,6 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -43,8 +47,8 @@ public class RSessionController {
      * @return
      */
     @GetMapping("/r/session/{id}")
-    RSession getSession(@PathVariable String id) {
-        return rSessionService.getRSession(id);
+    RSession getSession(@AuthenticationPrincipal User user, @PathVariable String id) {
+        return getRServeSession(user, id);
     }
 
     /**
@@ -54,7 +58,8 @@ public class RSessionController {
      * @return
      */
     @DeleteMapping("/r/session/{id}")
-    ResponseEntity<?> deleteSession(@PathVariable String id) {
+    ResponseEntity<?> deleteSession(@AuthenticationPrincipal User user, @PathVariable String id) {
+        getRServeSession(user, id);
         rSessionService.closeRSession(id);
         return ResponseEntity.noContent().build();
     }
@@ -71,11 +76,12 @@ public class RSessionController {
      * @return
      */
     @PostMapping(value = "/r/session/{id}/_assign", consumes = "application/x-rscript")
-    ResponseEntity<RCommand> assignScript(@PathVariable String id, @RequestParam(name = "s") String symbol,
+    ResponseEntity<RCommand> assignScript(@AuthenticationPrincipal User user,
+                                          @PathVariable String id, @RequestParam(name = "s") String symbol,
                                           @RequestParam(name = "async", defaultValue = "false") boolean async,
                                           @RequestBody String script, UriComponentsBuilder ucb) {
         RScriptROperation rop = new RScriptAssignROperation(String.format("base::assign('%s', %s)", symbol, script));
-        return doAssign(id, rop, async, ucb);
+        return doAssign(user, id, rop, async, ucb);
     }
 
     /**
@@ -89,11 +95,12 @@ public class RSessionController {
      * @return
      */
     @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/octet-stream")
-    ResponseEntity<?> evalScript(@PathVariable String id,
+    ResponseEntity<?> evalScript(@AuthenticationPrincipal User user,
+                                 @PathVariable String id,
                                  @RequestParam(name = "async", defaultValue = "false") boolean async,
                                  @RequestBody String script, UriComponentsBuilder ucb) {
         RScriptROperation rop = new RScriptROperation(script);
-        return doEval(id, rop, async, ucb);
+        return doEval(user, id, rop, async, ucb);
     }
 
     /**
@@ -107,11 +114,12 @@ public class RSessionController {
      * @return
      */
     @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/json")
-    ResponseEntity<?> evalScriptJSON(@PathVariable String id,
+    ResponseEntity<?> evalScriptJSON(@AuthenticationPrincipal User user,
+                                     @PathVariable String id,
                                      @RequestParam(name = "async", defaultValue = "false") boolean async,
                                      @RequestBody String script, UriComponentsBuilder ucb) {
         RScriptROperation rop = new RScriptROperation(String.format("jsonlite::toJSON(%s)", script), false);
-        return doEval(id, rop, async, ucb);
+        return doEval(user, id, rop, async, ucb);
     }
 
     //
@@ -129,12 +137,13 @@ public class RSessionController {
      * @return
      */
     @PostMapping(value = "/r/session/{id}/_upload", consumes = "multipart/form-data")
-    ResponseEntity<?> uploadFile(@PathVariable String id,
+    ResponseEntity<?> uploadFile(@AuthenticationPrincipal User user,
+                                 @PathVariable String id,
                                  @RequestParam("file") CommonsMultipartFile file,
                                  @RequestParam(value = "path", required = false) String path,
                                  @RequestParam(value = "overwrite", required = false, defaultValue = "false") boolean overwrite,
                                  @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {
-        RServeSession rServeSession = getRServeSession(id);
+        RServeSession rServeSession = getRServeSession(user, id);
         String destinationPath = Strings.isNullOrEmpty(path) ? file.getOriginalFilename() : path;
         try {
             doWriteFile(file.getInputStream(), temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), destinationPath, overwrite);
@@ -155,10 +164,11 @@ public class RSessionController {
      */
     @GetMapping("/r/session/{id}/_download")
     void downloadFile(HttpServletResponse response,
+                      @AuthenticationPrincipal User user,
                       @PathVariable String id,
                       @RequestParam(value = "path", required = false) String path,
                       @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {
-        RServeSession rServeSession = getRServeSession(id);
+        RServeSession rServeSession = getRServeSession(user, id);
         File sourceFile = new File(temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), path);
 
         // verify file exist and is regular
@@ -218,8 +228,8 @@ public class RSessionController {
      * @return
      */
     @GetMapping("/r/session/{id}/commands")
-    List<RCommand> getCommands(@PathVariable String id) {
-        return StreamSupport.stream(getRServeSession(id).getRCommands().spliterator(), false)
+    List<RCommand> getCommands(@AuthenticationPrincipal User user, @PathVariable String id) {
+        return StreamSupport.stream(getRServeSession(user, id).getRCommands().spliterator(), false)
                 .map(c -> (RCommand) c).collect(Collectors.toList());
     }
 
@@ -231,8 +241,8 @@ public class RSessionController {
      * @return
      */
     @GetMapping("/r/session/{id}/command/{cmdId}")
-    RCommand getCommand(@PathVariable String id, @PathVariable String cmdId) {
-        return getRServeSession(id).getRCommand(cmdId);
+    RCommand getCommand(@AuthenticationPrincipal User user, @PathVariable String id, @PathVariable String cmdId) {
+        return getRServeSession(user, id).getRCommand(cmdId);
     }
 
     /**
@@ -243,8 +253,8 @@ public class RSessionController {
      * @return
      */
     @DeleteMapping("/r/session/{id}/command/{cmdId}")
-    RCommand deleteCommand(@PathVariable String id, @PathVariable String cmdId) {
-        return getRServeSession(id).removeRCommand(cmdId);
+    RCommand deleteCommand(@AuthenticationPrincipal User user, @PathVariable String id, @PathVariable String cmdId) {
+        return getRServeSession(user, id).removeRCommand(cmdId);
     }
 
     /**
@@ -257,10 +267,11 @@ public class RSessionController {
      * @return
      */
     @GetMapping(value = "/r/session/{id}/command/{cmdId}/result", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    ResponseEntity<?> getCommandResult(@PathVariable String id, @PathVariable String cmdId,
+    ResponseEntity<?> getCommandResult(@AuthenticationPrincipal User user,
+                                       @PathVariable String id, @PathVariable String cmdId,
                                        @RequestParam(name = "wait", defaultValue = "false") boolean wait,
                                        @RequestParam(name = "rm", defaultValue = "true") boolean remove) {
-        RServeSession rSession = getRServeSession(id);
+        RServeSession rSession = getRServeSession(user, id);
         RServeCommand rCommand = rSession.getRCommand(cmdId);
         ResponseEntity<?> noContent = ResponseEntity.noContent().build();
         if (!rCommand.isFinished()) {
@@ -283,8 +294,8 @@ public class RSessionController {
     // Private methods
     //
 
-    private ResponseEntity<RCommand> doAssign(String id, ROperation rop, boolean async, UriComponentsBuilder ucb) {
-        RServeSession rSession = getRServeSession(id);
+    private ResponseEntity<RCommand> doAssign(User user, String id, ROperation rop, boolean async, UriComponentsBuilder ucb) {
+        RServeSession rSession = getRServeSession(user, id);
         if (async) {
             String rCommandId = rSession.executeAsync(rop);
             RCommand rCommand = rSession.getRCommand(rCommandId);
@@ -296,8 +307,8 @@ public class RSessionController {
         }
     }
 
-    private ResponseEntity<?> doEval(String id, ROperationWithResult rop, boolean async, UriComponentsBuilder ucb) {
-        RServeSession rSession = getRServeSession(id);
+    private ResponseEntity<?> doEval(User user, String id, ROperationWithResult rop, boolean async, UriComponentsBuilder ucb) {
+        RServeSession rSession = getRServeSession(user, id);
         if (async) {
             String rCommandId = rSession.executeAsync(rop);
             RCommand rCommand = rSession.getRCommand(rCommandId);
@@ -365,9 +376,11 @@ public class RSessionController {
         return resp;
     }
 
-    private RServeSession getRServeSession(String id) {
-        // TODO authenticate and check session's belongs to subject
-        return rSessionService.getRServeSession(id);
+    private RServeSession getRServeSession(User user, String id) {
+        RServeSession session = rSessionService.getRServeSession(id);
+        if (!session.getSubject().equals(user.getUsername()) && user.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_" + Roles.ROCK_ADMIN)))
+            throw new AccessDeniedException("R session is not owned by authenticated user");
+        return session;
     }
 
 }

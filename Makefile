@@ -3,6 +3,9 @@ version = 1.0-SNAPSHOT
 current_dir = $(shell pwd)
 mvn_exec = mvn -Dmaven.test.skip=${skipTests}
 
+user=administrator
+password=password
+
 all: clean install
 
 clean:
@@ -36,26 +39,26 @@ rlog:
 test: status stop start
 
 status:
-	curl localhost:6312/rserver
+	curl --user ${user}:${password} localhost:6312/rserver
 	@echo
 	@echo
 
 start:
-	curl -X PUT localhost:6312/rserver
+	curl -X PUT --user ${user}:${password} localhost:6312/rserver
 	@echo
 	@echo
 
 stop:
-	curl -X DELETE localhost:6312/rserver
+	curl -X DELETE --user ${user}:${password} localhost:6312/rserver
 	@echo
 	@echo
 
-new-session:
-	curl -v -X POST localhost:6312/r/sessions -H 'Content-Type:application/json'
+sessions:
+	curl -X GET --user ${user}:${password} localhost:6312/r/sessions
+	@echo
+	@echo
 
-get-session:
-	curl -v -X GET localhost:6312/r/session/${id} -H 'Content-Type:application/json'
-
-delete-session:
-	curl -v -X DELETE localhost:6312/r/session/${id} -H 'Content-Type:application/json'
-
+session:
+	curl -X GET --user ${user}:${password} localhost:6312/r/session/${sid}
+	@echo
+	@echo

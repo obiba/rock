@@ -31,7 +31,7 @@ public class RServerController {
      */
     @GetMapping
     @ResponseBody
-    @Secured({Roles.ROCK_ADMIN, Roles.ROCK_MANAGER})
+    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
     public RServerState getRServerState() {
         return rServerService;
     }
@@ -43,7 +43,7 @@ public class RServerController {
      */
     @PutMapping
     @ResponseBody
-    @Secured({Roles.ROCK_ADMIN, Roles.ROCK_MANAGER})
+    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
     public RServerState start() {
         if (!rServerService.isRunning()) {
             rServerService.start();
@@ -58,7 +58,7 @@ public class RServerController {
      */
     @DeleteMapping
     @ResponseBody
-    @Secured({Roles.ROCK_ADMIN, Roles.ROCK_MANAGER})
+    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
     public RServerState stop() {
         rServerService.stop();
         return rServerService;

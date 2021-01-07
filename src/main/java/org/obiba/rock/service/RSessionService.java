@@ -51,6 +51,10 @@ public class RSessionService {
         rSession.close();
     }
 
+    public void closeAllRSessions() {
+        rSessions.keySet().forEach(this::closeRSession);
+    }
+
     public RServeSession getRServeSession(String id) {
         RServeSession rSession = rSessions.get(id);
         if (rSession == null) throw new RSessionNotFoundException(id);

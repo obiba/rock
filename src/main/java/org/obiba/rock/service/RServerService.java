@@ -41,6 +41,9 @@ public class RServerService implements RServerState {
     @Autowired
     private RProperties properties;
 
+    @Autowired
+    private RSessionService rSessionService;
+
     private int rserveStatus = -1;
 
     @Override
@@ -96,6 +99,8 @@ public class RServerService implements RServerState {
         if (rserveStatus != 0) return;
 
         try {
+            log.info("Closing all R sessions...");
+            rSessionService.closeAllRSessions();
             log.info("Shutting down R server...");
             newConnection().shutdown();
         } catch (Exception e) {

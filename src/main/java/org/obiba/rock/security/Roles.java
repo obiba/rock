@@ -1,12 +1,25 @@
 package org.obiba.rock.security;
 
-public interface Roles {
+import org.springframework.security.core.userdetails.User;
+
+public class Roles {
     // can do all
-    String ROCK_ADMIN = "rock-administrator";
+    public static final String ROCK_ADMIN = "rock-administrator";
+    public static final String ROLE_ADMIN = "ROLE_" + ROCK_ADMIN;
 
-    // can manage the R server
-    String ROCK_MANAGER = "rock-manager";
+    // can manage the R server and the R sessions
+    public static final String ROCK_MANAGER = "rock-manager";
+    public static final String ROLE_MANAGER = "ROLE_" + ROCK_MANAGER;
 
-    // can create R sessions
-    String ROCK_USER = "rock-user";
+    // can create R sessions and use them
+    public static final String ROCK_USER = "rock-user";
+    public static final String ROLE_USER = "ROLE_" + ROCK_USER;
+
+    public static boolean isAdmin(User user) {
+        return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_ADMIN));
+    }
+
+    public static boolean isManager(User user) {
+        return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_MANAGER));
+    }
 }

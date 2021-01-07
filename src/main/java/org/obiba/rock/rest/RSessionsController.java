@@ -7,6 +7,7 @@ import org.obiba.rock.security.Roles;
 import org.obiba.rock.service.RSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class RSessionsController {
      */
     @GetMapping
     List<RSession> getRSessions(HttpServletRequest request, @AuthenticationPrincipal User user, @RequestParam(name = "subject", required = false) String subject) {
-        if (request.isUserInRole(Roles.ROCK_ADMIN)) {
+        if (request.isUserInRole(Roles.ROCK_ADMIN) || request.isUserInRole(Roles.ROCK_MANAGER)) {
             // get all/filtered sessions
             return Strings.isNullOrEmpty(subject) ? rSessionService.getRSessions()
                     : rSessionService.getRSessions().stream().filter(s -> subject.equals(s.getSubject())).collect(Collectors.toList());
@@ -38,6 +39,18 @@ public class RSessionsController {
             // get own sessions
             return rSessionService.getRSessions().stream().filter(s -> user.getUsername().equals(s.getSubject())).collect(Collectors.toList());
         }
+    }
+
+    /**
+     * Close all R sessions.
+     *
+     * @return
+     */
+    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+    @DeleteMapping
+    ResponseEntity<?> deleteRSessions() {
+        rSessionService.closeAllRSessions();
+        return ResponseEntity.noContent().build();
     }
 
     /**

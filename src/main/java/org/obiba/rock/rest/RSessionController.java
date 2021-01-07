@@ -48,7 +48,7 @@ public class RSessionController {
      */
     @GetMapping("/r/session/{id}")
     RSession getSession(@AuthenticationPrincipal User user, @PathVariable String id) {
-        return getRServeSession(user, id);
+        return getRServeSessionForManagement(user, id);
     }
 
     /**
@@ -59,7 +59,7 @@ public class RSessionController {
      */
     @DeleteMapping("/r/session/{id}")
     ResponseEntity<?> deleteSession(@AuthenticationPrincipal User user, @PathVariable String id) {
-        getRServeSession(user, id);
+        getRServeSessionForManagement(user, id);
         rSessionService.closeRSession(id);
         return ResponseEntity.noContent().build();
     }
@@ -378,7 +378,14 @@ public class RSessionController {
 
     private RServeSession getRServeSession(User user, String id) {
         RServeSession session = rSessionService.getRServeSession(id);
-        if (!session.getSubject().equals(user.getUsername()) && user.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_" + Roles.ROCK_ADMIN)))
+        if (!session.getSubject().equals(user.getUsername()) && !Roles.isAdmin(user))
+            throw new AccessDeniedException("R session is not owned by authenticated user");
+        return session;
+    }
+
+    private RServeSession getRServeSessionForManagement(User user, String id) {
+        RServeSession session = rSessionService.getRServeSession(id);
+        if (!session.getSubject().equals(user.getUsername()) && (!Roles.isAdmin(user) || !Roles.isManager(user)))
             throw new AccessDeniedException("R session is not owned by authenticated user");
         return session;
     }

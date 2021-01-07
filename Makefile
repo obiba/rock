@@ -58,6 +58,11 @@ sessions:
 	@echo
 	@echo
 
+sessions-close:
+	curl -X DELETE --user ${user}:${password} localhost:6312/r/sessions
+	@echo
+	@echo
+
 session:
 	curl -X GET --user ${user}:${password} localhost:6312/r/session/${sid}
 	@echo

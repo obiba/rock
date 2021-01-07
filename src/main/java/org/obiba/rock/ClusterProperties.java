@@ -13,18 +13,17 @@ package org.obiba.rock;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(value = "r")
+@ConfigurationProperties(value = "cluster")
 @Component
-public class RProperties {
+public class ClusterProperties {
 
-    private String exec = "/usr/bin/R";
+    private String name = "default";
 
-    public String getExec() {
-        return exec;
+    public String getName() {
+        return name;
     }
 
-    public void setExec(String exec) {
-        this.exec = exec;
+    public void setName(String name) {
+        this.name = name;
     }
-
 }

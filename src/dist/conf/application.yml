@@ -1,0 +1,28 @@
+# Rserver controller port
+server:
+  port: 6312
+
+# Cluster
+cluster:
+  name: obiba
+
+# R executable path, required to launch Rserver
+r:
+  exec: /usr/bin/R
+
+# Security
+security:
+  encoded: false
+  users:
+    # administrator
+    - id: administrator
+      secret: password
+      roles: administrator
+    # manager of the R server and R sessions
+    - id: manager
+      secret: password
+      roles: manager
+    # R sessions user
+    - id: user
+      secret: password
+      roles: user

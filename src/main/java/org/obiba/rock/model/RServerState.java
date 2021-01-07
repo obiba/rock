@@ -10,4 +10,6 @@ public interface RServerState {
     Integer getPort();
 
     String getEncoding();
+
+    String getCluster();
 }

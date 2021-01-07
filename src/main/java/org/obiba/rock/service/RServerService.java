@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 OBiBa. All rights reserved.
+ * Copyright (c) 2021 OBiBa. All rights reserved.
  *
  * This program and the accompanying materials
  * are made available under the terms of the GNU Public License v3.0.
@@ -12,6 +12,7 @@ package org.obiba.rock.service;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import org.obiba.rock.ClusterProperties;
 import org.obiba.rock.RProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.model.RServerState;
@@ -39,7 +40,10 @@ public class RServerService implements RServerState {
     private static final Logger log = LoggerFactory.getLogger(RServerService.class);
 
     @Autowired
-    private RProperties properties;
+    private RProperties rProperties;
+
+    @Autowired
+    private ClusterProperties clusterProperties;
 
     @Autowired
     private RSessionService rSessionService;
@@ -57,6 +61,11 @@ public class RServerService implements RServerState {
     }
 
     @Override
+    public String getCluster() {
+        return clusterProperties.getName();
+    }
+
+    @Override
     public boolean isRunning() {
         return rserveStatus == 0;
     }
@@ -69,7 +78,7 @@ public class RServerService implements RServerState {
             return;
         }
 
-        log.info("Start RServerService with {}", properties);
+        log.info("Start RServerService with {}", rProperties.getExec());
 
         // fresh start, try to kill any remains of R server
         try {
@@ -196,7 +205,7 @@ public class RServerService implements RServerState {
             rserveArgs.append(" --RS-conf ").append(conf.getAbsolutePath());
         }
 
-        List<String> args = Lists.newArrayList(properties.getExec(), "-e", "library(Rserve) ; Rserve(args='" + rserveArgs + "')");
+        List<String> args = Lists.newArrayList(rProperties.getExec(), "-e", "library(Rserve) ; Rserve(args='" + rserveArgs + "')");
 
         return args;
     }

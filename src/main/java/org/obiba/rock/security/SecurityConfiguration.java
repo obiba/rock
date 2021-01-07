@@ -1,10 +1,15 @@
 package org.obiba.rock.security;
 
+import com.google.common.base.Joiner;
+import org.obiba.rock.SecurityProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,10 +19,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
+
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -36,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest().denyAll()
                 .and().httpBasic().realmName("RockRealm")
                 .authenticationEntryPoint(authenticationEntryPoint)
-        .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Bean
@@ -51,20 +65,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
-        // ALTHOUGH THIS SEEMS LIKE USELESS CODE,
-        // IT'S REQUIRED TO PREVENT SPRING BOOT AUTO-CONFIGURATION
+        // FIXME required to prevent spring boot auto-config
         return super.authenticationManagerBean();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .passwordEncoder(passwordEncoder)
-                .withUser("user").password(passwordEncoder.encode("password")).roles(Roles.ROCK_USER)
-                .and()
-                .withUser("manager").password(passwordEncoder.encode("password")).roles(Roles.ROCK_MANAGER)
-                .and()
-                .withUser("administrator").password(passwordEncoder.encode("password")).roles(Roles.ROCK_USER, Roles.ROCK_ADMIN);
+        List<SecurityProperties.User> users = securityProperties.getUsers();
+        InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = auth.inMemoryAuthentication()
+                .passwordEncoder(passwordEncoder);
+        users.forEach(u -> {
+            log.debug(u.getId() + ":" + u.getSecret() + ":" + Joiner.on(";").join(u.getRoles()));
+            String[] roles = new String[u.getRoles().size()];
+            roles = u.getRoles().stream().map(String::toUpperCase).collect(Collectors.toList()).toArray(roles);
+            configurer.withUser(u.getId())
+                    .password(securityProperties.isEncoded() ? u.getSecret() : passwordEncoder.encode(u.getSecret()))
+                    .roles(roles);
+        });
     }
 
 

@@ -384,6 +384,13 @@
   </build>
 
   <dependencies>
+
+    <dependency>
+      <groupId>com.orbitz.consul</groupId>
+      <artifactId>consul-client</artifactId>
+      <version>1.4.0</version>
+    </dependency>
+
     <dependency>
       <groupId>net.rforge</groupId>
       <artifactId>Rserve</artifactId>

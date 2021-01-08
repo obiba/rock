@@ -4,7 +4,18 @@ server:
 
 # Cluster
 cluster:
-  name: obiba
+  # public address for health check
+  server: http://localhost:6312
+  # health check interval
+  interval: 10
+  # server id
+  id: rserver
+  # cluster name
+  tags: default
+  # Consul service registry
+  consul:
+    server: http://localhost:8500
+    token:
 
 # R executable path, required to launch Rserver
 r:
@@ -14,15 +25,15 @@ r:
 security:
   encoded: false
   users:
-    # administrator
+    # administrator, can do all
     - id: administrator
       secret: password
       roles: administrator
-    # manager of the R server and R sessions
+    # manager of the R server and sessions, can manage the server but cannot use R
     - id: manager
       secret: password
       roles: manager
-    # R sessions user
+    # R sessions user, can use R
     - id: user
       secret: password
       roles: user

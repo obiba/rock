@@ -53,6 +53,16 @@ stop:
 	@echo
 	@echo
 
+check:
+	curl -v localhost:6312/_check
+	@echo
+	@echo
+
+check2:
+	curl -v --user ${user}:${password} localhost:6312/_check
+	@echo
+	@echo
+
 sessions:
 	curl -X GET --user ${user}:${password} localhost:6312/r/sessions
 	@echo
@@ -67,3 +77,6 @@ session:
 	curl -X GET --user ${user}:${password} localhost:6312/r/session/${sid}
 	@echo
 	@echo
+
+consul:
+	consul agent -dev -advertise=127.0.0.1

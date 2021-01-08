@@ -42,11 +42,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .anonymous().disable()
+                .formLogin().disable()
                 .authorizeRequests()
                 .antMatchers("/rserver/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER)
                 .antMatchers("/r/sessions/**").permitAll()
                 .antMatchers("/r/session/**").permitAll()
+                .antMatchers("/_check").anonymous()
                 .anyRequest().denyAll()
                 .and().httpBasic().realmName("RockRealm")
                 .authenticationEntryPoint(authenticationEntryPoint)

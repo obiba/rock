@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@ConfigurationProperties(value = "cluster")
+@ConfigurationProperties(value = "node")
 @Component
-public class ClusterProperties {
+public class NodeProperties {
 
     private String server = "http://localhost:6312";
 
@@ -30,8 +30,6 @@ public class ClusterProperties {
     private String name = "rock";
 
     private List<String> tags = Lists.newArrayList("default");
-
-    private Consul consul;
 
     public void setId(String id) {
         if (!Strings.isNullOrEmpty(id))
@@ -77,60 +75,4 @@ public class ClusterProperties {
         return tags;
     }
 
-    public Consul getConsul() {
-        return consul;
-    }
-
-    public void setConsul(Consul consul) {
-        this.consul = consul;
-    }
-
-    public boolean hasConsul() {
-        return consul != null;
-    }
-
-    public static class Consul {
-        private String server;
-        private String token;
-
-        public String getServer() {
-            return server;
-        }
-
-        public void setServer(String server) {
-            this.server = server;
-        }
-
-        public boolean isHttps() {
-            return !Strings.isNullOrEmpty(server) && server.startsWith("https://");
-        }
-
-        public String getHostPort() {
-            return server.replaceAll("https://", "").replaceAll("http://", "");
-        }
-
-        public String getToken() {
-            return token;
-        }
-
-        public void setToken(String token) {
-            this.token = token;
-        }
-
-        public boolean hasToken() {
-            return !Strings.isNullOrEmpty(token);
-        }
-    }
-
-    public static class Opal {
-        private String server;
-
-        public String getServer() {
-            return server;
-        }
-
-        public void setServer(String server) {
-            this.server = server;
-        }
-    }
 }

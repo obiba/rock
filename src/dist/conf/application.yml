@@ -2,20 +2,21 @@
 server:
   port: 6312
 
-# Cluster
-cluster:
-  # public address for health check
+# Cluster node
+node:
+  # public address
   server: http://localhost:6312
-  # health check interval
-  interval: 10
   # server id
   id: rserver
-  # cluster name
+  # cluster names
   tags: default
-  # Consul service registry
-  consul:
-    server: http://localhost:8500
-    token:
+
+# Consul service registry
+consul:
+  server: http://localhost:8500
+  token:
+  # health check interval
+  interval: 10
 
 # R executable path, required to launch Rserver
 r:

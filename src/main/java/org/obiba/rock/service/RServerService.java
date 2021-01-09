@@ -17,7 +17,8 @@ import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
-import org.obiba.rock.ClusterProperties;
+import org.obiba.rock.ConsulProperties;
+import org.obiba.rock.NodeProperties;
 import org.obiba.rock.RProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.model.RServerState;
@@ -32,8 +33,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,7 +49,10 @@ public class RServerService implements RServerState {
     private RProperties rProperties;
 
     @Autowired
-    private ClusterProperties clusterProperties;
+    private NodeProperties nodeProperties;
+
+    @Autowired
+    private ConsulProperties consulProperties;
 
     @Autowired
     private RSessionService rSessionService;
@@ -71,7 +73,7 @@ public class RServerService implements RServerState {
 
     @Override
     public String getCluster() {
-        return clusterProperties.getName();
+        return nodeProperties.getName();
     }
 
     @Override
@@ -209,50 +211,46 @@ public class RServerService implements RServerState {
     }
 
     private void registerService() {
-        if (clusterProperties.hasConsul()) {
-            ClusterProperties.Consul consulConfig = clusterProperties.getConsul();
+        if (consulProperties.isDefined()) {
             try {
                 Registration service = ImmutableRegistration.builder()
-                        .id(clusterProperties.getId())
-                        .name(clusterProperties.getName())
+                        .id(nodeProperties.getId())
+                        .name(nodeProperties.getName())
                         .port(6312)
-                        .check(Registration.RegCheck.http(clusterProperties.getServer() + "/_check", clusterProperties.getInterval()))
+                        .check(Registration.RegCheck.http(nodeProperties.getServer() + "/_check", nodeProperties.getInterval()))
                         //.check(Registration.RegCheck.ttl(120L)) // registers with a TTL of 2 min
-                        .tags(clusterProperties.getTags())
+                        .tags(nodeProperties.getTags())
                         //.meta(Collections.singletonMap("version", "1.0.0"));
                         .build();
 
                 AgentClient consulAgentClient = makeConsulAgentClient();
                 consulAgentClient.register(service);
                 registeredInConsul = true;
-                log.info("Service registered in Consul {}", consulConfig.getServer());
+                log.info("Service registered in Consul {}", consulProperties.getServer());
             } catch (Exception e) {
                 registeredInConsul = false;
-                log.warn("Unable to register service in Consul {}", consulConfig.getServer(), e);
+                log.warn("Unable to register service in Consul {}", consulProperties.getServer(), e);
             }
         }
     }
 
     private void unregisterService() {
-        if (clusterProperties.hasConsul() && registeredInConsul) {
-            ClusterProperties.Consul consulConfig = clusterProperties.getConsul();
+        if (consulProperties.isDefined() && registeredInConsul) {
             try {
-                makeConsulAgentClient().deregister(clusterProperties.getId());
-                log.info("Service unregistered from Consul {}", consulConfig.getServer());
+                makeConsulAgentClient().deregister(nodeProperties.getId());
+                log.info("Service unregistered from Consul {}", consulProperties.getServer());
             } catch (Exception e) {
-                log.warn("Unable to unregistered service from Consul {}", consulConfig.getServer(), e);
+                log.warn("Unable to unregistered service from Consul {}", consulProperties.getServer(), e);
             }
-
         }
     }
 
     private AgentClient makeConsulAgentClient() {
-        ClusterProperties.Consul consulConfig = clusterProperties.getConsul();
         Consul.Builder builder = Consul.builder()
-                .withHostAndPort(HostAndPort.fromString(consulConfig.getHostPort()))
-                .withHttps(consulConfig.isHttps());
-        if (consulConfig.hasToken())
-            builder.withTokenAuth(consulConfig.getToken());
+                .withHostAndPort(HostAndPort.fromString(consulProperties.getHostPort()))
+                .withHttps(consulProperties.isHttps());
+        if (consulProperties.hasToken())
+            builder.withTokenAuth(consulProperties.getToken());
         Consul client = builder.build();
         return client.agentClient();
     }

@@ -17,9 +17,9 @@ import java.util.List;
  */
 public interface RServerState {
 
-    boolean isRunning();
+    String getId();
 
-    Integer getPort();
+    boolean isRunning();
 
     String getEncoding();
 

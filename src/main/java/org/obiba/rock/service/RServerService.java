@@ -10,6 +10,7 @@
 
 package org.obiba.rock.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.obiba.rock.ConsulProperties;
@@ -57,7 +58,7 @@ public class RServerService implements RServerState {
 
     private int rserveStatus = -1;
 
-    @Override
+    @JsonIgnore
     public Integer getPort() {
         return Resources.getRservePort();
     }
@@ -65,6 +66,11 @@ public class RServerService implements RServerState {
     @Override
     public String getEncoding() {
         return Resources.getRserveEncoding();
+    }
+
+    @Override
+    public String getId() {
+        return nodeProperties.getId();
     }
 
     @Override
@@ -114,6 +120,7 @@ public class RServerService implements RServerState {
      *
      * @return
      */
+    @JsonIgnore
     public boolean isAlive() {
         return isRunning() && isRServerAlive();
     }

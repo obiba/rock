@@ -8,7 +8,7 @@ Rock is an R server with a REST API. It is based on the [Rserve](http://rforge.n
 In addition to that Rock aims at being:
 
 * safe, by using authentication and restricting the scope of activities of an R session thanks to [RAppArmor](https://cran.r-project.org/package=RAppArmor)
-* scalable, by registering itself in common service registries ([consul](https://www.consul.io/), [etcd](https://etcd.io/), ...)
+* scalable, by registering itself in [consul](https://www.consul.io/) service registry and also as an [Opal](https://github.com/obiba/opal) app.
 
 Requires Java8 and [R](http://www.r-project.org/) to be installed with [Rserve](http://rforge.net/Rserve/) package.
 

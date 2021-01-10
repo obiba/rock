@@ -12,11 +12,6 @@ package org.obiba.rock.service;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.common.net.HostAndPort;
-import com.orbitz.consul.AgentClient;
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.model.agent.ImmutableRegistration;
-import com.orbitz.consul.model.agent.Registration;
 import org.obiba.rock.ConsulProperties;
 import org.obiba.rock.NodeProperties;
 import org.obiba.rock.RProperties;
@@ -52,14 +47,12 @@ public class RServerService implements RServerState {
     private NodeProperties nodeProperties;
 
     @Autowired
-    private ConsulProperties consulProperties;
-
-    @Autowired
     private RSessionService rSessionService;
 
-    private int rserveStatus = -1;
+    @Autowired
+    private ConsulRegistry consulRegistry;
 
-    private boolean registeredInConsul;
+    private int rserveStatus = -1;
 
     @Override
     public Integer getPort() {
@@ -72,8 +65,8 @@ public class RServerService implements RServerState {
     }
 
     @Override
-    public String getCluster() {
-        return nodeProperties.getName();
+    public List<String> getTags() {
+        return nodeProperties.getTags();
     }
 
     @Override
@@ -122,6 +115,9 @@ public class RServerService implements RServerState {
         return isRunning() && isRServerAlive();
     }
 
+    /**
+     * Restart Rserve process after it died.
+     */
     @Scheduled(fixedDelay = 10 * 1000)
     public void autoRestart() {
         if (isRunning() && !isRServerAlive()) {
@@ -131,22 +127,14 @@ public class RServerService implements RServerState {
         }
     }
 
-    /*
-    @Scheduled(fixedDelay = 60 * 1000)
-    public void consulCheck() {
-        if (clusterProperties.hasConsul() && registeredInConsul) {
-            boolean isRunning = isRunning();
-            boolean isAlive = isRunning && rServerIsAlive();
-            State state = isRunning ? (isAlive ? State.PASS : State.WARN) : State.FAIL;
-            String note = isRunning ? (isAlive ? "Ready" : "R server has died") : "Stopped";
-            try {
-                makeConsulAgentClient().check(clusterProperties.getId(), state, note);
-            } catch (Exception e) {
-                log.warn("Service cannot check in Consul {}", clusterProperties.getConsul().getServer(), e);
-            }
-        }
+    /**
+     * Case registering sync failed.
+     */
+    @Scheduled(fixedDelay = 10 * 1000)
+    public void registryCheck() {
+        // no-op if already registered
+        consulRegistry.register();
     }
-    */
 
     //
     // Private methods
@@ -211,49 +199,13 @@ public class RServerService implements RServerState {
     }
 
     private void registerService() {
-        if (consulProperties.isDefined()) {
-            try {
-                Registration service = ImmutableRegistration.builder()
-                        .id(nodeProperties.getId())
-                        .name(nodeProperties.getName())
-                        .port(6312)
-                        .check(Registration.RegCheck.http(nodeProperties.getServer() + "/_check", nodeProperties.getInterval()))
-                        //.check(Registration.RegCheck.ttl(120L)) // registers with a TTL of 2 min
-                        .tags(nodeProperties.getTags())
-                        //.meta(Collections.singletonMap("version", "1.0.0"));
-                        .build();
-
-                AgentClient consulAgentClient = makeConsulAgentClient();
-                consulAgentClient.register(service);
-                registeredInConsul = true;
-                log.info("Service registered in Consul {}", consulProperties.getServer());
-            } catch (Exception e) {
-                registeredInConsul = false;
-                log.warn("Unable to register service in Consul {}", consulProperties.getServer(), e);
-            }
-        }
+        consulRegistry.register();
     }
 
     private void unregisterService() {
-        if (consulProperties.isDefined() && registeredInConsul) {
-            try {
-                makeConsulAgentClient().deregister(nodeProperties.getId());
-                log.info("Service unregistered from Consul {}", consulProperties.getServer());
-            } catch (Exception e) {
-                log.warn("Unable to unregistered service from Consul {}", consulProperties.getServer(), e);
-            }
-        }
+        consulRegistry.unregister();
     }
 
-    private AgentClient makeConsulAgentClient() {
-        Consul.Builder builder = Consul.builder()
-                .withHostAndPort(HostAndPort.fromString(consulProperties.getHostPort()))
-                .withHttps(consulProperties.isHttps());
-        if (consulProperties.hasToken())
-            builder.withTokenAuth(consulProperties.getToken());
-        Consul client = builder.build();
-        return client.agentClient();
-    }
 
     /**
      * Create a new RConnection given the R server settings.

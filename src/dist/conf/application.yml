@@ -10,13 +10,18 @@ node:
   id: rserver
   # cluster names
   tags: default
+  # health check interval
+  interval: 10
 
 # Consul service registry
 consul:
   server: http://localhost:8500
   token:
-  # health check interval
-  interval: 10
+
+# Opal app registry
+opal:
+  server: http://localhost:8080
+  token:
 
 # R executable path, required to launch Rserver
 r:

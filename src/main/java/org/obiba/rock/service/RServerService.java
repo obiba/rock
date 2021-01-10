@@ -52,6 +52,9 @@ public class RServerService implements RServerState {
     @Autowired
     private ConsulRegistry consulRegistry;
 
+    @Autowired
+    private OpalRegistry opalRegistry;
+
     private int rserveStatus = -1;
 
     @Override
@@ -134,6 +137,7 @@ public class RServerService implements RServerState {
     public void registryCheck() {
         // no-op if already registered
         consulRegistry.register();
+        opalRegistry.register();
     }
 
     //
@@ -200,12 +204,13 @@ public class RServerService implements RServerState {
 
     private void registerService() {
         consulRegistry.register();
+        opalRegistry.register();
     }
 
     private void unregisterService() {
         consulRegistry.unregister();
+        opalRegistry.unregister();
     }
-
 
     /**
      * Create a new RConnection given the R server settings.

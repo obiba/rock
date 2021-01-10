@@ -17,6 +17,7 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import org.obiba.rock.ConsulProperties;
 import org.obiba.rock.NodeProperties;
+import org.obiba.rock.model.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ import org.springframework.stereotype.Component;
  * Perform the registering of the R service in Consul.
  */
 @Component
-public class ConsulRegistry {
+public class ConsulRegistry implements Registry {
 
     private static final Logger log = LoggerFactory.getLogger(ConsulRegistry.class);
 
@@ -50,6 +51,7 @@ public class ConsulRegistry {
         return registered;
     }
 
+    @Override
     public void register() {
         if (consulProperties.isDefined() && !registered) {
             try {
@@ -77,6 +79,7 @@ public class ConsulRegistry {
         }
     }
 
+    @Override
     public void unregister() {
         if (consulProperties.isDefined() && registered) {
             try {

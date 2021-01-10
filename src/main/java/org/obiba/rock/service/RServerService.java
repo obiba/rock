@@ -18,6 +18,7 @@ import org.obiba.rock.NodeProperties;
 import org.obiba.rock.RProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.model.RServerState;
+import org.obiba.rock.model.Registry;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Service to manage RServer process.
@@ -51,10 +53,7 @@ public class RServerService implements RServerState {
     private RSessionService rSessionService;
 
     @Autowired
-    private ConsulRegistry consulRegistry;
-
-    @Autowired
-    private OpalRegistry opalRegistry;
+    private Set<Registry> registries;
 
     private int rserveStatus = -1;
 
@@ -143,8 +142,7 @@ public class RServerService implements RServerState {
     @Scheduled(fixedDelay = 10 * 1000)
     public void registryCheck() {
         // no-op if already registered
-        consulRegistry.register();
-        opalRegistry.register();
+        registries.forEach(Registry::register);
     }
 
     //
@@ -210,13 +208,11 @@ public class RServerService implements RServerState {
     }
 
     private void registerService() {
-        consulRegistry.register();
-        opalRegistry.register();
+        registries.forEach(Registry::register);
     }
 
     private void unregisterService() {
-        consulRegistry.unregister();
-        opalRegistry.unregister();
+        registries.forEach(Registry::unregister);
     }
 
     /**

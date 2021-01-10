@@ -13,6 +13,7 @@ package org.obiba.rock.service;
 import okhttp3.*;
 import org.obiba.rock.NodeProperties;
 import org.obiba.rock.OpalProperties;
+import org.obiba.rock.model.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Component;
  * Perform the registering of the R service in a Opal server.
  */
 @Component
-public class OpalRegistry {
+public class OpalRegistry implements Registry {
 
     private static final Logger log = LoggerFactory.getLogger(OpalRegistry.class);
 
@@ -46,6 +47,7 @@ public class OpalRegistry {
         return registered;
     }
 
+    @Override
     public void register() {
         if (opalProperties.isDefined() && !registered) {
             try {
@@ -76,6 +78,7 @@ public class OpalRegistry {
         }
     }
 
+    @Override
     public void unregister() {
         if (opalProperties.isDefined() && registered) {
             try {
@@ -101,9 +104,5 @@ public class OpalRegistry {
             registered = false;
         }
     }
-
-    //
-    // Private methods
-    //
 
 }

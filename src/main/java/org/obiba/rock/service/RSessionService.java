@@ -13,14 +13,17 @@ package org.obiba.rock.service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import org.obiba.rock.SecurityProperties;
 import org.obiba.rock.domain.RServeSession;
 import org.obiba.rock.model.RSession;
 import org.obiba.rock.r.RRuntimeException;
+import org.obiba.rock.security.Roles;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,14 +41,17 @@ public class RSessionService {
     @Autowired
     private RServerService rServerService;
 
+    @Autowired
+    private SecurityProperties securityProperties;
+
     private Map<String, RServeSession> rSessions = Maps.newConcurrentMap();
 
     public List<RSession> getRSessions() {
         return rSessions.values().stream().map(s -> (RSession) s).collect(Collectors.toList());
     }
 
-    public RSession createRSession(String subject) {
-        RServeSession rSession = new RServeSession(subject, newRConnection());
+    public RSession createRSession(User user) {
+        RServeSession rSession = new RServeSession(user.getUsername(), newRConnection(Roles.isAdmin(user)));
         rSessions.put(rSession.getId(), rSession);
         return rSession;
     }
@@ -72,12 +78,13 @@ public class RSessionService {
     }
 
     /**
-     * Creates a new connection to R server.
+     * Creates a new connection to R server. Apply RAppArmor profile if defined and if user is not administrator.
      *
+     * @param admin
      * @return
      * @throws RserveException
      */
-    private RConnection newRConnection() {
+    private RConnection newRConnection(boolean admin) {
         RConnection conn;
 
         try {
@@ -90,7 +97,10 @@ public class RSessionService {
             if (!Strings.isNullOrEmpty(rServerService.getEncoding())) {
                 conn.setStringEncoding(rServerService.getEncoding());
             }
-        } catch (RserveException e) {
+            if (!admin && securityProperties.withAppArmor()) {
+                conn.eval(String.format("RAppArmor::aa_change_profile('%s')", securityProperties.getAppArmor().getProfile()));
+            }
+        } catch (Exception e) {
             log.error("Error while connecting to R ({}:{}): {}", getHost(), getPort(), e.getMessage());
             throw new RRuntimeException(e);
         }

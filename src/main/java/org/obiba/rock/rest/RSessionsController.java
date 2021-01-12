@@ -70,9 +70,10 @@ public class RSessionsController {
      * @param ucb
      * @return The R session object
      */
+    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_USER})
     @PostMapping
     ResponseEntity<?> createRSession(@AuthenticationPrincipal User user, UriComponentsBuilder ucb) {
-        RSession rSession = rSessionService.createRSession(user.getUsername());
+        RSession rSession = rSessionService.createRSession(user);
         return ResponseEntity.created(ucb.path("/r/session/{id}").buildAndExpand(rSession.getId()).toUri()).body(rSession);
     }
 

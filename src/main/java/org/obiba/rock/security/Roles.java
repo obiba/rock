@@ -32,4 +32,8 @@ public class Roles {
     public static boolean isManager(User user) {
         return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_MANAGER));
     }
+
+    public static boolean isUser(User user) {
+        return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_USER));
+    }
 }

@@ -10,6 +10,7 @@
 
 package org.obiba.rock;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.obiba.rock.security.Roles;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,6 +25,8 @@ public class SecurityProperties {
     private boolean encoded = false;
 
     private List<User> users;
+
+    private AppArmor appArmor;
 
     private final User defaultAdmin = new User("administrator", "password", Roles.ROCK_ADMIN);
 
@@ -41,6 +44,18 @@ public class SecurityProperties {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+
+    public boolean withAppArmor() {
+        return appArmor != null && appArmor.isEnabled() && !Strings.isNullOrEmpty(appArmor.getProfile());
+    }
+
+    public AppArmor getAppArmor() {
+        return appArmor;
+    }
+
+    public void setAppArmor(AppArmor appArmor) {
+        this.appArmor = appArmor;
     }
 
     public static class User {
@@ -78,6 +93,27 @@ public class SecurityProperties {
 
         public List<String> getRoles() {
             return roles;
+        }
+    }
+
+    public static class AppArmor {
+        private boolean enabled;
+        private String profile;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getProfile() {
+            return profile;
+        }
+
+        public void setProfile(String profile) {
+            this.profile = profile;
         }
     }
 }

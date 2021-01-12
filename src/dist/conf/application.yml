@@ -29,6 +29,7 @@ r:
 
 # Security
 security:
+  # whether user passwords are encoded
   encoded: false
   users:
     # administrator, can do all
@@ -43,3 +44,7 @@ security:
     - id: user
       secret: password
       roles: user
+  # RAppArmor profile to apply to user role, see setup instructions at <https://github.com/jeroen/RAppArmor>
+  apparmor:
+    enabled: false
+    profile: testprofile

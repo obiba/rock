@@ -53,6 +53,11 @@ stop:
 	@echo
 	@echo
 
+packages:
+	curl --user ${user}:${password} localhost:6312/rserver/packages
+	@echo
+	@echo
+
 check:
 	curl -v localhost:6312/_check
 	@echo

@@ -10,14 +10,19 @@
 
 package org.obiba.rock;
 
+import com.google.common.collect.Lists;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @ConfigurationProperties(value = "r")
 @Component
 public class RProperties {
 
     private String exec = "/usr/bin/R";
+
+    private List<String> repos = Lists.newArrayList("https://cloud.r-project.org", "https://cran.obiba.org");
 
     public String getExec() {
         return exec;
@@ -27,4 +32,12 @@ public class RProperties {
         this.exec = exec;
     }
 
+    public List<String> getRepos() {
+        return repos;
+    }
+
+    public void setRepos(List<String> repos) {
+        if (repos != null && !repos.isEmpty())
+            this.repos = repos;
+    }
 }

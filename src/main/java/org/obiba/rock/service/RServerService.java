@@ -19,6 +19,7 @@ import org.obiba.rock.RProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.model.RServerState;
 import org.obiba.rock.model.Registry;
+import org.obiba.rock.r.ROperation;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
@@ -114,6 +115,15 @@ public class RServerService implements RServerState {
         }
     }
 
+    public synchronized void execute(ROperation rop) {
+        RConnection connection = newConnection();
+        try {
+            rop.doWithConnection(connection);
+        } finally {
+            connection.close();
+        }
+    }
+
     /**
      * Check the running status and the R server is functional.
      *
@@ -125,14 +135,21 @@ public class RServerService implements RServerState {
     }
 
     /**
+     * Soft restart, without loosing registered services.
+     */
+    public void restart() {
+        doStop();
+        doStart();
+    }
+
+    /**
      * Restart Rserve process after it died.
      */
     @Scheduled(fixedDelay = 10 * 1000)
     public void autoRestart() {
         if (isRunning() && !isRServerAlive()) {
             log.info("Rserve died, restarting...");
-            doStop();
-            doStart();
+            restart();
         }
     }
 

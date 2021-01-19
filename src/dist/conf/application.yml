@@ -26,6 +26,7 @@ opal:
 # R executable path, required to launch Rserver
 r:
   exec: /usr/bin/R
+  repos: https://cloud.r-project.org,https://cran.obiba.org
 
 # Security
 security:

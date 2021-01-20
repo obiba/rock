@@ -16,6 +16,7 @@ import org.obiba.rock.r.NoSuchRCommandException;
 import org.obiba.rock.r.REvaluationRuntimeException;
 import org.obiba.rock.r.RRuntimeException;
 import org.obiba.rock.service.RSessionNotFoundException;
+import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -65,7 +66,14 @@ class RSessionAdvice {
     @ResponseBody
     @ExceptionHandler(RserveException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ErrorMessage illegalArgumentHandler(RserveException ex) {
+    ErrorMessage rServeExceptionHandler(RserveException ex) {
+        return new ExceptionErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(REXPMismatchException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    ErrorMessage rexpMismatchHandler(REXPMismatchException ex) {
         return new ExceptionErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex);
     }
 

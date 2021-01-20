@@ -14,10 +14,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.obiba.rock.RProperties;
+import org.obiba.rock.domain.RPackage;
 import org.obiba.rock.domain.RStringMatrix;
 import org.obiba.rock.r.ROperationWithResult;
 import org.obiba.rock.r.RScriptROperation;
 import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPRaw;
 import org.rosuda.REngine.REngineStdOutput;
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +59,38 @@ public class RPackagesService {
     @Autowired
     private RServerService rServerService;
 
+    public REXPRaw getPackageDescriptionRaw(String name) {
+        String cmd = String.format("packageDescription('%s')", name);
+        ROperationWithResult rop = execute(cmd, true);
+        return rop.getRawResult();
+    }
+
+    public RPackage getPackageDescription(String name) throws REXPMismatchException {
+        String cmd = String.format("packageDescription('%s')", name);
+        ROperationWithResult rop = execute(cmd);
+        Map<String[], String> fields = (Map)rop.getResult().asNativeJavaObject();
+        RPackage rPackage = new RPackage();
+        rPackage.setName(name);
+        fields.keySet().stream().filter(k -> fields.get(k) != null).forEach(k -> rPackage.putField(fields.get(k), k[0]));
+        return rPackage;
+    }
+
+    public void updateAllPackages() throws REXPMismatchException {
+        // dump all R sessions
+        rServerService.restart();
+        // get R server own lib path
+        String cmd = ".libPaths()";
+        ROperationWithResult rop = execute(cmd);
+        REXP rexp = rop.getResult();
+        String libpath = rexp.asStrings()[0];
+        // update all packages in own lib path
+        String repos = Joiner.on("','").join(getDefaultRepos());
+        cmd = String.format("update.packages(ask = FALSE, repos = c('%s'), instlib = '%s')", repos, libpath);
+        execute(cmd);
+        // fresh new start
+        rServerService.restart();
+    }
+
     public REXPRaw getInstalledPackagesRaw() {
         ROperationWithResult rop = getInstalledPackages(true);
         return rop.getRawResult();
@@ -71,10 +106,14 @@ public class RPackagesService {
         return getInstalledPackages(new ArrayList<>(), serialize);
     }
 
-    public ROperationWithResult removePackage(String name) {
-        checkAlphanumeric(name);
-        String cmd = "remove.packages('" + name + "')";
-        return execute(cmd);
+    public void removePackage(String name) {
+        try {
+            checkAlphanumeric(name);
+            String cmd = "remove.packages('" + name + "')";
+            execute(cmd);
+        } catch (Exception e) {
+            log.warn("Cannot remove R package {}", name, e);
+        }
     }
 
     /**

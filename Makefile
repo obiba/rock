@@ -58,6 +58,11 @@ packages:
 	@echo
 	@echo
 
+package:
+	curl --user ${user}:${password} -H "Accept: application/json" localhost:6312/rserver/package/${n}
+	@echo
+	@echo
+
 check:
 	curl -v localhost:6312/_check
 	@echo

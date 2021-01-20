@@ -28,10 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -68,11 +65,14 @@ public class RPackagesService {
     public RPackage getPackageDescription(String name) throws REXPMismatchException {
         String cmd = String.format("packageDescription('%s')", name);
         ROperationWithResult rop = execute(cmd);
-        Map<String[], String> fields = (Map)rop.getResult().asNativeJavaObject();
-        RPackage rPackage = new RPackage();
-        rPackage.setName(name);
-        fields.keySet().stream().filter(k -> fields.get(k) != null).forEach(k -> rPackage.putField(fields.get(k), k[0]));
-        return rPackage;
+        if (!rop.getResult().isLogical()) {
+            Map<String[], String> fields = (Map) rop.getResult().asNativeJavaObject();
+            RPackage rPackage = new RPackage();
+            rPackage.setName(name);
+            fields.keySet().stream().filter(k -> fields.get(k) != null).forEach(k -> rPackage.putField(fields.get(k), k[0]));
+            return rPackage;
+        }
+        throw new NoSuchElementException("No package with name: " + name);
     }
 
     public void updateAllPackages() throws REXPMismatchException {

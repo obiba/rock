@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.util.NoSuchElementException;
+
 @ControllerAdvice
 class RSessionAdvice {
 
@@ -40,6 +42,13 @@ class RSessionAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ErrorMessage rCommandNotFoundHandler(NoSuchRCommandException ex) {
         return new ExceptionErrorMessage(HttpStatus.NOT_FOUND, ex, ex.getId());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorMessage elementNotFoundHandler(NoSuchElementException ex) {
+        return new ExceptionErrorMessage(HttpStatus.NOT_FOUND, ex);
     }
 
     @ResponseBody

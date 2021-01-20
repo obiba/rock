@@ -37,13 +37,23 @@ HTTP header for `Basic` authentication is required at each request.
 | `PUT /rserver`   | Start the R server         | `administrator`, `manager`
 | `DELETE /rserver`| Stop the R server          | `administrator`, `manager`
 
+### R Server Packages Administration
+
+| REST             | Description                | Roles
+| ---------------- | -------------------------- | -------
+| `GET /rserver/packages`               | Get the installed R packages as a matrix | `administrator`, `manager`
+| `DELETE /rserver/packages?name=xxx`   | Delete specified packages                | `administrator`, `manager`
+| `POST /rserver/packages?name=xxx&manager=<cran\|github\|bioconductor>` | Install a R package | `administrator`, `manager`
+| `GET /rserver/package/xxx`            | Get a R package description              | `administrator`, `manager`
+| `DELETE /rserver/package/xxx`         | Delete a R package                       | `administrator`, `manager`
+
 ### R Server Usage
 
 | REST             | Description                | Roles
 | ---------------- | -------------------------- | -----------------
-| `POST /r/sessions`  | Create a R session, requesting subject becomes the owner of the session        | `administrator`, `user`
-| `GET /r/sessions`   | List the R sessions     | `administrator`, `manager`, `user` (only own sessions)
-| `DELETE /r/sessions`| Close all R sessions    | `administrator`, `manager`
+| `POST /r/sessions`             | Create a R session, requesting subject becomes the owner of the session | `administrator`, `user`
+| `GET /r/sessions`              | List the R sessions                    | `administrator`, `manager`, `user` (only own sessions)
+| `DELETE /r/sessions`           | Close all R sessions                   | `administrator`, `manager`
 | `GET /r/session/<id>`          | Get info about a R session             | `administrator`, session owner
 | `POST /r/session/<id>/_assign` | Assign a R expression in a R session   | `administrator`, session owner
 | `POST /r/session/<id>/_eval`   | Evaluate a R expression in a R session | `administrator`, session owner

@@ -31,7 +31,7 @@ public class RServerPackageController {
      *
      * @return
      */
-    @GetMapping(produces = "application/octet-stream")
+    @GetMapping(value = "/rserver/package/{name}", produces = "application/octet-stream")
     @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
     public ResponseEntity<?> getPackage(@PathVariable("name") String name) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getPackageDescriptionRaw(name).asBytes());

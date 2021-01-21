@@ -27,7 +27,8 @@ Rock requires to be authenticated. The following roles are defined:
 * `manager`
 * `user`
 
-HTTP header for `Basic` authentication is required at each request.
+HTTP header for `Basic` authentication is required at each request: the HTTP sessions are stateless whereas the R sessions 
+are stateful.
 
 ### R Server Administration
 
@@ -36,6 +37,8 @@ HTTP header for `Basic` authentication is required at each request.
 | `GET /rserver`   | Get the status of R server | `administrator`, `manager`
 | `PUT /rserver`   | Start the R server         | `administrator`, `manager`
 | `DELETE /rserver`| Stop the R server          | `administrator`, `manager`
+| `GET /rserver/_log?limit=100`   | Tail the R server log file          | `administrator`, `manager`
+| `GET /rserver/_version`         | Get the R server version (R object) | `administrator`, `manager`
 
 ### R Server Packages Administration
 

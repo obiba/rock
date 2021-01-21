@@ -20,6 +20,12 @@ import org.obiba.rock.Resources;
 import org.obiba.rock.model.RServerState;
 import org.obiba.rock.model.Registry;
 import org.obiba.rock.r.ROperation;
+import org.obiba.rock.r.ROperationWithResult;
+import org.obiba.rock.r.RScriptROperation;
+import org.obiba.rock.util.Tail;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPRaw;
+import org.rosuda.REngine.RList;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
@@ -31,6 +37,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,6 +65,8 @@ public class RServerService implements RServerState {
 
     private int rserveStatus = -1;
 
+    private String version = "?";
+
     @JsonIgnore
     public Integer getPort() {
         return Resources.getRservePort();
@@ -76,6 +85,11 @@ public class RServerService implements RServerState {
     @Override
     public List<String> getTags() {
         return nodeProperties.getTags();
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
     }
 
     @Override
@@ -115,10 +129,16 @@ public class RServerService implements RServerState {
         }
     }
 
-    public synchronized void execute(ROperation rop) {
+    public ROperationWithResult execute(String rscript, boolean serialize) {
+        RScriptROperation rop = new RScriptROperation(rscript, serialize);
+        return execute(rop);
+    }
+
+    public ROperationWithResult execute(ROperationWithResult rop) {
         RConnection connection = newConnection();
         try {
             rop.doWithConnection(connection);
+            return rop;
         } finally {
             connection.close();
         }
@@ -151,6 +171,28 @@ public class RServerService implements RServerState {
             log.info("Rserve died, restarting...");
             restart();
         }
+    }
+
+    /**
+     * Get the last lines of the R server log.
+     *
+     * @param limit
+     * @return
+     * @throws IOException
+     */
+    public List<String> tailRserverLog(int limit) throws IOException {
+        return Tail.tailFile(getRserveLogFile().toPath(), limit);
+    }
+
+    /**
+     * Get the version object of the R server.
+     *
+     * @return
+     */
+    @JsonIgnore
+    public REXPRaw getRserverVersionRaw() {
+        ROperationWithResult rop = execute("R.version", true);
+        return rop.getRawResult();
     }
 
     /**
@@ -192,6 +234,7 @@ public class RServerService implements RServerState {
             rserveStatus = rserve.waitFor();
             if (rserveStatus == 0) {
                 log.info("R server started");
+                initRVersion();
             } else {
                 log.error("R server start failed with status: {}", rserveStatus);
                 rserveStatus = -1;
@@ -221,6 +264,16 @@ public class RServerService implements RServerState {
             }
         } catch (Exception e) {
             log.error("R server shutdown failed", e);
+        }
+    }
+
+    private void initRVersion() {
+        try {
+            ROperationWithResult rop = execute("paste0(R.version$major, '.', R.version$minor)", false);
+            REXP rexp = rop.getResult();
+            version = rexp.asString();
+        } catch (Exception e) {
+            version = "?";
         }
     }
 
@@ -314,5 +367,4 @@ public class RServerService implements RServerState {
         }
         return logFile;
     }
-
 }

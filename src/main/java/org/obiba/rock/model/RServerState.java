@@ -24,4 +24,6 @@ public interface RServerState {
     String getEncoding();
 
     List<String> getTags();
+
+    String getVersion();
 }

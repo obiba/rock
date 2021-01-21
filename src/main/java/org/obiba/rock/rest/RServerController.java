@@ -14,8 +14,14 @@ import org.obiba.rock.model.RServerState;
 import org.obiba.rock.security.Roles;
 import org.obiba.rock.service.RServerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.io.PrintWriter;
+import java.util.List;
 
 @RestController
 @RequestMapping("/rserver")
@@ -64,4 +70,33 @@ public class RServerController {
         return rServerService;
     }
 
+    /**
+     * Get the R server logs.
+     *
+     * @return
+     */
+    @GetMapping(value = "/_log", produces = "text/plain")
+    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+    public ResponseEntity<StreamingResponseBody> getRServerLog(@RequestParam(name = "limit", required = false, defaultValue = "1000") int limit) {
+        StreamingResponseBody stream = out -> {
+            List<String> rlog = rServerService.tailRserverLog(limit);
+            try (PrintWriter writer = new PrintWriter(out)) {
+                for (String line : rlog) {
+                    writer.println(line);
+                }
+            }
+        };
+        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(stream);
+    }
+
+    /**
+     * Get the R server version object.
+     *
+     * @return
+     */
+    @GetMapping(value = "/_version", produces = "application/octet-stream")
+    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+    public ResponseEntity<?> getRServerVersion() {
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rServerService.getRserverVersionRaw().asBytes());
+    }
 }

@@ -53,6 +53,11 @@ stop:
 	@echo
 	@echo
 
+_log:
+	curl -X GET --user ${user}:${password} -H "Accept: text/plain" -v localhost:6312/rserver/_log?limit=10
+	@echo
+	@echo
+
 packages:
 	curl --user ${user}:${password} localhost:6312/rserver/packages
 	@echo

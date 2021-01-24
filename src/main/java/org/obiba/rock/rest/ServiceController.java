@@ -21,14 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ServiceController {
 
-    @Autowired
-    private RServerService rServerService;
+  @Autowired
+  private RServerService rServerService;
 
-    @GetMapping("/_check")
-    ResponseEntity<?> check() {
-        if (rServerService.isAlive())
-            return ResponseEntity.noContent().build();
-        else
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-    }
+  @GetMapping("/_check")
+  ResponseEntity<?> check() {
+    if (rServerService.isAlive())
+      return ResponseEntity.noContent().build();
+    else
+      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+  }
 }

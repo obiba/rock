@@ -16,45 +16,45 @@ import org.obiba.rock.domain.RServeCommand;
  */
 public interface RASyncOperationTemplate extends ROperationTemplate {
 
-    /**
-     * Enqueue an R operation to be executed.
-     *
-     * @param rop
-     * @return the identifier of the R command
-     */
-    String executeAsync(ROperation rop);
+  /**
+   * Enqueue an R operation to be executed.
+   *
+   * @param rop
+   * @return the identifier of the R command
+   */
+  String executeAsync(ROperation rop);
 
-    /**
-     * Iterate over the registered R commands.
-     *
-     * @return
-     */
-    Iterable<RServeCommand> getRCommands();
+  /**
+   * Iterate over the registered R commands.
+   *
+   * @return
+   */
+  Iterable<RServeCommand> getRCommands();
 
-    /**
-     * Check if a R command exists with provided identifier.
-     *
-     * @param id
-     * @return
-     */
-    boolean hasRCommand(String id);
+  /**
+   * Check if a R command exists with provided identifier.
+   *
+   * @param id
+   * @return
+   */
+  boolean hasRCommand(String id);
 
-    /**
-     * Get the R command from its identifier.
-     *
-     * @param id
-     * @return
-     * @throws NoSuchRCommandException
-     */
-    RServeCommand getRCommand(String id);
+  /**
+   * Get the R command from its identifier.
+   *
+   * @param id
+   * @return
+   * @throws NoSuchRCommandException
+   */
+  RServeCommand getRCommand(String id);
 
-    /**
-     * Get and remove the R command from its identifier.
-     *
-     * @param id
-     * @return
-     * @throws NoSuchRCommandException
-     */
-    RServeCommand removeRCommand(String id);
+  /**
+   * Get and remove the R command from its identifier.
+   *
+   * @param id
+   * @return
+   * @throws NoSuchRCommandException
+   */
+  RServeCommand removeRCommand(String id);
 
 }

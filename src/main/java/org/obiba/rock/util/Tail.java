@@ -20,32 +20,32 @@ import java.util.stream.Stream;
 
 public class Tail {
 
-    public static List<String> tailFile(final Path source, final int limit) throws IOException {
-        try (Stream<String> stream = Files.lines(source)) {
-            RingBuffer buffer = new RingBuffer(limit);
-            stream.forEach(buffer::collect);
-            return buffer.contents();
-        }
+  public static List<String> tailFile(final Path source, final int limit) throws IOException {
+    try (Stream<String> stream = Files.lines(source)) {
+      RingBuffer buffer = new RingBuffer(limit);
+      stream.forEach(buffer::collect);
+      return buffer.contents();
+    }
+  }
+
+  private static final class RingBuffer {
+    private final int limit;
+    private final String[] data;
+    private int counter = 0;
+
+    public RingBuffer(int limit) {
+      this.limit = limit;
+      this.data = new String[limit];
     }
 
-    private static final class RingBuffer {
-        private final int limit;
-        private final String[] data;
-        private int counter = 0;
-
-        public RingBuffer(int limit) {
-            this.limit = limit;
-            this.data = new String[limit];
-        }
-
-        public void collect(String line) {
-            data[counter++ % limit] = line;
-        }
-
-        public List<String> contents() {
-            return IntStream.range(counter < limit ? 0 : counter - limit, counter)
-                    .mapToObj(index -> data[index % limit])
-                    .collect(Collectors.toList());
-        }
+    public void collect(String line) {
+      data[counter++ % limit] = line;
     }
+
+    public List<String> contents() {
+      return IntStream.range(counter < limit ? 0 : counter - limit, counter)
+          .mapToObj(index -> data[index % limit])
+          .collect(Collectors.toList());
+    }
+  }
 }

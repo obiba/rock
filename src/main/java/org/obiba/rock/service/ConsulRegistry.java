@@ -29,83 +29,83 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConsulRegistry implements Registry {
 
-    private static final Logger log = LoggerFactory.getLogger(ConsulRegistry.class);
+  private static final Logger log = LoggerFactory.getLogger(ConsulRegistry.class);
 
-    private final NodeProperties nodeProperties;
+  private final NodeProperties nodeProperties;
 
-    private final ConsulProperties consulProperties;
+  private final ConsulProperties consulProperties;
 
-    private boolean registered;
+  private boolean registered;
 
-    @Autowired
-    public ConsulRegistry(NodeProperties nodeProperties, ConsulProperties consulProperties) {
-        this.nodeProperties = nodeProperties;
-        this.consulProperties = consulProperties;
+  @Autowired
+  public ConsulRegistry(NodeProperties nodeProperties, ConsulProperties consulProperties) {
+    this.nodeProperties = nodeProperties;
+    this.consulProperties = consulProperties;
+  }
+
+  public boolean isDefined() {
+    return consulProperties.isDefined();
+  }
+
+  public boolean isRegistered() {
+    return registered;
+  }
+
+  @Override
+  public void register() {
+    if (consulProperties.isDefined() && !registered) {
+      try {
+        Registration service = ImmutableRegistration.builder()
+            .id(nodeProperties.getId())
+            .name(nodeProperties.getName())
+            .port(6312)
+            .check(Registration.RegCheck.http(nodeProperties.getServer() + "/_check", nodeProperties.getInterval()))
+            //.check(Registration.RegCheck.ttl(120L)) // registers with a TTL of 2 min
+            .tags(nodeProperties.getTags())
+            //.meta(Collections.singletonMap("version", "1.0.0"));
+            .build();
+
+        AgentClient consulAgentClient = makeConsulAgentClient();
+        consulAgentClient.register(service);
+        registered = true;
+        log.info("Service registered in Consul {}", consulProperties.getServer());
+      } catch (Exception e) {
+        registered = false;
+        if (log.isDebugEnabled())
+          log.warn("Unable to register service in Consul {}", consulProperties.getServer(), e);
+        else
+          log.warn("Unable to register service in Consul {}: {}", consulProperties.getServer(), e.getMessage());
+      }
     }
+  }
 
-    public boolean isDefined() {
-        return consulProperties.isDefined();
+  @Override
+  public void unregister() {
+    if (consulProperties.isDefined() && registered) {
+      try {
+        makeConsulAgentClient().deregister(nodeProperties.getId());
+        log.info("Service unregistered from Consul {}", consulProperties.getServer());
+      } catch (Exception e) {
+        if (log.isDebugEnabled())
+          log.warn("Unable to unregistered service from Consul {}", consulProperties.getServer(), e);
+        else
+          log.warn("Unable to unregistered service from Consul {}: {}", consulProperties.getServer(), e.getMessage());
+      }
+      registered = false;
     }
+  }
 
-    public boolean isRegistered() {
-        return registered;
-    }
+  //
+  // Private methods
+  //
 
-    @Override
-    public void register() {
-        if (consulProperties.isDefined() && !registered) {
-            try {
-                Registration service = ImmutableRegistration.builder()
-                        .id(nodeProperties.getId())
-                        .name(nodeProperties.getName())
-                        .port(6312)
-                        .check(Registration.RegCheck.http(nodeProperties.getServer() + "/_check", nodeProperties.getInterval()))
-                        //.check(Registration.RegCheck.ttl(120L)) // registers with a TTL of 2 min
-                        .tags(nodeProperties.getTags())
-                        //.meta(Collections.singletonMap("version", "1.0.0"));
-                        .build();
-
-                AgentClient consulAgentClient = makeConsulAgentClient();
-                consulAgentClient.register(service);
-                registered = true;
-                log.info("Service registered in Consul {}", consulProperties.getServer());
-            } catch (Exception e) {
-                registered = false;
-                if (log.isDebugEnabled())
-                    log.warn("Unable to register service in Consul {}", consulProperties.getServer(), e);
-                else
-                    log.warn("Unable to register service in Consul {}: {}", consulProperties.getServer(), e.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void unregister() {
-        if (consulProperties.isDefined() && registered) {
-            try {
-                makeConsulAgentClient().deregister(nodeProperties.getId());
-                log.info("Service unregistered from Consul {}", consulProperties.getServer());
-            } catch (Exception e) {
-                if (log.isDebugEnabled())
-                    log.warn("Unable to unregistered service from Consul {}", consulProperties.getServer(), e);
-                else
-                    log.warn("Unable to unregistered service from Consul {}: {}", consulProperties.getServer(), e.getMessage());
-            }
-            registered = false;
-        }
-    }
-
-    //
-    // Private methods
-    //
-
-    private AgentClient makeConsulAgentClient() {
-        Consul.Builder builder = Consul.builder()
-                .withHostAndPort(HostAndPort.fromString(consulProperties.getHostPort()))
-                .withHttps(consulProperties.isHttps());
-        if (consulProperties.hasToken())
-            builder.withTokenAuth(consulProperties.getToken());
-        Consul client = builder.build();
-        return client.agentClient();
-    }
+  private AgentClient makeConsulAgentClient() {
+    Consul.Builder builder = Consul.builder()
+        .withHostAndPort(HostAndPort.fromString(consulProperties.getHostPort()))
+        .withHttps(consulProperties.isHttps());
+    if (consulProperties.hasToken())
+      builder.withTokenAuth(consulProperties.getToken());
+    Consul client = builder.build();
+    return client.agentClient();
+  }
 }

@@ -37,62 +37,62 @@ import java.util.stream.Collectors;
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
+  private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
 
-    @Autowired
-    private SecurityProperties securityProperties;
+  @Autowired
+  private SecurityProperties securityProperties;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private BasicAuthenticationEntryPoint authenticationEntryPoint;
+  @Autowired
+  private BasicAuthenticationEntryPoint authenticationEntryPoint;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .formLogin().disable()
-                .authorizeRequests()
-                .antMatchers("/rserver/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER)
-                .antMatchers("/r/sessions/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER, Roles.ROCK_USER)
-                .antMatchers("/r/session/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_USER)
-                .antMatchers("/_check").anonymous()
-                .anyRequest().denyAll()
-                .and().httpBasic().realmName("RockRealm")
-                .authenticationEntryPoint(authenticationEntryPoint)
-                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    }
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.csrf().disable()
+        .formLogin().disable()
+        .authorizeRequests()
+        .antMatchers("/rserver/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER)
+        .antMatchers("/r/sessions/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER, Roles.ROCK_USER)
+        .antMatchers("/r/session/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_USER)
+        .antMatchers("/_check").anonymous()
+        .anyRequest().denyAll()
+        .and().httpBasic().realmName("RockRealm")
+        .authenticationEntryPoint(authenticationEntryPoint)
+        .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+  }
 
-    @Bean
-    public BasicAuthenticationEntryPoint getBasicAuthenticationEntryPoint() {
-        return new CustomBasicAuthenticationEntryPoint();
-    }
+  @Bean
+  public BasicAuthenticationEntryPoint getBasicAuthenticationEntryPoint() {
+    return new CustomBasicAuthenticationEntryPoint();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        // FIXME required to prevent spring boot auto-config
-        return super.authenticationManagerBean();
-    }
+  @Bean
+  public AuthenticationManager authenticationManagerBean() throws Exception {
+    // FIXME required to prevent spring boot auto-config
+    return super.authenticationManagerBean();
+  }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        List<SecurityProperties.User> users = securityProperties.getUsers();
-        InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = auth.inMemoryAuthentication()
-                .passwordEncoder(passwordEncoder);
-        users.forEach(u -> {
-            log.debug(u.getId() + ":" + u.getSecret() + ":" + Joiner.on(";").join(u.getRoles()));
-            String[] roles = new String[u.getRoles().size()];
-            roles = u.getRoles().stream().map(String::toUpperCase).collect(Collectors.toList()).toArray(roles);
-            configurer.withUser(u.getId())
-                    .password(securityProperties.isEncoded() ? u.getSecret() : passwordEncoder.encode(u.getSecret()))
-                    .roles(roles);
-        });
-    }
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    List<SecurityProperties.User> users = securityProperties.getUsers();
+    InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = auth.inMemoryAuthentication()
+        .passwordEncoder(passwordEncoder);
+    users.forEach(u -> {
+      log.debug(u.getId() + ":" + u.getSecret() + ":" + Joiner.on(";").join(u.getRoles()));
+      String[] roles = new String[u.getRoles().size()];
+      roles = u.getRoles().stream().map(String::toUpperCase).collect(Collectors.toList()).toArray(roles);
+      configurer.withUser(u.getId())
+          .password(securityProperties.isEncoded() ? u.getSecret() : passwordEncoder.encode(u.getSecret()))
+          .roles(roles);
+    });
+  }
 
 
 }

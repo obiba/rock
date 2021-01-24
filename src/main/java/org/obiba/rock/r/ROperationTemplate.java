@@ -14,11 +14,11 @@ package org.obiba.rock.r;
  */
 public interface ROperationTemplate {
 
-    /**
-     * Set up the R connection, do the R operation and clean up the R connection.
-     *
-     * @param rop
-     */
-    void execute(ROperation rop);
+  /**
+   * Set up the R connection, do the R operation and clean up the R connection.
+   *
+   * @param rop
+   */
+  void execute(ROperation rop);
 
 }

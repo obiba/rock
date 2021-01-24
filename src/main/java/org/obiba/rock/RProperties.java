@@ -20,24 +20,24 @@ import java.util.List;
 @Component
 public class RProperties {
 
-    private String exec = "/usr/bin/R";
+  private String exec = "/usr/bin/R";
 
-    private List<String> repos = Lists.newArrayList("https://cloud.r-project.org", "https://cran.obiba.org");
+  private List<String> repos = Lists.newArrayList("https://cloud.r-project.org", "https://cran.obiba.org");
 
-    public String getExec() {
-        return exec;
-    }
+  public String getExec() {
+    return exec;
+  }
 
-    public void setExec(String exec) {
-        this.exec = exec;
-    }
+  public void setExec(String exec) {
+    this.exec = exec;
+  }
 
-    public List<String> getRepos() {
-        return repos;
-    }
+  public List<String> getRepos() {
+    return repos;
+  }
 
-    public void setRepos(List<String> repos) {
-        if (repos != null && !repos.isEmpty())
-            this.repos = repos;
-    }
+  public void setRepos(List<String> repos) {
+    if (repos != null && !repos.isEmpty())
+      this.repos = repos;
+  }
 }

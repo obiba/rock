@@ -13,14 +13,14 @@ package org.obiba.rock.r;
 
 public class NoSuchRCommandException extends RuntimeException {
 
-    private final String id;
+  private final String id;
 
-    public NoSuchRCommandException(String id) {
-        super("No such R command with ID: " + id);
-        this.id = id;
-    }
+  public NoSuchRCommandException(String id) {
+    super("No such R command with ID: " + id);
+    this.id = id;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 }

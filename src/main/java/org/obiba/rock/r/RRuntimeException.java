@@ -14,17 +14,17 @@ package org.obiba.rock.r;
  */
 public class RRuntimeException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public RRuntimeException(String msg) {
-        super(msg);
-    }
+  public RRuntimeException(String msg) {
+    super(msg);
+  }
 
-    public RRuntimeException(Throwable cause) {
-        super(cause.getMessage(), cause);
-    }
+  public RRuntimeException(Throwable cause) {
+    super(cause.getMessage(), cause);
+  }
 
-    public RRuntimeException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
+  public RRuntimeException(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 }

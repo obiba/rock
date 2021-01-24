@@ -10,18 +10,12 @@
 
 package org.obiba.rock.model;
 
-/**
- * Rock service registration.
- */
-public interface Registry {
+import java.util.Map;
 
-  /**
-   * Register the service.
-   */
-  void register();
+public interface RServerStatus {
 
-  /**
-   * Unregister the service.
-   */
-  void unregister();
+  boolean isRunning();
+
+  Map<String, Integer> getRSessionsCounts();
+
 }

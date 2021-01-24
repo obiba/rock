@@ -16,22 +16,22 @@ import java.io.File;
  */
 public class FileReadROperation extends AbstractROperation {
 
-    private final String fileName;
+  private final String fileName;
 
-    private final File destination;
+  private final File destination;
 
-    public FileReadROperation(String fileName, File destination) {
-        this.fileName = fileName;
-        this.destination = destination;
-    }
+  public FileReadROperation(String fileName, File destination) {
+    this.fileName = fileName;
+    this.destination = destination;
+  }
 
-    @Override
-    public void doWithConnection() {
-        readFile(fileName, destination);
-    }
+  @Override
+  public void doWithConnection() {
+    readFile(fileName, destination);
+  }
 
-    @Override
-    public String toString() {
-        return String.format("%s -> %s", fileName, destination);
-    }
+  @Override
+  public String toString() {
+    return String.format("%s -> %s", fileName, destination);
+  }
 }

@@ -20,40 +20,40 @@ import java.util.Set;
  */
 public class FolderReadROperation extends AbstractROperation {
 
-    private final String folderName;
+  private final String folderName;
 
-    private final File destination;
+  private final File destination;
 
-    public FolderReadROperation(File destination) {
-        this(".", destination);
+  public FolderReadROperation(File destination) {
+    this(".", destination);
+  }
+
+  public FolderReadROperation(String folderName, File destination) {
+    this.folderName = folderName;
+    this.destination = destination;
+    if (!destination.exists() && !destination.mkdirs())
+      throw new IllegalArgumentException("Cannot create folder: " + destination.getAbsolutePath());
+    else if (!destination.isDirectory())
+      throw new IllegalArgumentException("Not a destination folder: " + destination.getAbsolutePath());
+  }
+
+  @Override
+  public void doWithConnection() {
+    try {
+      // note: hidden files won't be read, folders are excluded, no recursion
+      String[] fileNames = eval(String.format("base::list.files(path='%s')", folderName), false).asStrings();
+      Set<String> dirNames = Sets.newHashSet(eval(String.format("list.dirs(path='%s', recursive = FALSE, full.names = FALSE)", folderName), false).asStrings());
+      for (String fileName : fileNames) {
+        if (!dirNames.contains(fileName))
+          readFile(fileName, new File(destination, fileName));
+      }
+    } catch (REXPMismatchException e) {
+      throw new RRuntimeException("Unable to retrieve content of the R folder: " + folderName, e);
     }
+  }
 
-    public FolderReadROperation(String folderName, File destination) {
-        this.folderName = folderName;
-        this.destination = destination;
-        if (!destination.exists() && !destination.mkdirs())
-            throw new IllegalArgumentException("Cannot create folder: " + destination.getAbsolutePath());
-        else if (!destination.isDirectory())
-            throw new IllegalArgumentException("Not a destination folder: " + destination.getAbsolutePath());
-    }
-
-    @Override
-    public void doWithConnection() {
-        try {
-            // note: hidden files won't be read, folders are excluded, no recursion
-            String[] fileNames = eval(String.format("base::list.files(path='%s')", folderName), false).asStrings();
-            Set<String> dirNames = Sets.newHashSet(eval(String.format("list.dirs(path='%s', recursive = FALSE, full.names = FALSE)", folderName), false).asStrings());
-            for (String fileName : fileNames) {
-                if (!dirNames.contains(fileName))
-                    readFile(fileName, new File(destination, fileName));
-            }
-        } catch (REXPMismatchException e) {
-            throw new RRuntimeException("Unable to retrieve content of the R folder: " + folderName, e);
-        }
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s -> %s", folderName, destination);
-    }
+  @Override
+  public String toString() {
+    return String.format("%s -> %s", folderName, destination);
+  }
 }

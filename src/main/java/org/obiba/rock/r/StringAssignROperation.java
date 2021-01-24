@@ -14,23 +14,23 @@ package org.obiba.rock.r;
  */
 public class StringAssignROperation extends AbstractROperation {
 
-    private final String symbol;
+  private final String symbol;
 
-    private final String value;
+  private final String value;
 
-    public StringAssignROperation(String symbol, String value) {
-        this.symbol = symbol;
-        this.value = value;
-    }
+  public StringAssignROperation(String symbol, String value) {
+    this.symbol = symbol;
+    this.value = value;
+  }
 
-    @Override
-    public void doWithConnection() {
-        if (symbol == null) return;
-        assign(symbol, value);
-    }
+  @Override
+  public void doWithConnection() {
+    if (symbol == null) return;
+    assign(symbol, value);
+  }
 
-    @Override
-    public String toString() {
-        return symbol + " <- " + value;
-    }
+  @Override
+  public String toString() {
+    return symbol + " <- " + value;
+  }
 }

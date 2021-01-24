@@ -23,36 +23,36 @@ import java.util.List;
  */
 public class REvaluationRuntimeException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private static final Logger log = LoggerFactory.getLogger(REvaluationRuntimeException.class);
+  private static final Logger log = LoggerFactory.getLogger(REvaluationRuntimeException.class);
 
-    private final REXP result;
+  private final REXP result;
 
-    public REvaluationRuntimeException(String msg, REXP result) {
-        super(msg);
-        this.result = result;
+  public REvaluationRuntimeException(String msg, REXP result) {
+    super(msg);
+    this.result = result;
+  }
+
+  public REXP getResult() {
+    return result;
+  }
+
+  public List<String> getRMessages() {
+    String[] strs = null;
+    try {
+      if (result != null) strs = result.asStrings();
+    } catch (REXPMismatchException e) {
+      log.error("Not a REXP with strings", e);
     }
+    if (strs == null) strs = new String[]{};
 
-    public REXP getResult() {
-        return result;
-    }
+    return Arrays.asList(strs);
+  }
 
-    public List<String> getRMessages() {
-        String[] strs = null;
-        try {
-            if (result != null) strs = result.asStrings();
-        } catch (REXPMismatchException e) {
-            log.error("Not a REXP with strings", e);
-        }
-        if (strs == null) strs = new String[]{};
-
-        return Arrays.asList(strs);
-    }
-
-    @Override
-    public String getMessage() {
-        List<String> rMsgs = getRMessages();
-        return rMsgs.isEmpty() ? super.getMessage() : Joiner.on("; ").join(getRMessages());
-    }
+  @Override
+  public String getMessage() {
+    List<String> rMsgs = getRMessages();
+    return rMsgs.isEmpty() ? super.getMessage() : Joiner.on("; ").join(getRMessages());
+  }
 }

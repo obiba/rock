@@ -14,21 +14,21 @@ import java.util.Date;
 
 public interface RCommand {
 
-    String getId();
+  String getId();
 
-    String getStatus();
+  String getStatus();
 
-    boolean isFinished();
+  boolean isFinished();
 
-    Date getCreateDate();
+  Date getCreateDate();
 
-    Date getStartDate();
+  Date getStartDate();
 
-    Date getEndDate();
+  Date getEndDate();
 
-    boolean isWithError();
+  boolean isWithError();
 
-    String getError();
+  String getError();
 
-    boolean isWithResult();
+  boolean isWithResult();
 }

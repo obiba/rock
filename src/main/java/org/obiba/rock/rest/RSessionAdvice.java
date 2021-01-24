@@ -30,67 +30,67 @@ import java.util.NoSuchElementException;
 @ControllerAdvice
 class RSessionAdvice {
 
-    @ResponseBody
-    @ExceptionHandler(RSessionNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorMessage rSessionNotFoundHandler(RSessionNotFoundException ex) {
-        return new ExceptionErrorMessage(HttpStatus.NOT_FOUND, ex, ex.getId());
-    }
+  @ResponseBody
+  @ExceptionHandler(RSessionNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  ErrorMessage rSessionNotFoundHandler(RSessionNotFoundException ex) {
+    return new ExceptionErrorMessage(HttpStatus.NOT_FOUND, ex, ex.getId());
+  }
 
-    @ResponseBody
-    @ExceptionHandler(NoSuchRCommandException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorMessage rCommandNotFoundHandler(NoSuchRCommandException ex) {
-        return new ExceptionErrorMessage(HttpStatus.NOT_FOUND, ex, ex.getId());
-    }
+  @ResponseBody
+  @ExceptionHandler(NoSuchRCommandException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  ErrorMessage rCommandNotFoundHandler(NoSuchRCommandException ex) {
+    return new ExceptionErrorMessage(HttpStatus.NOT_FOUND, ex, ex.getId());
+  }
 
-    @ResponseBody
-    @ExceptionHandler(NoSuchElementException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    ErrorMessage elementNotFoundHandler(NoSuchElementException ex) {
-        return new ExceptionErrorMessage(HttpStatus.NOT_FOUND, ex);
-    }
+  @ResponseBody
+  @ExceptionHandler(NoSuchElementException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  ErrorMessage elementNotFoundHandler(NoSuchElementException ex) {
+    return new ExceptionErrorMessage(HttpStatus.NOT_FOUND, ex);
+  }
 
-    @ResponseBody
-    @ExceptionHandler(RRuntimeException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ErrorMessage rRuntimeHandler(RRuntimeException ex) {
-        return new ExceptionErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex);
-    }
+  @ResponseBody
+  @ExceptionHandler(RRuntimeException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  ErrorMessage rRuntimeHandler(RRuntimeException ex) {
+    return new ExceptionErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex);
+  }
 
-    @ResponseBody
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ErrorMessage illegalArgumentHandler(IllegalArgumentException ex) {
-        return new ExceptionErrorMessage(HttpStatus.BAD_REQUEST, ex);
-    }
+  @ResponseBody
+  @ExceptionHandler(IllegalArgumentException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  ErrorMessage illegalArgumentHandler(IllegalArgumentException ex) {
+    return new ExceptionErrorMessage(HttpStatus.BAD_REQUEST, ex);
+  }
 
-    @ResponseBody
-    @ExceptionHandler(REvaluationRuntimeException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ErrorMessage illegalArgumentHandler(REvaluationRuntimeException ex) {
-        return new ExceptionErrorMessage(HttpStatus.BAD_REQUEST, ex);
-    }
+  @ResponseBody
+  @ExceptionHandler(REvaluationRuntimeException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  ErrorMessage illegalArgumentHandler(REvaluationRuntimeException ex) {
+    return new ExceptionErrorMessage(HttpStatus.BAD_REQUEST, ex);
+  }
 
-    @ResponseBody
-    @ExceptionHandler(RserveException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ErrorMessage rServeExceptionHandler(RserveException ex) {
-        return new ExceptionErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex);
-    }
+  @ResponseBody
+  @ExceptionHandler(RserveException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  ErrorMessage rServeExceptionHandler(RserveException ex) {
+    return new ExceptionErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex);
+  }
 
-    @ResponseBody
-    @ExceptionHandler(REXPMismatchException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ErrorMessage rexpMismatchHandler(REXPMismatchException ex) {
-        return new ExceptionErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex);
-    }
+  @ResponseBody
+  @ExceptionHandler(REXPMismatchException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  ErrorMessage rexpMismatchHandler(REXPMismatchException ex) {
+    return new ExceptionErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR, ex);
+  }
 
-    @ResponseBody
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    ErrorMessage illegalArgumentHandler(AccessDeniedException ex) {
-        return new ExceptionErrorMessage(HttpStatus.FORBIDDEN, ex);
-    }
+  @ResponseBody
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  ErrorMessage illegalArgumentHandler(AccessDeniedException ex) {
+    return new ExceptionErrorMessage(HttpStatus.FORBIDDEN, ex);
+  }
 
 }

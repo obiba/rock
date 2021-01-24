@@ -16,11 +16,11 @@ import org.rosuda.REngine.Rserve.RConnection;
  */
 public interface ROperation {
 
-    /**
-     * Does anything with the provided R connection.
-     *
-     * @param connection
-     */
-    void doWithConnection(RConnection connection);
+  /**
+   * Does anything with the provided R connection.
+   *
+   * @param connection
+   */
+  void doWithConnection(RConnection connection);
 
 }

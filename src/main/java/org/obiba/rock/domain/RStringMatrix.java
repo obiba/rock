@@ -9,7 +9,6 @@
  */
 package org.obiba.rock.domain;
 
-import com.google.common.collect.Lists;
 import org.obiba.rock.model.RMatrix;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
-import java.util.List;
 
 public class RStringMatrix implements RMatrix<String> {
 
@@ -67,8 +65,8 @@ public class RStringMatrix implements RMatrix<String> {
 
   @Override
   public int getColumnIndex(String name) {
-    for(int i = 0; i < columnNames.length; i++) {
-      if(columnNames[i].equals(name)) {
+    for (int i = 0; i < columnNames.length; i++) {
+      if (columnNames[i].equals(name)) {
         return i;
       }
     }
@@ -92,8 +90,8 @@ public class RStringMatrix implements RMatrix<String> {
 
   @Override
   public int getRowIndex(String name) {
-    for(int i = 0; i < rowNames.length; i++) {
-      if(rowNames[i].equals(name)) {
+    for (int i = 0; i < rowNames.length; i++) {
+      if (rowNames[i].equals(name)) {
         return i;
       }
     }
@@ -122,7 +120,7 @@ public class RStringMatrix implements RMatrix<String> {
     @Override
     public String[] next() {
       String[] row = new String[getColumnCount()];
-      for(int i = 0; i < getColumnCount(); i++) {
+      for (int i = 0; i < getColumnCount(); i++) {
         row[i] = values[current + i * getRowCount()];
       }
       current++;
@@ -147,7 +145,7 @@ public class RStringMatrix implements RMatrix<String> {
     @Override
     public String[] next() {
       String[] col = new String[getRowCount()];
-      for(int i = 0; i < getRowCount(); i++) {
+      for (int i = 0; i < getRowCount(); i++) {
         col[i] = values[current * getColumnCount() + i];
       }
       current++;

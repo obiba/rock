@@ -15,27 +15,27 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public class RPackage {
-    private String name;
-    private Map<String, String> fields;
+  private String name;
+  private Map<String, String> fields;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setFields(Map<String, String> fields) {
-        this.fields = fields;
-    }
+  public void setFields(Map<String, String> fields) {
+    this.fields = fields;
+  }
 
-    public Map<String, String> getFields() {
-        return fields;
-    }
+  public Map<String, String> getFields() {
+    return fields;
+  }
 
-    public void putField(String key, String value) {
-        if (fields == null) fields = Maps.newLinkedHashMap();
-        fields.put(key, value);
-    }
+  public void putField(String key, String value) {
+    if (fields == null) fields = Maps.newLinkedHashMap();
+    fields.put(key, value);
+  }
 }

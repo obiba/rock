@@ -16,17 +16,17 @@ import java.util.Date;
 
 public interface RSession {
 
-    String getId();
+  String getId();
 
-    String getSubject();
+  String getSubject();
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    Date getCreateDate();
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+  Date getCreateDate();
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    Date getLastAccessDate();
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+  Date getLastAccessDate();
 
-    boolean isBusy();
+  boolean isBusy();
 
-    void close();
+  void close();
 }

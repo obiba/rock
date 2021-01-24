@@ -18,39 +18,39 @@ import org.springframework.stereotype.Component;
 @Component
 public class OpalProperties {
 
-    private String server;
+  private String server;
 
-    private String token;
+  private String token;
 
-    public boolean isDefined() {
-        return !Strings.isNullOrEmpty(server);
-    }
+  public boolean isDefined() {
+    return !Strings.isNullOrEmpty(server);
+  }
 
-    public String getServer() {
-        return server;
-    }
+  public String getServer() {
+    return server;
+  }
 
-    public void setServer(String server) {
-        this.server = server;
-    }
+  public void setServer(String server) {
+    this.server = server;
+  }
 
-    public boolean isHttps() {
-        return !Strings.isNullOrEmpty(server) && server.startsWith("https://");
-    }
+  public boolean isHttps() {
+    return !Strings.isNullOrEmpty(server) && server.startsWith("https://");
+  }
 
-    public String getHostPort() {
-        return server.replaceAll("https://", "").replaceAll("http://", "");
-    }
+  public String getHostPort() {
+    return server.replaceAll("https://", "").replaceAll("http://", "");
+  }
 
-    public String getToken() {
-        return token;
-    }
+  public String getToken() {
+    return token;
+  }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
+  public void setToken(String token) {
+    this.token = token;
+  }
 
-    public boolean hasToken() {
-        return !Strings.isNullOrEmpty(token);
-    }
+  public boolean hasToken() {
+    return !Strings.isNullOrEmpty(token);
+  }
 }

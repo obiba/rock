@@ -18,27 +18,27 @@ import java.util.Base64;
  */
 public class DataAssignROperation extends AbstractROperation {
 
-    private final String symbol;
+  private final String symbol;
 
-    private final byte[] content;
+  private final byte[] content;
 
-    public DataAssignROperation(String symbol, String base64Content) {
-        this.symbol = symbol;
-        this.content = Base64.getDecoder().decode(base64Content.replaceAll("\\n", "").replaceAll("\\r", ""));
-    }
+  public DataAssignROperation(String symbol, String base64Content) {
+    this.symbol = symbol;
+    this.content = Base64.getDecoder().decode(base64Content.replaceAll("\\n", "").replaceAll("\\r", ""));
+  }
 
-    @Override
-    public void doWithConnection() {
-        if (symbol == null) return;
-        // write the byte array and unserialize it
-        assign(symbol, new REXPRaw(content));
-        eval(String.format("is.null(base::assign('%s', value=unserialize(%s)))", symbol, symbol), false);
-    }
+  @Override
+  public void doWithConnection() {
+    if (symbol == null) return;
+    // write the byte array and unserialize it
+    assign(symbol, new REXPRaw(content));
+    eval(String.format("is.null(base::assign('%s', value=unserialize(%s)))", symbol, symbol), false);
+  }
 
-    @Override
-    public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(symbol).append(" <- byte[").append(content == null ? 0 : content.length).append("]\n");
-        return buffer.toString();
-    }
+  @Override
+  public String toString() {
+    StringBuilder buffer = new StringBuilder();
+    buffer.append(symbol).append(" <- byte[").append(content == null ? 0 : content.length).append("]\n");
+    return buffer.toString();
+  }
 }

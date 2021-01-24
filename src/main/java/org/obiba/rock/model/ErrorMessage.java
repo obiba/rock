@@ -12,12 +12,12 @@ package org.obiba.rock.model;
 
 public interface ErrorMessage {
 
-    String getStatus();
+  String getStatus();
 
-    String getKey();
+  String getKey();
 
-    String[] getArgs();
+  String[] getArgs();
 
-    String getMessage();
+  String getMessage();
 
 }

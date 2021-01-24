@@ -14,31 +14,31 @@ package org.obiba.rock.r;
  */
 public class RScriptROperation extends AbstractROperationWithResult {
 
-    private final String script;
+  private final String script;
 
-    private final boolean serialize;
+  private final boolean serialize;
 
-    public RScriptROperation(String script) {
-        this(script, true);
-    }
+  public RScriptROperation(String script) {
+    this(script, true);
+  }
 
-    public RScriptROperation(String script, boolean serialize) {
-        if (script == null) throw new IllegalArgumentException("R script cannot be null");
-        this.script = script;
-        this.serialize = serialize;
-    }
+  public RScriptROperation(String script, boolean serialize) {
+    if (script == null) throw new IllegalArgumentException("R script cannot be null");
+    this.script = script;
+    this.serialize = serialize;
+  }
 
-    /**
-     * Evaluates the provided R script.
-     */
-    @Override
-    public void doWithConnection() {
-        setResult(null);
-        setResult(eval(script, serialize));
-    }
+  /**
+   * Evaluates the provided R script.
+   */
+  @Override
+  public void doWithConnection() {
+    setResult(null);
+    setResult(eval(script, serialize));
+  }
 
-    @Override
-    public String toString() {
-        return script;
-    }
+  @Override
+  public String toString() {
+    return script;
+  }
 }

@@ -45,359 +45,359 @@ import java.util.stream.StreamSupport;
 @RestController
 public class RSessionController {
 
-    private static final Logger log = LoggerFactory.getLogger(RSessionController.class);
+  private static final Logger log = LoggerFactory.getLogger(RSessionController.class);
 
-    @Autowired
-    private RSessionService rSessionService;
+  @Autowired
+  private RSessionService rSessionService;
 
-    /**
-     * Get the R session object.
-     *
-     * @param id R session ID
-     * @return
-     */
-    @GetMapping("/r/session/{id}")
-    RSession getSession(@AuthenticationPrincipal User user, @PathVariable String id) {
-        return getRServeSessionForManagement(user, id);
+  /**
+   * Get the R session object.
+   *
+   * @param id R session ID
+   * @return
+   */
+  @GetMapping("/r/session/{id}")
+  RSession getSession(@AuthenticationPrincipal User user, @PathVariable String id) {
+    return getRServeSessionForManagement(user, id);
+  }
+
+  /**
+   * Close the R session.
+   *
+   * @param id R session ID
+   * @return
+   */
+  @DeleteMapping("/r/session/{id}")
+  ResponseEntity<?> deleteSession(@AuthenticationPrincipal User user, @PathVariable String id) {
+    getRServeSessionForManagement(user, id);
+    rSessionService.closeRSession(id);
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Assign an R expression to a symbol. If asynchronous, the R command object
+   * is returned.
+   *
+   * @param id     R session ID
+   * @param symbol The R symbol to assign in the R session.
+   * @param async  If true, the command is put in a queue and executed sequentially when possible.
+   * @param script The R expression to evaluate.
+   * @param ucb
+   * @return
+   */
+  @PostMapping(value = "/r/session/{id}/_assign", consumes = "application/x-rscript")
+  ResponseEntity<RCommand> assignScript(@AuthenticationPrincipal User user,
+                                        @PathVariable String id, @RequestParam(name = "s") String symbol,
+                                        @RequestParam(name = "async", defaultValue = "false") boolean async,
+                                        @RequestBody String script, UriComponentsBuilder ucb) {
+    RScriptROperation rop = new RScriptAssignROperation(String.format("base::assign('%s', %s)", symbol, script));
+    return doAssign(user, id, rop, async, ucb);
+  }
+
+  /**
+   * Evaluates an R expression. If asynchronous, the R command object is returned, else
+   * the resulting R object is returned in R serialization format (use base::unserialize() to extract the object).
+   *
+   * @param id     R session ID
+   * @param async  If true, the command is put in a queue and executed sequentially when possible.
+   * @param script The R expression to evaluate.
+   * @param ucb
+   * @return
+   */
+  @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/octet-stream")
+  ResponseEntity<?> evalScript(@AuthenticationPrincipal User user,
+                               @PathVariable String id,
+                               @RequestParam(name = "async", defaultValue = "false") boolean async,
+                               @RequestBody String script, UriComponentsBuilder ucb) {
+    RScriptROperation rop = new RScriptROperation(script);
+    return doEval(user, id, rop, async, ucb);
+  }
+
+  /**
+   * Evaluates an R expression. If asynchronous, the R command object is returned, else
+   * the resulting R object is returned in JSON format.
+   *
+   * @param id     R session ID
+   * @param async  If true, the command is put in a queue and executed sequentially when possible.
+   * @param script The R expression to evaluate.
+   * @param ucb
+   * @return
+   */
+  @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/json")
+  ResponseEntity<?> evalScriptJSON(@AuthenticationPrincipal User user,
+                                   @PathVariable String id,
+                                   @RequestParam(name = "async", defaultValue = "false") boolean async,
+                                   @RequestBody String script, UriComponentsBuilder ucb) {
+    RScriptROperation rop = new RScriptROperation(String.format("jsonlite::toJSON(%s, auto_unbox = TRUE)", script), false);
+    return doEval(user, id, rop, async, ucb);
+  }
+
+  //
+  // File transfers
+  //
+
+  /**
+   * Upload a file at specified location, either relative to the R session root or to the R session temporary directory.
+   *
+   * @param id        R session ID
+   * @param file      File data
+   * @param path      Relative path where to upload file (any missing parent directories will be created).
+   * @param overwrite Overwrite the file it already exists.
+   * @param temp      If true, the root directory is the R session's temporary directory instead of the original working directory.
+   * @return
+   */
+  @PostMapping(value = "/r/session/{id}/_upload", consumes = "multipart/form-data")
+  ResponseEntity<?> uploadFile(@AuthenticationPrincipal User user,
+                               @PathVariable String id,
+                               @RequestParam("file") CommonsMultipartFile file,
+                               @RequestParam(value = "path", required = false) String path,
+                               @RequestParam(value = "overwrite", required = false, defaultValue = "false") boolean overwrite,
+                               @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {
+    RServeSession rServeSession = getRServeSession(user, id);
+    String destinationPath = Strings.isNullOrEmpty(path) ? file.getOriginalFilename() : path;
+    try {
+      doWriteFile(file.getInputStream(), temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), destinationPath, overwrite);
+    } catch (IOException e) {
+      log.error("File write failed", e);
+      throw new RRuntimeException("File write failed");
+    }
+    return ResponseEntity.ok().build();
+  }
+
+  /**
+   * Download a file.
+   *
+   * @param id       R session ID
+   * @param path     Relative path of the file.
+   * @param temp     If true, the root directory is the R session's temporary directory instead of the original working directory.
+   * @param response
+   */
+  @GetMapping("/r/session/{id}/_download")
+  void downloadFile(HttpServletResponse response,
+                    @AuthenticationPrincipal User user,
+                    @PathVariable String id,
+                    @RequestParam(value = "path", required = false) String path,
+                    @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {
+    RServeSession rServeSession = getRServeSession(user, id);
+    File sourceFile = new File(temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), path);
+
+    // verify file exist and is regular
+    if (!sourceFile.exists()) {
+      throw new IllegalArgumentException("File does not exist");
+    } else if (sourceFile.isDirectory()) {
+      throw new IllegalArgumentException("File is a directory");
     }
 
-    /**
-     * Close the R session.
-     *
-     * @param id R session ID
-     * @return
-     */
-    @DeleteMapping("/r/session/{id}")
-    ResponseEntity<?> deleteSession(@AuthenticationPrincipal User user, @PathVariable String id) {
-        getRServeSessionForManagement(user, id);
-        rSessionService.closeRSession(id);
-        return ResponseEntity.noContent().build();
+    // verify download is from R session's work or temp folder
+    try {
+      Path sourcePath = sourceFile.toPath().toRealPath();
+      Path workPath = new File(rServeSession.getWorkDir()).toPath().toRealPath();
+      Path tempPath = new File(rServeSession.getTempDir()).toPath().toRealPath();
+      if (!sourcePath.startsWith(workPath) && !sourcePath.startsWith(tempPath)) {
+        throw new IllegalArgumentException("Source file path is not valid");
+      }
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Source file path is not valid");
     }
 
-    /**
-     * Assign an R expression to a symbol. If asynchronous, the R command object
-     * is returned.
-     *
-     * @param id     R session ID
-     * @param symbol The R symbol to assign in the R session.
-     * @param async  If true, the command is put in a queue and executed sequentially when possible.
-     * @param script The R expression to evaluate.
-     * @param ucb
-     * @return
-     */
-    @PostMapping(value = "/r/session/{id}/_assign", consumes = "application/x-rscript")
-    ResponseEntity<RCommand> assignScript(@AuthenticationPrincipal User user,
-                                          @PathVariable String id, @RequestParam(name = "s") String symbol,
-                                          @RequestParam(name = "async", defaultValue = "false") boolean async,
-                                          @RequestBody String script, UriComponentsBuilder ucb) {
-        RScriptROperation rop = new RScriptAssignROperation(String.format("base::assign('%s', %s)", symbol, script));
-        return doAssign(user, id, rop, async, ucb);
+    // guess mime type and prepare response header
+    String mimeType = URLConnection.guessContentTypeFromName(sourceFile.getName());
+    if (Strings.isNullOrEmpty(mimeType)) {
+      try (InputStream in = new FileInputStream(sourceFile)) {
+        mimeType = URLConnection.guessContentTypeFromStream(in);
+      } catch (IOException e) {
+        // ignore
+      }
     }
-
-    /**
-     * Evaluates an R expression. If asynchronous, the R command object is returned, else
-     * the resulting R object is returned in R serialization format (use base::unserialize() to extract the object).
-     *
-     * @param id     R session ID
-     * @param async  If true, the command is put in a queue and executed sequentially when possible.
-     * @param script The R expression to evaluate.
-     * @param ucb
-     * @return
-     */
-    @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/octet-stream")
-    ResponseEntity<?> evalScript(@AuthenticationPrincipal User user,
-                                 @PathVariable String id,
-                                 @RequestParam(name = "async", defaultValue = "false") boolean async,
-                                 @RequestBody String script, UriComponentsBuilder ucb) {
-        RScriptROperation rop = new RScriptROperation(script);
-        return doEval(user, id, rop, async, ucb);
+    if (Strings.isNullOrEmpty(mimeType)) {
+      // set to binary type if MIME mapping not found
+      mimeType = "application/octet-stream";
     }
+    response.setContentType(mimeType);
+    response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", sourceFile.getName()));
 
-    /**
-     * Evaluates an R expression. If asynchronous, the R command object is returned, else
-     * the resulting R object is returned in JSON format.
-     *
-     * @param id     R session ID
-     * @param async  If true, the command is put in a queue and executed sequentially when possible.
-     * @param script The R expression to evaluate.
-     * @param ucb
-     * @return
-     */
-    @PostMapping(value = "/r/session/{id}/_eval", consumes = "application/x-rscript", produces = "application/json")
-    ResponseEntity<?> evalScriptJSON(@AuthenticationPrincipal User user,
-                                     @PathVariable String id,
-                                     @RequestParam(name = "async", defaultValue = "false") boolean async,
-                                     @RequestBody String script, UriComponentsBuilder ucb) {
-        RScriptROperation rop = new RScriptROperation(String.format("jsonlite::toJSON(%s, auto_unbox = TRUE)", script), false);
-        return doEval(user, id, rop, async, ucb);
+    // write file in response stream
+    try {
+      // copies all bytes from a file to an output stream
+      Files.copy(sourceFile, response.getOutputStream());
+      // flushes output stream
+      response.getOutputStream().flush();
+    } catch (IOException e) {
+      throw new IllegalArgumentException("File read failed");
     }
+  }
 
-    //
-    // File transfers
-    //
+  //
+  // Commands management
+  //
 
-    /**
-     * Upload a file at specified location, either relative to the R session root or to the R session temporary directory.
-     *
-     * @param id        R session ID
-     * @param file      File data
-     * @param path      Relative path where to upload file (any missing parent directories will be created).
-     * @param overwrite Overwrite the file it already exists.
-     * @param temp      If true, the root directory is the R session's temporary directory instead of the original working directory.
-     * @return
-     */
-    @PostMapping(value = "/r/session/{id}/_upload", consumes = "multipart/form-data")
-    ResponseEntity<?> uploadFile(@AuthenticationPrincipal User user,
-                                 @PathVariable String id,
-                                 @RequestParam("file") CommonsMultipartFile file,
-                                 @RequestParam(value = "path", required = false) String path,
-                                 @RequestParam(value = "overwrite", required = false, defaultValue = "false") boolean overwrite,
-                                 @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {
-        RServeSession rServeSession = getRServeSession(user, id);
-        String destinationPath = Strings.isNullOrEmpty(path) ? file.getOriginalFilename() : path;
+  /**
+   * Get the R session's commands.
+   *
+   * @param id R session ID
+   * @return
+   */
+  @GetMapping("/r/session/{id}/commands")
+  List<RCommand> getCommands(@AuthenticationPrincipal User user, @PathVariable String id) {
+    return StreamSupport.stream(getRServeSession(user, id).getRCommands().spliterator(), false)
+        .map(c -> (RCommand) c).collect(Collectors.toList());
+  }
+
+  /**
+   * Get a R session's command.
+   *
+   * @param id    R session ID
+   * @param cmdId R command ID
+   * @return
+   */
+  @GetMapping("/r/session/{id}/command/{cmdId}")
+  RCommand getCommand(@AuthenticationPrincipal User user, @PathVariable String id, @PathVariable String cmdId) {
+    return getRServeSession(user, id).getRCommand(cmdId);
+  }
+
+  /**
+   * Delete a R session's command.
+   *
+   * @param id    R session ID
+   * @param cmdId R command ID
+   * @return
+   */
+  @DeleteMapping("/r/session/{id}/command/{cmdId}")
+  RCommand deleteCommand(@AuthenticationPrincipal User user, @PathVariable String id, @PathVariable String cmdId) {
+    return getRServeSession(user, id).removeRCommand(cmdId);
+  }
+
+  /**
+   * Get the result of the R session's command.
+   *
+   * @param id     R session ID
+   * @param cmdId  R command ID
+   * @param wait   If true, wait for the command to complete.
+   * @param remove Remove command from list after result has been retrieved.
+   * @return
+   */
+  @GetMapping(value = "/r/session/{id}/command/{cmdId}/result", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+  ResponseEntity<?> getCommandResult(@AuthenticationPrincipal User user,
+                                     @PathVariable String id, @PathVariable String cmdId,
+                                     @RequestParam(name = "wait", defaultValue = "false") boolean wait,
+                                     @RequestParam(name = "rm", defaultValue = "true") boolean remove) {
+    RServeSession rSession = getRServeSession(user, id);
+    RServeCommand rCommand = rSession.getRCommand(cmdId);
+    ResponseEntity<?> noContent = ResponseEntity.noContent().build();
+    if (!rCommand.isFinished()) {
+      if (wait) {
         try {
-            doWriteFile(file.getInputStream(), temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), destinationPath, overwrite);
-        } catch (IOException e) {
-            log.error("File write failed", e);
-            throw new RRuntimeException("File write failed");
+          synchronized (rCommand) {
+            rCommand.wait();
+          }
+        } catch (InterruptedException e) {
+          return noContent;
         }
-        return ResponseEntity.ok().build();
+      } else {
+        return noContent;
+      }
     }
+    return getFinishedRCommandResult(rSession, rCommand, remove);
+  }
 
-    /**
-     * Download a file.
-     *
-     * @param id       R session ID
-     * @param path     Relative path of the file.
-     * @param temp     If true, the root directory is the R session's temporary directory instead of the original working directory.
-     * @param response
-     */
-    @GetMapping("/r/session/{id}/_download")
-    void downloadFile(HttpServletResponse response,
-                      @AuthenticationPrincipal User user,
-                      @PathVariable String id,
-                      @RequestParam(value = "path", required = false) String path,
-                      @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {
-        RServeSession rServeSession = getRServeSession(user, id);
-        File sourceFile = new File(temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), path);
+  //
+  // Private methods
+  //
 
-        // verify file exist and is regular
-        if (!sourceFile.exists()) {
-            throw new IllegalArgumentException("File does not exist");
-        } else if (sourceFile.isDirectory()) {
-            throw new IllegalArgumentException("File is a directory");
-        }
-
-        // verify download is from R session's work or temp folder
-        try {
-            Path sourcePath = sourceFile.toPath().toRealPath();
-            Path workPath = new File(rServeSession.getWorkDir()).toPath().toRealPath();
-            Path tempPath = new File(rServeSession.getTempDir()).toPath().toRealPath();
-            if (!sourcePath.startsWith(workPath) && !sourcePath.startsWith(tempPath)) {
-                throw new IllegalArgumentException("Source file path is not valid");
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Source file path is not valid");
-        }
-
-        // guess mime type and prepare response header
-        String mimeType = URLConnection.guessContentTypeFromName(sourceFile.getName());
-        if (Strings.isNullOrEmpty(mimeType)) {
-            try (InputStream in = new FileInputStream(sourceFile)) {
-                mimeType = URLConnection.guessContentTypeFromStream(in);
-            } catch (IOException e) {
-                // ignore
-            }
-        }
-        if (Strings.isNullOrEmpty(mimeType)) {
-            // set to binary type if MIME mapping not found
-            mimeType = "application/octet-stream";
-        }
-        response.setContentType(mimeType);
-        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", sourceFile.getName()));
-
-        // write file in response stream
-        try {
-            // copies all bytes from a file to an output stream
-            Files.copy(sourceFile, response.getOutputStream());
-            // flushes output stream
-            response.getOutputStream().flush();
-        } catch (IOException e) {
-            throw new IllegalArgumentException("File read failed");
-        }
+  private ResponseEntity<RCommand> doAssign(User user, String id, ROperation rop, boolean async, UriComponentsBuilder ucb) {
+    RServeSession rSession = getRServeSession(user, id);
+    if (async) {
+      String rCommandId = rSession.executeAsync(rop);
+      RCommand rCommand = rSession.getRCommand(rCommandId);
+      return ResponseEntity.created(ucb.path("/r/session/{id}/command/{rid}").buildAndExpand(rSession.getId(), rCommandId).toUri())
+          .body(rCommand);
+    } else {
+      rSession.execute(rop);
+      return ResponseEntity.ok().build();
     }
+  }
 
-    //
-    // Commands management
-    //
-
-    /**
-     * Get the R session's commands.
-     *
-     * @param id R session ID
-     * @return
-     */
-    @GetMapping("/r/session/{id}/commands")
-    List<RCommand> getCommands(@AuthenticationPrincipal User user, @PathVariable String id) {
-        return StreamSupport.stream(getRServeSession(user, id).getRCommands().spliterator(), false)
-                .map(c -> (RCommand) c).collect(Collectors.toList());
-    }
-
-    /**
-     * Get a R session's command.
-     *
-     * @param id    R session ID
-     * @param cmdId R command ID
-     * @return
-     */
-    @GetMapping("/r/session/{id}/command/{cmdId}")
-    RCommand getCommand(@AuthenticationPrincipal User user, @PathVariable String id, @PathVariable String cmdId) {
-        return getRServeSession(user, id).getRCommand(cmdId);
-    }
-
-    /**
-     * Delete a R session's command.
-     *
-     * @param id    R session ID
-     * @param cmdId R command ID
-     * @return
-     */
-    @DeleteMapping("/r/session/{id}/command/{cmdId}")
-    RCommand deleteCommand(@AuthenticationPrincipal User user, @PathVariable String id, @PathVariable String cmdId) {
-        return getRServeSession(user, id).removeRCommand(cmdId);
-    }
-
-    /**
-     * Get the result of the R session's command.
-     *
-     * @param id     R session ID
-     * @param cmdId  R command ID
-     * @param wait   If true, wait for the command to complete.
-     * @param remove Remove command from list after result has been retrieved.
-     * @return
-     */
-    @GetMapping(value = "/r/session/{id}/command/{cmdId}/result", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    ResponseEntity<?> getCommandResult(@AuthenticationPrincipal User user,
-                                       @PathVariable String id, @PathVariable String cmdId,
-                                       @RequestParam(name = "wait", defaultValue = "false") boolean wait,
-                                       @RequestParam(name = "rm", defaultValue = "true") boolean remove) {
-        RServeSession rSession = getRServeSession(user, id);
-        RServeCommand rCommand = rSession.getRCommand(cmdId);
-        ResponseEntity<?> noContent = ResponseEntity.noContent().build();
-        if (!rCommand.isFinished()) {
-            if (wait) {
-                try {
-                    synchronized (rCommand) {
-                        rCommand.wait();
-                    }
-                } catch (InterruptedException e) {
-                    return noContent;
-                }
-            } else {
-                return noContent;
-            }
+  private ResponseEntity<?> doEval(User user, String id, ROperationWithResult rop, boolean async, UriComponentsBuilder ucb) {
+    RServeSession rSession = getRServeSession(user, id);
+    if (async) {
+      String rCommandId = rSession.executeAsync(rop);
+      RCommand rCommand = rSession.getRCommand(rCommandId);
+      return ResponseEntity.created(ucb.path("/r/session/{id}/command/{rid}").buildAndExpand(rSession.getId(), rCommandId).toUri())
+          .contentType(MediaType.APPLICATION_JSON)
+          .body(rCommand);
+    } else {
+      rSession.execute(rop);
+      if (rop.hasResult()) {
+        if (rop.hasRawResult())
+          return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
+        else {
+          try {
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(rop.getResult().asString());
+          } catch (REXPMismatchException e) {
+            throw new RRuntimeException("No eval result could be extracted as a string");
+          }
         }
-        return getFinishedRCommandResult(rSession, rCommand, remove);
+      }
+      throw new RRuntimeException("No eval result could be extracted");
     }
+  }
 
-    //
-    // Private methods
-    //
+  private void doWriteFile(InputStream in, String rootFolder, String destinationPath, boolean overwrite) throws IOException {
+    File outFile = new File(rootFolder, destinationPath);
+    if (outFile.exists()) {
+      if (outFile.isDirectory())
+        throw new IllegalArgumentException("Destination file cannot be a directory");
+      else if (!overwrite)
+        throw new IllegalArgumentException("File exists and cannot be overridden");
+    }
+    // make sure the destination is in the root folder
+    Path rootPath = new File(rootFolder).toPath().toRealPath();
+    File parentFile = outFile.getParentFile();
+    while (!parentFile.exists()) parentFile = parentFile.getParentFile();
+    Path parentPath = parentFile.toPath().toRealPath();
+    if (!parentPath.startsWith(rootPath)) {
+      throw new IllegalArgumentException("Destination folder is not valid");
+    }
+    if (!outFile.getParentFile().exists() && !outFile.getParentFile().mkdirs())
+      throw new IllegalArgumentException("File parent folder cannot be created");
 
-    private ResponseEntity<RCommand> doAssign(User user, String id, ROperation rop, boolean async, UriComponentsBuilder ucb) {
-        RServeSession rSession = getRServeSession(user, id);
-        if (async) {
-            String rCommandId = rSession.executeAsync(rop);
-            RCommand rCommand = rSession.getRCommand(rCommandId);
-            return ResponseEntity.created(ucb.path("/r/session/{id}/command/{rid}").buildAndExpand(rSession.getId(), rCommandId).toUri())
-                    .body(rCommand);
+    try (FileOutputStream out = new FileOutputStream(outFile)) {
+      ByteStreams.copy(in, out);
+    }
+  }
+
+  private ResponseEntity<?> getFinishedRCommandResult(RServeSession rSession, RServeCommand rCommand, boolean remove) {
+    ResponseEntity<?> resp = ResponseEntity.noContent().build();
+    if (rCommand.isWithResult()) {
+      ROperationWithResult rop = rCommand.asROperationWithResult();
+      if (rop.hasResult()) {
+        if (rop.hasRawResult()) {
+          resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
         } else {
-            rSession.execute(rop);
-            return ResponseEntity.ok().build();
+          try {
+            resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(rop.getResult().asString());
+          } catch (REXPMismatchException e) {
+            throw new RRuntimeException("No eval result could be extracted as a string");
+          }
         }
+      }
     }
+    if (remove) rSession.removeRCommand(rCommand.getId());
+    return resp;
+  }
 
-    private ResponseEntity<?> doEval(User user, String id, ROperationWithResult rop, boolean async, UriComponentsBuilder ucb) {
-        RServeSession rSession = getRServeSession(user, id);
-        if (async) {
-            String rCommandId = rSession.executeAsync(rop);
-            RCommand rCommand = rSession.getRCommand(rCommandId);
-            return ResponseEntity.created(ucb.path("/r/session/{id}/command/{rid}").buildAndExpand(rSession.getId(), rCommandId).toUri())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(rCommand);
-        } else {
-            rSession.execute(rop);
-            if (rop.hasResult()) {
-                if (rop.hasRawResult())
-                    return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
-                else {
-                    try {
-                        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(rop.getResult().asString());
-                    } catch (REXPMismatchException e) {
-                        throw new RRuntimeException("No eval result could be extracted as a string");
-                    }
-                }
-            }
-            throw new RRuntimeException("No eval result could be extracted");
-        }
-    }
+  private RServeSession getRServeSession(User user, String id) {
+    RServeSession session = rSessionService.getRServeSession(id);
+    if (!session.getSubject().equals(user.getUsername()) && !Roles.isAdmin(user))
+      throw new AccessDeniedException("R session is not owned by authenticated user");
+    return session;
+  }
 
-    private void doWriteFile(InputStream in, String rootFolder, String destinationPath, boolean overwrite) throws IOException {
-        File outFile = new File(rootFolder, destinationPath);
-        if (outFile.exists()) {
-            if (outFile.isDirectory())
-                throw new IllegalArgumentException("Destination file cannot be a directory");
-            else if (!overwrite)
-                throw new IllegalArgumentException("File exists and cannot be overridden");
-        }
-        // make sure the destination is in the root folder
-        Path rootPath = new File(rootFolder).toPath().toRealPath();
-        File parentFile = outFile.getParentFile();
-        while (!parentFile.exists()) parentFile = parentFile.getParentFile();
-        Path parentPath = parentFile.toPath().toRealPath();
-        if (!parentPath.startsWith(rootPath)) {
-            throw new IllegalArgumentException("Destination folder is not valid");
-        }
-        if (!outFile.getParentFile().exists() && !outFile.getParentFile().mkdirs())
-            throw new IllegalArgumentException("File parent folder cannot be created");
-
-        try (FileOutputStream out = new FileOutputStream(outFile)) {
-            ByteStreams.copy(in, out);
-        }
-    }
-
-    private ResponseEntity<?> getFinishedRCommandResult(RServeSession rSession, RServeCommand rCommand, boolean remove) {
-        ResponseEntity<?> resp = ResponseEntity.noContent().build();
-        if (rCommand.isWithResult()) {
-            ROperationWithResult rop = rCommand.asROperationWithResult();
-            if (rop.hasResult()) {
-                if (rop.hasRawResult()) {
-                    resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
-                } else {
-                    try {
-                        resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(rop.getResult().asString());
-                    } catch (REXPMismatchException e) {
-                        throw new RRuntimeException("No eval result could be extracted as a string");
-                    }
-                }
-            }
-        }
-        if (remove) rSession.removeRCommand(rCommand.getId());
-        return resp;
-    }
-
-    private RServeSession getRServeSession(User user, String id) {
-        RServeSession session = rSessionService.getRServeSession(id);
-        if (!session.getSubject().equals(user.getUsername()) && !Roles.isAdmin(user))
-            throw new AccessDeniedException("R session is not owned by authenticated user");
-        return session;
-    }
-
-    private RServeSession getRServeSessionForManagement(User user, String id) {
-        RServeSession session = rSessionService.getRServeSession(id);
-        if (!session.getSubject().equals(user.getUsername()) && (!Roles.isAdmin(user) || !Roles.isManager(user)))
-            throw new AccessDeniedException("R session is not owned by authenticated user");
-        return session;
-    }
+  private RServeSession getRServeSessionForManagement(User user, String id) {
+    RServeSession session = rSessionService.getRServeSession(id);
+    if (!session.getSubject().equals(user.getUsername()) && (!Roles.isAdmin(user) || !Roles.isManager(user)))
+      throw new AccessDeniedException("R session is not owned by authenticated user");
+    return session;
+  }
 
 }

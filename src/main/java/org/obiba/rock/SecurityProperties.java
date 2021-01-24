@@ -22,98 +22,99 @@ import java.util.List;
 @Component
 public class SecurityProperties {
 
-    private boolean encoded = false;
+  private boolean encoded = false;
 
-    private List<User> users;
+  private List<User> users;
 
-    private AppArmor appArmor;
+  private AppArmor appArmor;
 
-    private final User defaultAdmin = new User("administrator", "password", Roles.ROCK_ADMIN);
+  private final User defaultAdmin = new User("administrator", "password", Roles.ROCK_ADMIN);
 
-    public boolean isEncoded() {
-        return encoded;
+  public boolean isEncoded() {
+    return encoded;
+  }
+
+  public void setEncoded(boolean encoded) {
+    this.encoded = encoded;
+  }
+
+  public List<User> getUsers() {
+    return users == null ? Lists.newArrayList(defaultAdmin) : users;
+  }
+
+  public void setUsers(List<User> users) {
+    this.users = users;
+  }
+
+  public boolean withAppArmor() {
+    return appArmor != null && appArmor.isEnabled() && !Strings.isNullOrEmpty(appArmor.getProfile());
+  }
+
+  public AppArmor getAppArmor() {
+    return appArmor;
+  }
+
+  public void setAppArmor(AppArmor appArmor) {
+    this.appArmor = appArmor;
+  }
+
+  public static class User {
+    private String id;
+    private String secret;
+    private List<String> roles;
+
+    public User() {
     }
 
-    public void setEncoded(boolean encoded) {
-        this.encoded = encoded;
+    public User(String id, String secret, String role) {
+      this.id = id;
+      this.secret = secret;
+      this.roles = Lists.newArrayList(role);
     }
 
-    public List<User> getUsers() {
-        return users == null ? Lists.newArrayList(defaultAdmin) : users;
+    public void setId(String id) {
+      this.id = id;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public String getId() {
+      return id;
     }
 
-    public boolean withAppArmor() {
-        return appArmor != null && appArmor.isEnabled() && !Strings.isNullOrEmpty(appArmor.getProfile());
+    public void setSecret(String secret) {
+      this.secret = secret;
     }
 
-    public AppArmor getAppArmor() {
-        return appArmor;
+    public String getSecret() {
+      return secret;
     }
 
-    public void setAppArmor(AppArmor appArmor) {
-        this.appArmor = appArmor;
+    public void setRoles(List<String> roles) {
+      this.roles = roles;
     }
 
-    public static class User {
-        private String id;
-        private String secret;
-        private List<String> roles;
+    public List<String> getRoles() {
+      return roles;
+    }
+  }
 
-        public User() {}
+  public static class AppArmor {
+    private boolean enabled;
+    private String profile;
 
-        public User(String id, String secret, String role) {
-            this.id = id;
-            this.secret = secret;
-            this.roles = Lists.newArrayList(role);
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setSecret(String secret) {
-            this.secret = secret;
-        }
-
-        public String getSecret() {
-            return secret;
-        }
-
-        public void setRoles(List<String> roles) {
-            this.roles = roles;
-        }
-
-        public List<String> getRoles() {
-            return roles;
-        }
+    public boolean isEnabled() {
+      return enabled;
     }
 
-    public static class AppArmor {
-        private boolean enabled;
-        private String profile;
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        public String getProfile() {
-            return profile;
-        }
-
-        public void setProfile(String profile) {
-            this.profile = profile;
-        }
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
     }
+
+    public String getProfile() {
+      return profile;
+    }
+
+    public void setProfile(String profile) {
+      this.profile = profile;
+    }
+  }
 }

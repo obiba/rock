@@ -13,6 +13,7 @@ package org.obiba.rock.service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import org.obiba.rock.Resources;
 import org.obiba.rock.SecurityProperties;
 import org.obiba.rock.domain.RServeSession;
 import org.obiba.rock.model.RSession;
@@ -36,84 +37,92 @@ import java.util.stream.Collectors;
 @Component
 public class RSessionService {
 
-    private static final Logger log = LoggerFactory.getLogger(RSessionService.class);
+  private static final Logger log = LoggerFactory.getLogger(RSessionService.class);
 
-    @Autowired
-    private RServerService rServerService;
+  @Autowired
+  private RServerService rServerService;
 
-    @Autowired
-    private SecurityProperties securityProperties;
+  @Autowired
+  private SecurityProperties securityProperties;
 
-    private Map<String, RServeSession> rSessions = Maps.newConcurrentMap();
+  private Map<String, RServeSession> rSessions = Maps.newConcurrentMap();
 
-    public List<RSession> getRSessions() {
-        return rSessions.values().stream().map(s -> (RSession) s).collect(Collectors.toList());
+  public List<RSession> getRSessions() {
+    return rSessions.values().stream().map(s -> (RSession) s).collect(Collectors.toList());
+  }
+
+  public int getRSessionsCount() {
+    return rSessions.values().size();
+  }
+
+  public int getBusyRSessionsCount() {
+    return (int) rSessions.values().stream().filter(RServeSession::isBusy).count();
+  }
+
+  public RSession createRSession(User user) {
+    RServeSession rSession = new RServeSession(user.getUsername(), newRConnection(Roles.isAdmin(user)));
+    rSessions.put(rSession.getId(), rSession);
+    return rSession;
+  }
+
+  public RSession getRSession(String id) {
+    return getRServeSession(id);
+  }
+
+  public void closeRSession(String id) {
+    RServeSession rSession = rSessions.get(id);
+    if (rSession == null) return;
+    rSessions.remove(id);
+    rSession.close();
+  }
+
+  public void closeAllRSessions() {
+    rSessions.keySet().forEach(this::closeRSession);
+  }
+
+  public RServeSession getRServeSession(String id) {
+    RServeSession rSession = rSessions.get(id);
+    if (rSession == null) throw new RSessionNotFoundException(id);
+    return rSession;
+  }
+
+  /**
+   * Creates a new connection to R server. Apply RAppArmor profile if defined and if user is not administrator.
+   *
+   * @param admin
+   * @return
+   * @throws RserveException
+   */
+  private RConnection newRConnection(boolean admin) {
+    RConnection conn;
+
+    try {
+      conn = new RConnection(getHost(), getPort());
+
+      if (conn.needLogin()) {
+        //conn.login(username, password);
+      }
+
+      if (!Strings.isNullOrEmpty(Resources.getRserveEncoding())) {
+        conn.setStringEncoding(Resources.getRserveEncoding());
+      }
+      if (!admin && securityProperties.withAppArmor()) {
+        conn.eval(String.format("RAppArmor::aa_change_profile('%s')", securityProperties.getAppArmor().getProfile()));
+      }
+    } catch (Exception e) {
+      log.error("Error while connecting to R ({}:{}): {}", getHost(), getPort(), e.getMessage());
+      throw new RRuntimeException(e);
     }
 
-    public RSession createRSession(User user) {
-        RServeSession rSession = new RServeSession(user.getUsername(), newRConnection(Roles.isAdmin(user)));
-        rSessions.put(rSession.getId(), rSession);
-        return rSession;
-    }
+    return conn;
+  }
 
-    public RSession getRSession(String id) {
-        return getRServeSession(id);
-    }
+  private String getHost() {
+    return "127.0.0.1";
+  }
 
-    public void closeRSession(String id) {
-        RServeSession rSession = rSessions.get(id);
-        if (rSession == null) return;
-        rSessions.remove(id);
-        rSession.close();
-    }
-
-    public void closeAllRSessions() {
-        rSessions.keySet().forEach(this::closeRSession);
-    }
-
-    public RServeSession getRServeSession(String id) {
-        RServeSession rSession = rSessions.get(id);
-        if (rSession == null) throw new RSessionNotFoundException(id);
-        return rSession;
-    }
-
-    /**
-     * Creates a new connection to R server. Apply RAppArmor profile if defined and if user is not administrator.
-     *
-     * @param admin
-     * @return
-     * @throws RserveException
-     */
-    private RConnection newRConnection(boolean admin) {
-        RConnection conn;
-
-        try {
-            conn = new RConnection(getHost(), getPort());
-
-            if (conn.needLogin()) {
-                //conn.login(username, password);
-            }
-
-            if (!Strings.isNullOrEmpty(rServerService.getEncoding())) {
-                conn.setStringEncoding(rServerService.getEncoding());
-            }
-            if (!admin && securityProperties.withAppArmor()) {
-                conn.eval(String.format("RAppArmor::aa_change_profile('%s')", securityProperties.getAppArmor().getProfile()));
-            }
-        } catch (Exception e) {
-            log.error("Error while connecting to R ({}:{}): {}", getHost(), getPort(), e.getMessage());
-            throw new RRuntimeException(e);
-        }
-
-        return conn;
-    }
-
-    private String getHost() {
-        return "127.0.0.1";
-    }
-
-    private int getPort() {
-        return rServerService.getPort();
-    }
+  private int getPort() {
+    return rServerService.getPort();
+  }
 
 }

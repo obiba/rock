@@ -16,22 +16,22 @@ import java.io.File;
  */
 public class FileWriteROperation extends AbstractROperation {
 
-    private final String fileName;
+  private final String fileName;
 
-    private final File source;
+  private final File source;
 
-    public FileWriteROperation(String fileName, File source) {
-        this.fileName = fileName;
-        this.source = source;
-    }
+  public FileWriteROperation(String fileName, File source) {
+    this.fileName = fileName;
+    this.source = source;
+  }
 
-    @Override
-    public void doWithConnection() {
-        writeFile(fileName, source);
-    }
+  @Override
+  public void doWithConnection() {
+    writeFile(fileName, source);
+  }
 
-    @Override
-    public String toString() {
-        return String.format("%s <- %s", fileName, source.getAbsolutePath());
-    }
+  @Override
+  public String toString() {
+    return String.format("%s <- %s", fileName, source.getAbsolutePath());
+  }
 }

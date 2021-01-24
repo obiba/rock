@@ -28,79 +28,79 @@ import java.util.List;
 @RequestMapping("/rserver/packages")
 public class RServerPackagesController {
 
-    @Autowired
-    private RPackagesService rPackagesService;
+  @Autowired
+  private RPackagesService rPackagesService;
 
-    /**
-     * Get the installed R packages, as a R matrix.
-     *
-     * @return
-     */
-    @GetMapping(produces = "application/octet-stream")
-    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
-    public ResponseEntity<?> getPackages() {
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getInstalledPackagesRaw().asBytes());
-    }
+  /**
+   * Get the installed R packages, as a R matrix.
+   *
+   * @return
+   */
+  @GetMapping(produces = "application/octet-stream")
+  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+  public ResponseEntity<?> getPackages() {
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getInstalledPackagesRaw().asBytes());
+  }
 
-    /**
-     * Get the installed R packages, as a JSON object representing a matrix with: row names (package names), column names
-     * (field names) and rows (package's list of values corresponding to each field).
-     *
-     * @return
-     */
-    @GetMapping(produces = "application/json")
-    @ResponseBody
-    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
-    public RStringMatrix getPackagesJSON() {
-        return rPackagesService.getInstalledPackagesMatrix();
-    }
+  /**
+   * Get the installed R packages, as a JSON object representing a matrix with: row names (package names), column names
+   * (field names) and rows (package's list of values corresponding to each field).
+   *
+   * @return
+   */
+  @GetMapping(produces = "application/json")
+  @ResponseBody
+  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+  public RStringMatrix getPackagesJSON() {
+    return rPackagesService.getInstalledPackagesMatrix();
+  }
 
-    /**
-     * Update all the R packages and restart the R server.
-     *
-     * @return
-     * @throws REXPMismatchException
-     */
-    @PutMapping
-    public ResponseEntity<?> updateAllPackages() throws REXPMismatchException {
-        rPackagesService.updateAllPackages();
-        return ResponseEntity.ok().build();
-    }
+  /**
+   * Update all the R packages and restart the R server.
+   *
+   * @return
+   * @throws REXPMismatchException
+   */
+  @PutMapping
+  public ResponseEntity<?> updateAllPackages() throws REXPMismatchException {
+    rPackagesService.updateAllPackages();
+    return ResponseEntity.ok().build();
+  }
 
-    /**
-     * Install a R package from CRAN, GitHub or Bioconductor.
-     *
-     * @param name
-     * @param ref
-     * @param manager
-     * @param ucb
-     * @return
-     */
-    @PostMapping
-    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
-    public ResponseEntity<?> installPackage(@RequestParam(name="name") String name,
-                                            @RequestParam(name="ref", required = false) String ref,
-                                            @RequestParam(name="manager", defaultValue = "cran") String manager,
-                                            UriComponentsBuilder ucb) {
-        if (Strings.isNullOrEmpty(manager) || "cran".equalsIgnoreCase(manager))
-            rPackagesService.installCRANPackage(name);
-        else if ("gh".equalsIgnoreCase(manager) || "github".equalsIgnoreCase(manager))
-            rPackagesService.installGitHubPackage(name, ref);
-        else if ("bioc".equalsIgnoreCase(manager) || "bioconductor".equalsIgnoreCase(manager))
-            rPackagesService.installBioconductorPackage(name);
-        return ResponseEntity.created(ucb.path("/rserver/package/{name}").buildAndExpand(name).toUri()).build();
-    }
+  /**
+   * Install a R package from CRAN, GitHub or Bioconductor.
+   *
+   * @param name
+   * @param ref
+   * @param manager
+   * @param ucb
+   * @return
+   */
+  @PostMapping
+  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+  public ResponseEntity<?> installPackage(@RequestParam(name = "name") String name,
+                                          @RequestParam(name = "ref", required = false) String ref,
+                                          @RequestParam(name = "manager", defaultValue = "cran") String manager,
+                                          UriComponentsBuilder ucb) {
+    if (Strings.isNullOrEmpty(manager) || "cran".equalsIgnoreCase(manager))
+      rPackagesService.installCRANPackage(name);
+    else if ("gh".equalsIgnoreCase(manager) || "github".equalsIgnoreCase(manager))
+      rPackagesService.installGitHubPackage(name, ref);
+    else if ("bioc".equalsIgnoreCase(manager) || "bioconductor".equalsIgnoreCase(manager))
+      rPackagesService.installBioconductorPackage(name);
+    return ResponseEntity.created(ucb.path("/rserver/package/{name}").buildAndExpand(name).toUri()).build();
+  }
 
-    /**
-     * Delete specified R packages.
-     *
-     * @param names
-     * @return
-     */
-    @DeleteMapping
-    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
-    public ResponseEntity<?> deletePackages(@RequestParam(name="name") List<String> names) {
-        names.forEach(n -> rPackagesService.removePackage(n));
-        return ResponseEntity.noContent().build();
-    }
+  /**
+   * Delete specified R packages.
+   *
+   * @param names
+   * @return
+   */
+  @DeleteMapping
+  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+  public ResponseEntity<?> deletePackages(@RequestParam(name = "name") List<String> names) {
+    names.forEach(n -> rPackagesService.removePackage(n));
+    return ResponseEntity.noContent().build();
+  }
 }

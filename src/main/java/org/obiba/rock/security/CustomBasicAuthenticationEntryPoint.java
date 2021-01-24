@@ -20,18 +20,18 @@ import java.io.PrintWriter;
 
 public class CustomBasicAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 
-    @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authEx) throws IOException {
-        response.addHeader("WWW-Authenticate", "Basic realm=\"" + getRealmName() + "\"");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        PrintWriter writer = response.getWriter();
-        writer.println("{\"status\": \"401\", \"key\": \"UnAuthorized\", \"message\": \"" + authEx.getMessage() + "\"}");
-    }
+  @Override
+  public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authEx) throws IOException {
+    response.addHeader("WWW-Authenticate", "Basic realm=\"" + getRealmName() + "\"");
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setContentType("application/json");
+    PrintWriter writer = response.getWriter();
+    writer.println("{\"status\": \"401\", \"key\": \"UnAuthorized\", \"message\": \"" + authEx.getMessage() + "\"}");
+  }
 
-    @Override
-    public void afterPropertiesSet() {
-        setRealmName("RockRealm");
-        super.afterPropertiesSet();
-    }
+  @Override
+  public void afterPropertiesSet() {
+    setRealmName("RockRealm");
+    super.afterPropertiesSet();
+  }
 }

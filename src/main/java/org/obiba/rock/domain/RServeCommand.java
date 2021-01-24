@@ -22,98 +22,98 @@ import java.util.Date;
  * A R command is for deferred execution of an ROperation.
  */
 public class RServeCommand implements RCommand {
-    public enum Status {
-        PENDING, IN_PROGRESS, COMPLETED, FAILED
-    }
+  public enum Status {
+    PENDING, IN_PROGRESS, COMPLETED, FAILED
+  }
 
-    private final String id;
+  private final String id;
 
-    private final ROperation rOperation;
+  private final ROperation rOperation;
 
-    private Status status;
+  private Status status;
 
-    private final Date createDate;
+  private final Date createDate;
 
-    private Date startDate;
+  private Date startDate;
 
-    private Date endDate;
+  private Date endDate;
 
-    private String error;
+  private String error;
 
-    public RServeCommand(String id, ROperation rOperation) {
-        this.id = id;
-        this.rOperation = rOperation;
-        status = Status.PENDING;
-        createDate = new Date();
-    }
+  public RServeCommand(String id, ROperation rOperation) {
+    this.id = id;
+    this.rOperation = rOperation;
+    status = Status.PENDING;
+    createDate = new Date();
+  }
 
-    public String getId() {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    @JsonIgnore
-    public ROperation getROperation() {
-        return rOperation;
-    }
+  @JsonIgnore
+  public ROperation getROperation() {
+    return rOperation;
+  }
 
-    public String getScript() {
-        return rOperation.toString();
-    }
+  public String getScript() {
+    return rOperation.toString();
+  }
 
-    public String getStatus() {
-        return status.toString();
-    }
+  public String getStatus() {
+    return status.toString();
+  }
 
-    public boolean isFinished() {
-        return status == Status.COMPLETED || status == Status.FAILED;
-    }
+  public boolean isFinished() {
+    return status == Status.COMPLETED || status == Status.FAILED;
+  }
 
-    public Date getCreateDate() {
-        return createDate;
-    }
+  public Date getCreateDate() {
+    return createDate;
+  }
 
-    public Date getStartDate() {
-        return startDate;
-    }
+  public Date getStartDate() {
+    return startDate;
+  }
 
-    public Date getEndDate() {
-        return endDate;
-    }
+  public Date getEndDate() {
+    return endDate;
+  }
 
-    public boolean isWithError() {
-        return !Strings.isNullOrEmpty(error);
-    }
+  public boolean isWithError() {
+    return !Strings.isNullOrEmpty(error);
+  }
 
-    public String getError() {
-        return error;
-    }
+  public String getError() {
+    return error;
+  }
 
-    public boolean isWithResult() {
-        return rOperation instanceof ROperationWithResult && asROperationWithResult().hasResult();
-    }
+  public boolean isWithResult() {
+    return rOperation instanceof ROperationWithResult && asROperationWithResult().hasResult();
+  }
 
-    public ROperationWithResult asROperationWithResult() {
-        return (ROperationWithResult) rOperation;
-    }
+  public ROperationWithResult asROperationWithResult() {
+    return (ROperationWithResult) rOperation;
+  }
 
-    public void inProgress() {
-        status = Status.IN_PROGRESS;
-        startDate = new Date();
-    }
+  public void inProgress() {
+    status = Status.IN_PROGRESS;
+    startDate = new Date();
+  }
 
-    public void completed() {
-        status = Status.COMPLETED;
-        endDate = new Date();
-    }
+  public void completed() {
+    status = Status.COMPLETED;
+    endDate = new Date();
+  }
 
-    public void failed(String message) {
-        status = Status.FAILED;
-        endDate = new Date();
-        error = message;
-    }
+  public void failed(String message) {
+    status = Status.FAILED;
+    endDate = new Date();
+    error = message;
+  }
 
-    @Override
-    public String toString() {
-        return rOperation.toString();
-    }
+  @Override
+  public String toString() {
+    return rOperation.toString();
+  }
 }

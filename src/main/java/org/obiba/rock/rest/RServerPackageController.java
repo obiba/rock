@@ -23,42 +23,42 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class RServerPackageController {
 
-    @Autowired
-    private RPackagesService rPackagesService;
+  @Autowired
+  private RPackagesService rPackagesService;
 
-    /**
-     * Get the installed R package description, as a R packageDescription object.
-     *
-     * @return
-     */
-    @GetMapping(value = "/rserver/package/{name}", produces = "application/octet-stream")
-    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
-    public ResponseEntity<?> getPackage(@PathVariable("name") String name) {
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getPackageDescriptionRaw(name).asBytes());
-    }
+  /**
+   * Get the installed R package description, as a R packageDescription object.
+   *
+   * @return
+   */
+  @GetMapping(value = "/rserver/package/{name}", produces = "application/octet-stream")
+  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+  public ResponseEntity<?> getPackage(@PathVariable("name") String name) {
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getPackageDescriptionRaw(name).asBytes());
+  }
 
-    /**
-     * Get the installed R package description, as a JSON object.
-     *
-     * @return
-     */
-    @GetMapping(value = "/rserver/package/{name}", produces = "application/json")
-    @ResponseBody
-    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
-    public RPackage getPackageJSON(@PathVariable("name") String name) throws REXPMismatchException {
-        return rPackagesService.getPackageDescription(name);
-    }
+  /**
+   * Get the installed R package description, as a JSON object.
+   *
+   * @return
+   */
+  @GetMapping(value = "/rserver/package/{name}", produces = "application/json")
+  @ResponseBody
+  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+  public RPackage getPackageJSON(@PathVariable("name") String name) throws REXPMismatchException {
+    return rPackagesService.getPackageDescription(name);
+  }
 
-    /**
-     * Delete R package.
-     *
-     * @param name
-     * @return
-     */
-    @DeleteMapping("/rserver/package/{name}")
-    @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
-    public ResponseEntity<?> deletePackage(@PathVariable("name") String name) {
-        rPackagesService.removePackage(name);
-        return ResponseEntity.noContent().build();
-    }
+  /**
+   * Delete R package.
+   *
+   * @param name
+   * @return
+   */
+  @DeleteMapping("/rserver/package/{name}")
+  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+  public ResponseEntity<?> deletePackage(@PathVariable("name") String name) {
+    rPackagesService.removePackage(name);
+    return ResponseEntity.noContent().build();
+  }
 }

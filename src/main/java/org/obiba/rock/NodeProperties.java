@@ -21,58 +21,58 @@ import java.util.List;
 @Component
 public class NodeProperties {
 
-    private String server = "http://localhost:6312";
+  private String server = "http://localhost:6312";
 
-    private int interval = 10;
+  private int interval = 10;
 
-    private String id = "rserver";
+  private String id = "rserver";
 
-    private String name = "rock";
+  private String name = "rock";
 
-    private List<String> tags = Lists.newArrayList("default");
+  private List<String> tags = Lists.newArrayList("default");
 
-    public void setId(String id) {
-        if (!Strings.isNullOrEmpty(id))
-            this.id = id;
-    }
+  public void setId(String id) {
+    if (!Strings.isNullOrEmpty(id))
+      this.id = id;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setServer(String publicAddress) {
-        if (!Strings.isNullOrEmpty(publicAddress))
-            this.server = publicAddress;
-    }
+  public void setServer(String publicAddress) {
+    if (!Strings.isNullOrEmpty(publicAddress))
+      this.server = publicAddress;
+  }
 
-    public String getServer() {
-        return server;
-    }
+  public String getServer() {
+    return server;
+  }
 
-    public int getInterval() {
-        return interval;
-    }
+  public int getInterval() {
+    return interval;
+  }
 
-    public void setInterval(int interval) {
-        this.interval = interval;
-    }
+  public void setInterval(int interval) {
+    this.interval = interval;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        if (!Strings.isNullOrEmpty(name))
-            this.name = name;
-    }
+  public void setName(String name) {
+    if (!Strings.isNullOrEmpty(name))
+      this.name = name;
+  }
 
-    public void setTags(List<String> tags) {
-        if (tags != null && !tags.isEmpty())
-            this.tags = tags;
-    }
+  public void setTags(List<String> tags) {
+    if (tags != null && !tags.isEmpty())
+      this.tags = tags;
+  }
 
-    public List<String> getTags() {
-        return tags;
-    }
+  public List<String> getTags() {
+    return tags;
+  }
 
 }

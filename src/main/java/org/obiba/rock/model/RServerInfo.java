@@ -15,15 +15,15 @@ import java.util.List;
 /**
  * State of the server: running status and how to connect it.
  */
-public interface RServerState {
+public interface RServerInfo {
 
-    String getId();
+  String getId();
 
-    boolean isRunning();
+  String getEncoding();
 
-    String getEncoding();
+  List<String> getTags();
 
-    List<String> getTags();
+  String getVersion();
 
-    String getVersion();
+  RServerStatus getStatus();
 }

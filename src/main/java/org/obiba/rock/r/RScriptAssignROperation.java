@@ -14,16 +14,16 @@ package org.obiba.rock.r;
  */
 public class RScriptAssignROperation extends RScriptROperation {
 
-    private final String scriptStr;
+  private final String scriptStr;
 
-    public RScriptAssignROperation(String script) {
-        super(String.format("is.null(%s)", script));
-        this.scriptStr = script;
-        setIgnoreResult(true);
-    }
+  public RScriptAssignROperation(String script) {
+    super(String.format("is.null(%s)", script));
+    this.scriptStr = script;
+    setIgnoreResult(true);
+  }
 
-    @Override
-    public String toString() {
-        return scriptStr;
-    }
+  @Override
+  public String toString() {
+    return scriptStr;
+  }
 }

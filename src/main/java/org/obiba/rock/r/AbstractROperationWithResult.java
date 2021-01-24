@@ -20,53 +20,53 @@ import java.util.NoSuchElementException;
  */
 public abstract class AbstractROperationWithResult extends AbstractROperation implements ROperationWithResult {
 
-    private REXP result;
+  private REXP result;
 
-    private boolean ignoreResult;
+  private boolean ignoreResult;
 
-    public void setIgnoreResult(boolean ignoreResult) {
-        this.ignoreResult = ignoreResult;
-    }
+  public void setIgnoreResult(boolean ignoreResult) {
+    this.ignoreResult = ignoreResult;
+  }
 
-    public boolean isIgnoreResult() {
-        return ignoreResult;
-    }
+  public boolean isIgnoreResult() {
+    return ignoreResult;
+  }
 
-    @Override
-    public REXP getResult() {
-        if (!hasResult()) throw new NoSuchElementException();
-        return result;
-    }
+  @Override
+  public REXP getResult() {
+    if (!hasResult()) throw new NoSuchElementException();
+    return result;
+  }
 
-    @Override
-    public boolean hasResult() {
-        return !isIgnoreResult() && result != null;
-    }
+  @Override
+  public boolean hasResult() {
+    return !isIgnoreResult() && result != null;
+  }
 
-    @Override
-    public boolean hasRawResult() {
-        return !isIgnoreResult() && result != null && result.isRaw();
-    }
+  @Override
+  public boolean hasRawResult() {
+    return !isIgnoreResult() && result != null && result.isRaw();
+  }
 
-    @Override
-    public REXPRaw getRawResult() {
-        if (!hasResult()) throw new NoSuchElementException();
-        if (!hasRawResult()) throw new NoSuchElementException();
-        return (REXPRaw) result;
-    }
+  @Override
+  public REXPRaw getRawResult() {
+    if (!hasResult()) throw new NoSuchElementException();
+    if (!hasRawResult()) throw new NoSuchElementException();
+    return (REXPRaw) result;
+  }
 
-    @Override
-    protected REXP eval(String script) {
-        return result = super.eval(script);
-    }
+  @Override
+  protected REXP eval(String script) {
+    return result = super.eval(script);
+  }
 
-    @Override
-    protected REXP eval(String script, boolean serialize) {
-        return result = super.eval(script, serialize);
-    }
+  @Override
+  protected REXP eval(String script, boolean serialize) {
+    return result = super.eval(script, serialize);
+  }
 
-    protected void setResult(REXP result) {
-        this.result = result;
-    }
+  protected void setResult(REXP result) {
+    this.result = result;
+  }
 
 }

@@ -1,0 +1,44 @@
+{
+  "type":"object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "status": {
+      "type": "string",
+      "required": true
+    },
+    "finished": {
+      "type": "boolean",
+      "required": true,
+      "default": "false"
+    },
+    "createdDate": {
+      "type": "string",
+      "format": "date-time",
+      "required": true
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "endDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "withError": {
+      "type": "boolean",
+      "required": true,
+      "default": "false"
+    },
+    "error": {
+      "type": "string"
+    },
+    "withResult": {
+      "type": "boolean",
+      "required": true,
+      "default": "false"
+    }
+  }
+}

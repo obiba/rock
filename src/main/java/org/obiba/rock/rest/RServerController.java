@@ -43,7 +43,7 @@ public class RServerController {
   @ResponseBody
   @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public RServerInfo getRServerState() {
-    return rServerInfoService;
+    return rServerInfoService.getRServerInfo();
   }
 
   /**
@@ -58,7 +58,7 @@ public class RServerController {
     if (!rServerService.isRunning()) {
       rServerService.start();
     }
-    return rServerInfoService;
+    return rServerInfoService.getRServerInfo();
   }
 
   /**
@@ -71,7 +71,7 @@ public class RServerController {
   @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public RServerInfo stop() {
     rServerService.stop();
-    return rServerInfoService;
+    return rServerInfoService.getRServerInfo();
   }
 
   /**

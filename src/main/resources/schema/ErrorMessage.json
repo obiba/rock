@@ -1,0 +1,22 @@
+{
+  "type":"object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "required": true
+    },
+    "key": {
+      "type": "string",
+      "required": true
+    },
+    "args": {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    },
+    "message": {
+      "type": "string"
+    }
+  }
+}

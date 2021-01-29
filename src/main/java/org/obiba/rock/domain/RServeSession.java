@@ -30,23 +30,13 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Rserve R session adapter.
  */
-public class RServeSession implements RSession {
+public class RServeSession extends RSession {
 
   private static final Logger log = LoggerFactory.getLogger(RServeSession.class);
-
-  private final String id;
-
-  private final String subject;
-
-  private final Date createDate;
-
-  private Date lastAccessDate;
 
   private String originalWorkDir;
 
   private String originalTempDir;
-
-  private boolean busy;
 
   private final Lock lock = new ReentrantLock();
 
@@ -72,11 +62,11 @@ public class RServeSession implements RSession {
   private int commandId = 1;
 
   public RServeSession(String subject, RConnection connection) {
-    this.subject = subject;
+    setSubject(subject);
     this.rConnection = connection;
-    this.id = UUID.randomUUID().toString();
-    this.createDate = new Date();
-    this.lastAccessDate = createDate;
+    setId(UUID.randomUUID().toString());
+    setCreatedDate(new Date());
+    setLastAccessDate(getCreatedDate());
 
     try {
       originalWorkDir = getRWorkDir();
@@ -84,35 +74,6 @@ public class RServeSession implements RSession {
     } catch (Exception e) {
       // ignore
     }
-  }
-
-  //
-  // Model methods
-  //
-
-  @Override
-  public String getId() {
-    return id;
-  }
-
-  @Override
-  public String getSubject() {
-    return subject;
-  }
-
-  @Override
-  public Date getCreateDate() {
-    return createDate;
-  }
-
-  @Override
-  public Date getLastAccessDate() {
-    return lastAccessDate;
-  }
-
-  @Override
-  public boolean isBusy() {
-    return busy;
   }
 
   //
@@ -137,19 +98,14 @@ public class RServeSession implements RSession {
    */
   public boolean hasExpired(long timeout) {
     Date now = new Date();
-    return !busy && now.getTime() - lastAccessDate.getTime() > timeout * 60 * 1000;
+    return !getBusy() && now.getTime() - getLastAccessDate().getTime() > timeout * 60 * 1000;
   }
 
   /**
    * Update last access date.
    */
   public void touch() {
-    lastAccessDate = new Date();
-  }
-
-  @Override
-  public String toString() {
-    return id;
+    setLastAccessDate(new Date());
   }
 
   //
@@ -161,12 +117,12 @@ public class RServeSession implements RSession {
    */
   public synchronized void execute(ROperation rop) {
     lock.lock();
-    busy = true;
+    setBusy(true);
     touch();
     try {
       rop.doWithConnection(rConnection);
     } finally {
-      busy = false;
+      setBusy(false);
       touch();
       lock.unlock();
     }
@@ -175,7 +131,7 @@ public class RServeSession implements RSession {
   public synchronized String executeAsync(ROperation rop) {
     touch();
     ensureRCommandsConsumer();
-    String rCommandId = id + "-" + commandId++;
+    String rCommandId = getId() + "-" + commandId++;
     RServeCommand cmd = new RServeCommand(rCommandId, rop);
     rCommandList.add(cmd);
     rCommandQueue.offer(cmd);

@@ -11,7 +11,6 @@
 package org.obiba.rock.service;
 
 
-import com.google.common.collect.Maps;
 import org.obiba.rock.NodeProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.model.RServerInfo;
@@ -19,11 +18,8 @@ import org.obiba.rock.model.RServerStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-
 @Component
-public class RServerInfoService implements RServerInfo {
+public class RServerInfoService {
 
   @Autowired
   private RServerService rServerService;
@@ -34,41 +30,16 @@ public class RServerInfoService implements RServerInfo {
   @Autowired
   private NodeProperties nodeProperties;
 
-  @Override
-  public String getEncoding() {
-    return Resources.getRserveEncoding();
-  }
-
-  @Override
-  public String getId() {
-    return nodeProperties.getId();
-  }
-
-  @Override
-  public List<String> getTags() {
-    return nodeProperties.getTags();
-  }
-
-  @Override
-  public String getVersion() {
-    return rServerService.getVersion();
-  }
-
-  @Override
-  public RServerStatus getStatus() {
-    return new RServerStatus() {
-      @Override
-      public boolean isRunning() {
-        return rServerService.isRunning();
-      }
-
-      @Override
-      public Map<String, Integer> getRSessionsCounts() {
-        Map<String, Integer> counts = Maps.newHashMap();
-        counts.put("total", rSessionService.getRSessionsCount());
-        counts.put("busy", rSessionService.getBusyRSessionsCount());
-        return counts;
-      }
-    };
+  public RServerInfo getRServerInfo() {
+    return new RServerInfo()
+        .withId(nodeProperties.getId())
+        .withEncoding(Resources.getRserveEncoding())
+        .withVersion(rServerService.getVersion())
+        .withTags(nodeProperties.getTags())
+        .withrServerStatus(new RServerStatus()
+            .withRunning(rServerService.isRunning())
+            .withAdditionalProperty("total", rSessionService.getRSessionsCount())
+            .withAdditionalProperty("busy", rSessionService.getBusyRSessionsCount())
+        );
   }
 }

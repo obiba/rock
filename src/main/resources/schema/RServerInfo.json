@@ -1,0 +1,39 @@
+{
+  "type":"object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "version": {
+      "type": "string",
+      "required": true
+    },
+    "encoding": {
+      "type": "string",
+      "required": true
+    },
+    "tags" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    },
+    "rServerStatus": {
+      "type":"object",
+      "properties": {
+        "running": {
+          "type": "boolean",
+          "required": true,
+          "default": "false"
+        },
+        "rSessionsCounts": {
+          "type": "object",
+          "additionalProperties": {},
+          "required": true
+        }
+      },
+      "required": true
+    }
+  }
+}

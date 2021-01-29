@@ -13,8 +13,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.obiba.rock.RProperties;
-import org.obiba.rock.domain.RPackage;
 import org.obiba.rock.domain.RStringMatrix;
+import org.obiba.rock.model.RPackage;
 import org.obiba.rock.r.ROperationWithResult;
 import org.obiba.rock.r.RScriptROperation;
 import org.rosuda.REngine.REXP;
@@ -64,9 +64,8 @@ public class RPackagesService {
     ROperationWithResult rop = execute(cmd);
     if (!rop.getResult().isLogical()) {
       Map<String[], String> fields = (Map) rop.getResult().asNativeJavaObject();
-      RPackage rPackage = new RPackage();
-      rPackage.setName(name);
-      fields.keySet().stream().filter(k -> fields.get(k) != null).forEach(k -> rPackage.putField(fields.get(k), k[0]));
+      RPackage rPackage = new RPackage().withName(name);
+      fields.keySet().stream().filter(k -> fields.get(k) != null).forEach(k -> rPackage.setAdditionalProperty(fields.get(k), k[0]));
       return rPackage;
     }
     throw new NoSuchElementException("No package with name: " + name);

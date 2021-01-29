@@ -1,0 +1,29 @@
+{
+  "type":"object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "subject": {
+      "type": "string",
+      "required": true
+    },
+    "busy": {
+      "type": "boolean",
+      "required": true,
+      "default": "false"
+    },
+    "createdDate": {
+      "type": "string",
+      "format": "date-time",
+      "customDateTimePattern" : "yyyy-MM-dd HH:mm:ss",
+      "required": true
+    },
+    "lastAccessDate": {
+      "type": "string",
+      "format": "date-time",
+      "customDateTimePattern" : "yyyy-MM-dd HH:mm:ss"
+    }
+  }
+}

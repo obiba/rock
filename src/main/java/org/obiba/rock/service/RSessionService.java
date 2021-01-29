@@ -56,7 +56,7 @@ public class RSessionService {
   }
 
   public int getBusyRSessionsCount() {
-    return (int) rSessions.values().stream().filter(RServeSession::isBusy).count();
+    return (int) rSessions.values().stream().filter(RServeSession::getBusy).count();
   }
 
   public RSession createRSession(User user) {

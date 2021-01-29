@@ -284,7 +284,7 @@ public class RSessionController {
     RServeSession rSession = getRServeSession(user, id);
     RServeCommand rCommand = rSession.getRCommand(cmdId);
     ResponseEntity<?> noContent = ResponseEntity.noContent().build();
-    if (!rCommand.isFinished()) {
+    if (!rCommand.getFinished()) {
       if (wait) {
         try {
           synchronized (rCommand) {

@@ -10,7 +10,7 @@
 
 package org.obiba.rock.rest;
 
-import org.obiba.rock.domain.RPackage;
+import org.obiba.rock.model.RPackage;
 import org.obiba.rock.security.Roles;
 import org.obiba.rock.service.RPackagesService;
 import org.rosuda.REngine.REXPMismatchException;

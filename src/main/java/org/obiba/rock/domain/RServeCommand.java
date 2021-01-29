@@ -11,7 +11,6 @@
 package org.obiba.rock.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Strings;
 import org.obiba.rock.model.RCommand;
 import org.obiba.rock.r.ROperation;
 import org.obiba.rock.r.ROperationWithResult;
@@ -21,34 +20,19 @@ import java.util.Date;
 /**
  * A R command is for deferred execution of an ROperation.
  */
-public class RServeCommand implements RCommand {
+public class RServeCommand extends RCommand {
   public enum Status {
     PENDING, IN_PROGRESS, COMPLETED, FAILED
   }
 
-  private final String id;
-
   private final ROperation rOperation;
 
-  private Status status;
-
-  private final Date createDate;
-
-  private Date startDate;
-
-  private Date endDate;
-
-  private String error;
-
   public RServeCommand(String id, ROperation rOperation) {
-    this.id = id;
+    setId(id);
     this.rOperation = rOperation;
-    status = Status.PENDING;
-    createDate = new Date();
-  }
-
-  public String getId() {
-    return id;
+    setStatus(Status.PENDING.name());
+    ;
+    setCreatedDate(new Date());
   }
 
   @JsonIgnore
@@ -60,34 +44,6 @@ public class RServeCommand implements RCommand {
     return rOperation.toString();
   }
 
-  public String getStatus() {
-    return status.toString();
-  }
-
-  public boolean isFinished() {
-    return status == Status.COMPLETED || status == Status.FAILED;
-  }
-
-  public Date getCreateDate() {
-    return createDate;
-  }
-
-  public Date getStartDate() {
-    return startDate;
-  }
-
-  public Date getEndDate() {
-    return endDate;
-  }
-
-  public boolean isWithError() {
-    return !Strings.isNullOrEmpty(error);
-  }
-
-  public String getError() {
-    return error;
-  }
-
   public boolean isWithResult() {
     return rOperation instanceof ROperationWithResult && asROperationWithResult().hasResult();
   }
@@ -97,23 +53,21 @@ public class RServeCommand implements RCommand {
   }
 
   public void inProgress() {
-    status = Status.IN_PROGRESS;
-    startDate = new Date();
+    setStatus(Status.IN_PROGRESS.name());
+    setStartDate(new Date());
   }
 
   public void completed() {
-    status = Status.COMPLETED;
-    endDate = new Date();
+    setStatus(Status.COMPLETED.name());
+    setEndDate(new Date());
+    setFinished(true);
   }
 
   public void failed(String message) {
-    status = Status.FAILED;
-    endDate = new Date();
-    error = message;
-  }
-
-  @Override
-  public String toString() {
-    return rOperation.toString();
+    setStatus(Status.FAILED.name());
+    setEndDate(new Date());
+    setError(message);
+    setWithError(true);
+    setFinished(true);
   }
 }

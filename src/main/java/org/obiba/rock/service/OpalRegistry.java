@@ -52,8 +52,7 @@ public class OpalRegistry implements Registry {
     if (opalProperties.isDefined() && !registered) {
       try {
         OkHttpClient client = new OkHttpClient();
-        String json = String.format("{ name: '%s', type: '%s', server: '%s' }", nodeProperties.getId(), nodeProperties.getName(), nodeProperties.getServer());
-        RequestBody body = RequestBody.create(MediaType.get("application/json"), json);
+        RequestBody body = makeRequestBody();
         Request request = new Request.Builder()
             .url(opalProperties.getServer() + "/ws/apps")
             .post(body)
@@ -83,9 +82,10 @@ public class OpalRegistry implements Registry {
     if (opalProperties.isDefined() && registered) {
       try {
         OkHttpClient client = new OkHttpClient();
+        RequestBody body = makeRequestBody();
         Request request = new Request.Builder()
-            .url(opalProperties.getServer() + "/ws/app/" + nodeProperties.getId())
-            .delete()
+            .url(opalProperties.getServer() + "/ws/apps")
+            .delete(body)
             .build();
         try (Response response = client.newCall(request).execute()) {
           if (response.isSuccessful()) {
@@ -103,6 +103,11 @@ public class OpalRegistry implements Registry {
       }
       registered = false;
     }
+  }
+
+  private RequestBody makeRequestBody() {
+    String json = String.format("{ name: '%s', type: '%s', server: '%s' }", nodeProperties.getId(), nodeProperties.getName(), nodeProperties.getServer());
+    return RequestBody.create(MediaType.get("application/json"), json);
   }
 
 }

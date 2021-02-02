@@ -72,21 +72,28 @@ public class RServerService {
   }
 
   @PostConstruct
+  public void initialize() {
+    start();
+    if (isRunning()) registerService();
+  }
+
+  @PreDestroy
+  public void close() {
+    stop();
+    unregisterService();
+  }
+
   public void start() {
     if (rserveStatus == 0) {
       log.error("RServerService is already running");
       return;
     }
-
     doStart();
-    if (isRunning()) registerService();
   }
 
-  @PreDestroy
   public void stop() {
     if (rserveStatus != 0) return;
     doStop();
-    unregisterService();
   }
 
   /**

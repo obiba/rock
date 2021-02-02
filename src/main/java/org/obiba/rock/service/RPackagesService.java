@@ -151,7 +151,6 @@ public class RPackagesService {
     String cmd = String.format("BiocManager::install('%s', ask = FALSE, dependencies=TRUE)", name);
     execute(getInstallBiocManagerPackageCommand());
     execute(cmd);
-    restartRServer();
   }
 
   /**
@@ -180,17 +179,7 @@ public class RPackagesService {
       }
     }
     ROperationWithResult rval = execute(cmd);
-    restartRServer();
     return rval;
-  }
-
-  void restartRServer() {
-    try {
-      rServerService.stop();
-      rServerService.start();
-    } catch (Exception ex) {
-      log.error("Error while restarting R server after package install: {}", ex.getMessage(), ex);
-    }
   }
 
   List<String> getDefaultRepos() {

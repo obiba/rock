@@ -31,12 +31,11 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Service to manage RServer process.
@@ -253,7 +252,13 @@ public class RServerService {
   }
 
   private void registerService() {
-    registries.forEach(Registry::register);
+    // delay a bit the registration, until jetty is ready
+    new Timer().schedule(new TimerTask() {
+      @Override
+      public void run() {
+        registries.forEach(Registry::register);
+      }
+    }, 5000);
   }
 
   private void unregisterService() {

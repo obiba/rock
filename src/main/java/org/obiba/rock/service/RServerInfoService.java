@@ -15,6 +15,7 @@ import org.obiba.rock.NodeProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.model.RServerInfo;
 import org.obiba.rock.model.RServerStatus;
+import org.obiba.rock.model.RSessionsCounts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,8 +39,9 @@ public class RServerInfoService {
         .withTags(nodeProperties.getTags())
         .withrServerStatus(new RServerStatus()
             .withRunning(rServerService.isRunning())
+            .withrSessionsCounts(new RSessionsCounts()
             .withAdditionalProperty("total", rSessionService.getRSessionsCount())
-            .withAdditionalProperty("busy", rSessionService.getBusyRSessionsCount())
+            .withAdditionalProperty("busy", rSessionService.getBusyRSessionsCount()))
         );
   }
 }

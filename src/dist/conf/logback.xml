@@ -30,6 +30,7 @@
 
   <!--hide verbose dependencies-->
   <logger name="jetty.util.log" level="error"/>
+<!--  <logger name="org.springframework.web" level="debug"/>-->
 
   <root level="info">
     <appender-ref ref="console"/>

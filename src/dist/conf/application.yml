@@ -14,9 +14,9 @@ node:
   interval: 10
 
 # Consul service registry
-consul:
-  server: http://localhost:8500
-  token:
+#consul:
+#  server: http://localhost:8500
+#  token:
 
 # Opal app registry
 opal:

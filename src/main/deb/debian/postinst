@@ -24,7 +24,7 @@ case "$1" in
     configure)
 
       # Rserve package
-      Rscript -e "install.packages('Rserve', repos='https://cran.r-project.org')"
+      Rscript -e "install.packages('Rserve',,'http://www.rforge.net/')"
 
       # Create rock user if it doesn't exist.
       if ! id rock > /dev/null 2>&1 ; then

@@ -46,7 +46,7 @@ installOrUpdate() {
     fi
 
     # Install RServe via R
-    Rscript -e "install.packages('Rserve', repos='https://cran.r-project.org')"
+    Rscript -e "install.packages('Rserve',,'http://www.rforge.net/')"
 
     # auto start on reboot
     chkconfig --add rock

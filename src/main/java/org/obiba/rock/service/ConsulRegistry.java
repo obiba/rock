@@ -21,6 +21,7 @@ import org.obiba.rock.model.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,6 +37,9 @@ public class ConsulRegistry implements Registry {
   private final ConsulProperties consulProperties;
 
   private boolean registered;
+
+  @Value("${server.port}")
+  private Integer port;
 
   @Autowired
   public ConsulRegistry(NodeProperties nodeProperties, ConsulProperties consulProperties) {
@@ -58,11 +62,9 @@ public class ConsulRegistry implements Registry {
         Registration service = ImmutableRegistration.builder()
             .id(nodeProperties.getId())
             .name(nodeProperties.getName())
-            .port(6312)
+            .port(port)
             .check(Registration.RegCheck.http(nodeProperties.getServer() + "/_check", nodeProperties.getInterval()))
-            //.check(Registration.RegCheck.ttl(120L)) // registers with a TTL of 2 min
             .tags(nodeProperties.getTags())
-            //.meta(Collections.singletonMap("version", "1.0.0"));
             .build();
 
         AgentClient consulAgentClient = makeConsulAgentClient();

@@ -31,7 +31,6 @@ public class RServeCommand extends RCommand {
     setId(id);
     this.rOperation = rOperation;
     setStatus(Status.PENDING.name());
-    ;
     setCreatedDate(new Date());
   }
 

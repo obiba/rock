@@ -279,7 +279,7 @@ public class RServerService {
    * @throws RserveException
    */
   private RConnection newRConnection() throws RserveException {
-    RConnection conn = new RConnection();
+    RConnection conn = new RConnection("127.0.0.1", getPort());
 
     if (conn.needLogin()) {
       Map<String, String> conf = Resources.getRservConf();

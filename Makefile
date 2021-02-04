@@ -2,6 +2,7 @@ skipTests = false
 version = 0.9-SNAPSHOT
 current_dir = $(shell pwd)
 mvn_exec = mvn -Dmaven.test.skip=${skipTests}
+port = 8085
 
 user=administrator
 password=password
@@ -39,57 +40,57 @@ rlog:
 test: status stop start
 
 status:
-	curl --user ${user}:${password} localhost:6312/rserver
+	curl --user ${user}:${password} localhost:${port}/rserver
 	@echo
 	@echo
 
 start:
-	curl -X PUT --user ${user}:${password} localhost:6312/rserver
+	curl -X PUT --user ${user}:${password} localhost:${port}/rserver
 	@echo
 	@echo
 
 stop:
-	curl -X DELETE --user ${user}:${password} localhost:6312/rserver
+	curl -X DELETE --user ${user}:${password} localhost:${port}/rserver
 	@echo
 	@echo
 
 _log:
-	curl -X GET --user ${user}:${password} -H "Accept: text/plain" -v localhost:6312/rserver/_log?limit=10
+	curl -X GET --user ${user}:${password} -H "Accept: text/plain" -v localhost:${port}/rserver/_log?limit=10
 	@echo
 	@echo
 
 packages:
-	curl --user ${user}:${password} localhost:6312/rserver/packages
+	curl --user ${user}:${password} localhost:${port}/rserver/packages
 	@echo
 	@echo
 
 package:
-	curl --user ${user}:${password} -H "Accept: application/json" localhost:6312/rserver/package/${n}
+	curl --user ${user}:${password} -H "Accept: application/json" localhost:${port}/rserver/package/${n}
 	@echo
 	@echo
 
 check:
-	curl -v localhost:6312/_check
+	curl -v localhost:${port}/_check
 	@echo
 	@echo
 
 check2:
-	curl -v --user ${user}:${password} localhost:6312/_check
+	curl -v --user ${user}:${password} localhost:${port}/_check
 	@echo
 	@echo
 
 sessions:
-	curl -X GET --user ${user}:${password} localhost:6312/r/sessions
+	curl -X GET --user ${user}:${password} localhost:${port}/r/sessions
 	@echo
 	@echo
 
 sessions-close:
-	curl -X DELETE --user ${user}:${password} localhost:6312/r/sessions
+	curl -X DELETE --user ${user}:${password} localhost:${port}/r/sessions
 	@echo
 	@echo
 
 session:
-	curl -X GET --user ${user}:${password} localhost:6312/r/session/${sid}
+	curl -X GET --user ${user}:${password} localhost:${port}/r/session/${sid}
 	@echo
 	@echo
 

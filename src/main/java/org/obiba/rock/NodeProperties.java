@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class NodeProperties {
 
-  private String server = "http://localhost:6312";
+  private String server = "http://localhost:8085";
 
   private int interval = 10;
 

@@ -74,8 +74,8 @@ check:
 	@echo
 	@echo
 
-check2:
-	curl -v --user ${user}:${password} localhost:${port}/_check
+info:
+	curl -v localhost:${port}/_info
 	@echo
 	@echo
 

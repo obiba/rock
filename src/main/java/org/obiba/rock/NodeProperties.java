@@ -75,4 +75,7 @@ public class NodeProperties {
     return tags;
   }
 
+  public String asJSON() {
+    return String.format("{ \"name\": \"%s\", \"type\": \"%s\", \"server\": \"%s\" }", getId(), getName(), getServer());
+  }
 }

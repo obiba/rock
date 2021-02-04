@@ -11,6 +11,7 @@
 package org.obiba.rock.rest;
 
 
+import org.obiba.rock.NodeProperties;
 import org.obiba.rock.service.RServerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class ServiceController {
 
   @Autowired
+  private NodeProperties nodeProperties;
+
+  @Autowired
   private RServerService rServerService;
+
+  @GetMapping(value = "/_info", produces = "application/json")
+  ResponseEntity<String> info() {
+    String json = nodeProperties.asJSON();
+    return ResponseEntity.ok(json);
+  }
 
   @GetMapping("/_check")
   ResponseEntity<?> check() {

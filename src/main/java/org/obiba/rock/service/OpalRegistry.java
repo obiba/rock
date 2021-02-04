@@ -106,8 +106,7 @@ public class OpalRegistry implements Registry {
   }
 
   private RequestBody makeRequestBody() {
-    String json = String.format("{ name: '%s', type: '%s', server: '%s' }", nodeProperties.getId(), nodeProperties.getName(), nodeProperties.getServer());
-    return RequestBody.create(MediaType.get("application/json"), json);
+    return RequestBody.create(MediaType.get("application/json"), nodeProperties.asJSON());
   }
 
 }

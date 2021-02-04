@@ -19,9 +19,9 @@ node:
 #  token:
 
 # Opal app registry
-opal:
-  server: http://localhost:8080
-  token:
+#opal:
+#  server: http://localhost:8080
+#  token:
 
 # R executable path, required to launch Rserver
 r:

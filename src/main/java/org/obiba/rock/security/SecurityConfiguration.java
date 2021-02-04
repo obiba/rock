@@ -57,6 +57,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .antMatchers("/r/sessions/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER, Roles.ROCK_USER)
         .antMatchers("/r/session/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_USER)
         .antMatchers("/_check").anonymous()
+        .antMatchers("/_info").anonymous()
         .anyRequest().denyAll()
         .and().httpBasic().realmName("RockRealm")
         .authenticationEntryPoint(authenticationEntryPoint)

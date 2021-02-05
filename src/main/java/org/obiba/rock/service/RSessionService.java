@@ -13,6 +13,7 @@ package org.obiba.rock.service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import org.obiba.rock.NodeProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.SecurityProperties;
 import org.obiba.rock.domain.RServeSession;
@@ -41,6 +42,9 @@ public class RSessionService {
 
   @Autowired
   private RServerService rServerService;
+
+  @Autowired
+  private NodeProperties nodeProperties;
 
   @Autowired
   private SecurityProperties securityProperties;
@@ -106,9 +110,12 @@ public class RSessionService {
       if (!Strings.isNullOrEmpty(Resources.getRserveEncoding())) {
         conn.setStringEncoding(Resources.getRserveEncoding());
       }
+
       if (!admin && securityProperties.withAppArmor()) {
         conn.eval(String.format("RAppArmor::aa_change_profile('%s')", securityProperties.getAppArmor().getProfile()));
       }
+
+      conn.eval(String.format(".info <- jsonlite::fromJSON('%s')", nodeProperties.asJSON()));
     } catch (Exception e) {
       log.error("Error while connecting to R ({}:{}): {}", getHost(), getPort(), e.getMessage());
       throw new RRuntimeException(e);

@@ -30,6 +30,13 @@ Rock requires to be authenticated. The following roles are defined:
 HTTP header for `Basic` authentication is required at each request: the HTTP sessions are stateless whereas the R sessions 
 are stateful.
 
+### Cluster Integration
+
+| REST             | Description
+| ---------------- | --------------------------
+| `GET /_info`     | Get node identification for service discovery
+| `GET /_check`    | Get OK when service is up and running
+
 ### R Server Administration
 
 | REST             | Description                | Roles
@@ -66,11 +73,19 @@ are stateful.
 
 ## Usage
 
-On debian systems, R and Rserve can be installed via `apt`:
+On debian systems, R can be installed via `apt`:
 
 ```
 sudo apt-get install r-base r-cran-rserve
 ```
+
+It is recommended to install the latest Rserve R package:
+
+```
+install.packages('Rserve',,'http://www.rforge.net/')
+```
+
+Rock is also available in Docker: [docker-rock](https://github.com/obiba/docker-rock)
 
 ## Development
 

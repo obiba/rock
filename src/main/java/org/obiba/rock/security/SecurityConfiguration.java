@@ -11,6 +11,7 @@
 package org.obiba.rock.security;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import org.obiba.rock.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,14 +86,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     List<SecurityProperties.User> users = securityProperties.getUsers();
     InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = auth.inMemoryAuthentication()
         .passwordEncoder(passwordEncoder);
-    users.forEach(u -> {
-      log.debug(u.getId() + ":" + u.getSecret() + ":" + Joiner.on(";").join(u.getRoles()));
-      String[] roles = new String[u.getRoles().size()];
-      roles = u.getRoles().stream().map(String::toUpperCase).collect(Collectors.toList()).toArray(roles);
-      configurer.withUser(u.getId())
-          .password(securityProperties.isEncoded() ? u.getSecret() : passwordEncoder.encode(u.getSecret()))
-          .roles(roles);
-    });
+    users.stream()
+        .filter(u -> !Strings.isNullOrEmpty(u.getId()))
+        .forEach(u -> {
+          log.debug(u.getId() + ":" + u.getSecret() + ":" + Joiner.on(";").join(u.getRoles()));
+          String[] roles = new String[u.getRoles().size()];
+          roles = u.getRoles().stream().map(String::toUpperCase).collect(Collectors.toList()).toArray(roles);
+          configurer.withUser(u.getId())
+              .password(securityProperties.isEncoded() ? u.getSecret() : passwordEncoder.encode(u.getSecret()))
+              .roles(roles);
+        });
   }
 
 

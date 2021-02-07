@@ -10,8 +10,10 @@
 
 package org.obiba.rock;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +23,7 @@ import java.util.List;
 @Component
 public class NodeProperties {
 
-  private String server = "http://localhost:8085";
-
-  private int interval = 10;
+  private String server;
 
   private String id = "rserver";
 
@@ -41,20 +41,15 @@ public class NodeProperties {
   }
 
   public void setServer(String publicAddress) {
-    if (!Strings.isNullOrEmpty(publicAddress))
-      this.server = publicAddress;
+    this.server = publicAddress;
   }
 
   public String getServer() {
     return server;
   }
 
-  public int getInterval() {
-    return interval;
-  }
-
-  public void setInterval(int interval) {
-    this.interval = interval;
+  public boolean hasServer() {
+    return !Strings.isNullOrEmpty(server);
   }
 
   public String getName() {
@@ -76,6 +71,10 @@ public class NodeProperties {
   }
 
   public String asJSON() {
-    return String.format("{ \"name\": \"%s\", \"type\": \"%s\", \"server\": \"%s\" }", getId(), getName(), getServer());
+    String body = String.format("\"name\": \"%s\", \"type\": \"%s\", \"tags\": [\"%s\"]", getId(), getName(), Joiner.on("\", \"").join(getTags()));
+    if (hasServer()) {
+      body = String.format("%s,\"server\": \"%s\"", body, getServer());
+    }
+    return String.format("{ %s }", body);
   }
 }

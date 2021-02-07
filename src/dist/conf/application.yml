@@ -4,19 +4,19 @@ server:
 
 # Cluster node
 node:
-  # public address
-  server: http://localhost:8085
   # server id
   id: rserver
   # cluster names
   tags: default
-  # health check interval
-  interval: 10
+  # optional public address, required only for self-registration
+  server:
 
 # Consul service registry
 #consul:
 #  server: http://localhost:8500
 #  token:
+#  # health check interval
+#  interval: 10
 
 # Opal app registry
 #opal:

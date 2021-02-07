@@ -50,6 +50,10 @@ public class OpalRegistry implements Registry {
   @Override
   public void register() {
     if (opalProperties.isDefined() && !registered) {
+      if (!nodeProperties.hasServer()) {
+        log.warn("Cannot register in Opal without the node's server address configured");
+        return;
+      }
       try {
         OkHttpClient client = new OkHttpClient();
         RequestBody body = makeRequestBody();
@@ -62,7 +66,7 @@ public class OpalRegistry implements Registry {
             registered = true;
             log.info("Service registered in Opal {}", opalProperties.getServer());
           } else {
-            String resp = response.body().string();
+            String resp = response.body() == null ? "" : response.body().string();
             registered = false;
             log.warn("Unable to register service in Opal {}: {}", opalProperties.getServer(), resp);
           }
@@ -91,7 +95,7 @@ public class OpalRegistry implements Registry {
           if (response.isSuccessful()) {
             log.info("Service unregistered from Opal {}", opalProperties.getServer());
           } else {
-            String resp = response.body().string();
+            String resp = response.body() == null ? "" : response.body().string();
             log.warn("Unable to unregister service from Opal {}: {}", opalProperties.getServer(), resp);
           }
         }

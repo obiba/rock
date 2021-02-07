@@ -57,13 +57,17 @@ public class ConsulRegistry implements Registry {
 
   @Override
   public void register() {
-    if (consulProperties.isDefined() && !registered) {
+    if (consulProperties.isDefined() && !registered && nodeProperties.hasServer()) {
+      if (!nodeProperties.hasServer()) {
+        log.warn("Cannot register in Consul without the node's server address configured");
+        return;
+      }
       try {
         Registration service = ImmutableRegistration.builder()
             .id(nodeProperties.getId())
             .name(nodeProperties.getName())
             .port(port)
-            .check(Registration.RegCheck.http(nodeProperties.getServer() + "/_check", nodeProperties.getInterval()))
+            .check(Registration.RegCheck.http(nodeProperties.getServer() + "/_check", consulProperties.getInterval()))
             .tags(nodeProperties.getTags())
             .build();
 

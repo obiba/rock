@@ -22,6 +22,8 @@ public class ConsulProperties {
 
   private String token;
 
+  private int interval = 10;
+
   public boolean isDefined() {
     return !Strings.isNullOrEmpty(server);
   }
@@ -53,4 +55,13 @@ public class ConsulProperties {
   public boolean hasToken() {
     return !Strings.isNullOrEmpty(token);
   }
+
+  public int getInterval() {
+    return interval;
+  }
+
+  public void setInterval(int interval) {
+    this.interval = interval;
+  }
+
 }

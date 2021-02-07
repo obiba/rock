@@ -52,10 +52,11 @@ are stateful.
 | REST             | Description                | Roles
 | ---------------- | -------------------------- | -------
 | `GET /rserver/packages`               | Get the installed R packages as a matrix | `administrator`, `manager`
-| `DELETE /rserver/packages?name=xxx`   | Delete specified packages                | `administrator`, `manager`
+| `DELETE /rserver/packages?name=xxx`   | Delete specified package                | `administrator`, `manager`
 | `POST /rserver/packages?name=xxx&manager=<cran\|github\|bioconductor>` | Install a R package | `administrator`, `manager`
 | `GET /rserver/package/xxx`            | Get a R package description              | `administrator`, `manager`
 | `DELETE /rserver/package/xxx`         | Delete a R package                       | `administrator`, `manager`
+| `GET /rserver/packages/_datashield`   | Get the settings of the installed [DataSHIELD](https://www.datashield.ac.uk/) R packages | `administrator`, `manager`
 
 ### R Server Usage
 

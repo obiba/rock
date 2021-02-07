@@ -64,6 +64,11 @@ packages:
 	@echo
 	@echo
 
+packages-datashield:
+	curl --user ${user}:${password} -H "Accept: application/json" localhost:${port}/rserver/packages/_datashield
+	@echo
+	@echo
+
 package:
 	curl --user ${user}:${password} -H "Accept: application/json" localhost:${port}/rserver/package/${n}
 	@echo

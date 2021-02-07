@@ -39,7 +39,7 @@ public class RServerPackagesController {
   @GetMapping(produces = "application/octet-stream")
   @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public ResponseEntity<?> getPackages() {
-    return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getInstalledPackagesRaw().asBytes());
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getInstalledPackagesRaw());
   }
 
   /**
@@ -102,5 +102,29 @@ public class RServerPackagesController {
   public ResponseEntity<?> deletePackages(@RequestParam(name = "name") List<String> names) {
     names.forEach(n -> rPackagesService.removePackage(n));
     return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Discover DataSHIELD packages and settings.
+   *
+   * @return
+   */
+  @GetMapping(value = "_datashield", produces = "application/octet-stream")
+  @ResponseBody
+  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+  public ResponseEntity<?> getDataSHIELDPackages() {
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getDataSHIELDPackagesRaw());
+  }
+
+  /**
+   * Discover DataSHIELD packages and settings.
+   *
+   * @return
+   */
+  @GetMapping(value = "_datashield", produces = "application/json")
+  @ResponseBody
+  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
+  public String getDataSHIELDPackagesJSON() throws REXPMismatchException {
+    return rPackagesService.getDataSHIELDPackagesJSON();
   }
 }

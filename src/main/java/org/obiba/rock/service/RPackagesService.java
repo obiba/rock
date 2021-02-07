@@ -15,6 +15,7 @@ import com.google.common.collect.Iterables;
 import org.obiba.rock.RProperties;
 import org.obiba.rock.domain.RStringMatrix;
 import org.obiba.rock.model.RPackage;
+import org.obiba.rock.r.DataSHIELDPackagesROperation;
 import org.obiba.rock.r.ROperationWithResult;
 import org.obiba.rock.r.RScriptROperation;
 import org.rosuda.REngine.REXP;
@@ -87,9 +88,9 @@ public class RPackagesService {
     rServerService.restart();
   }
 
-  public REXPRaw getInstalledPackagesRaw() {
+  public byte[] getInstalledPackagesRaw() {
     ROperationWithResult rop = getInstalledPackages(true);
-    return rop.getRawResult();
+    return rop.getRawResult().asBytes();
   }
 
   public RStringMatrix getInstalledPackagesMatrix() {
@@ -182,6 +183,18 @@ public class RPackagesService {
     return rval;
   }
 
+  public byte[] getDataSHIELDPackagesRaw() {
+    DataSHIELDPackagesROperation rop = new DataSHIELDPackagesROperation(true);
+    execute(rop);
+    return rop.getRawResult().asBytes();
+  }
+
+  public String getDataSHIELDPackagesJSON() throws REXPMismatchException {
+    DataSHIELDPackagesROperation rop = new DataSHIELDPackagesROperation(false);
+    execute(rop);
+    return rop.getResult().asString();
+  }
+
   List<String> getDefaultRepos() {
     return rProperties.getRepos().stream().map(String::trim).collect(Collectors.toList());
   }
@@ -199,6 +212,10 @@ public class RPackagesService {
     rServerService.execute(rop);
     return rop;
   }
+
+  //
+  // Private methods
+  //
 
   private ROperationWithResult getInstalledPackages(Iterable<String> fields, boolean serialize) {
     Iterable<String> allFields = Iterables.concat(Arrays.asList(defaultFields), fields);
@@ -233,5 +250,4 @@ public class RPackagesService {
   private String getInstallGitHubCommand(String name, String username, String ref) {
     return String.format("devtools::install_github('%s/%s', ref='%s', dependencies=TRUE, upgrade=TRUE)", username, name, ref);
   }
-
 }

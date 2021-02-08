@@ -73,8 +73,6 @@ public class RPackagesService {
   }
 
   public void updateAllPackages() throws REXPMismatchException {
-    // dump all R sessions
-    rServerService.restart();
     // get R server own lib path
     String cmd = ".libPaths()";
     ROperationWithResult rop = execute(cmd);
@@ -84,8 +82,6 @@ public class RPackagesService {
     String repos = Joiner.on("','").join(getDefaultRepos());
     cmd = String.format("update.packages(ask = FALSE, repos = c('%s'), instlib = '%s')", repos, libpath);
     execute(cmd);
-    // fresh new start
-    rServerService.restart();
   }
 
   public byte[] getInstalledPackagesRaw() {

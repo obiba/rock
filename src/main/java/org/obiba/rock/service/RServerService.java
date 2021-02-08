@@ -148,10 +148,10 @@ public class RServerService {
    */
   @Scheduled(fixedDelay = 10 * 1000)
   public void autoRestart() {
-//    if (isRunning() && !isRServerAlive()) {
-//      log.info("Rserve died, restarting...");
-//      restart();
-//    }
+    if (isRunning() && !isRServerAlive()) {
+      log.info("Rserve died, restarting...");
+      restart();
+    }
   }
 
   /**

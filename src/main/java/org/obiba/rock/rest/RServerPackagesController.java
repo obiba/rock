@@ -56,7 +56,7 @@ public class RServerPackagesController {
   }
 
   /**
-   * Update all the R packages and restart the R server.
+   * Update all the installed R packages.
    *
    * @return
    * @throws REXPMismatchException

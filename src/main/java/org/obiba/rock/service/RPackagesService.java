@@ -164,7 +164,7 @@ public class RPackagesService {
       checkAlphanumeric(name);
       cmd = getInstallPackagesCommand(name);
     } else {
-      execute(getInstallDevtoolsPackageCommand());
+      execute(getInstallRemotesPackageCommand());
       if (name.contains("/")) {
         String[] parts = name.split("/");
         checkAlphanumeric(parts[0]);
@@ -235,8 +235,8 @@ public class RPackagesService {
     return "install.packages('" + name + "', repos=c('" + repos + "'), dependencies=TRUE)";
   }
 
-  private String getInstallDevtoolsPackageCommand() {
-    return "if (!require('devtools', character.only=TRUE)) { " + getInstallPackagesCommand("devtools") + " }";
+  private String getInstallRemotesPackageCommand() {
+    return "if (!require('remotes', character.only=TRUE)) { " + getInstallPackagesCommand("remotes") + " }";
   }
 
   private String getInstallBiocManagerPackageCommand() {
@@ -244,6 +244,6 @@ public class RPackagesService {
   }
 
   private String getInstallGitHubCommand(String name, String username, String ref) {
-    return String.format("devtools::install_github('%s/%s', ref='%s', dependencies=TRUE, upgrade=TRUE)", username, name, ref);
+    return String.format("remotes::install_github('%s/%s', ref='%s', dependencies=TRUE, upgrade=TRUE)", username, name, ref);
   }
 }

@@ -9,19 +9,19 @@ node:
   # cluster names
   tags: default
   # optional public address, required only for self-registration
-  server:
+#  server: http://localhost:8085
 
-# Consul service registry
+# Consul service self-registration
 #consul:
 #  server: http://localhost:8500
 #  token:
 #  # health check interval
 #  interval: 10
 
-# Opal app registry
+# Opal app self-registration
 #opal:
 #  server: http://localhost:8080
-#  token:
+#  token: changeit
 
 # R executable path, required to launch Rserver
 r:

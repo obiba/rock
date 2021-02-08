@@ -90,11 +90,12 @@ public class OpalRegistry implements Registry {
       try {
         OkHttpClient client = new OkHttpClient();
         RequestBody body = makeRequestBody();
-        Request request = new Request.Builder()
+        Request.Builder builder = new Request.Builder()
             .url(opalProperties.getServer() + "/ws/apps")
-            .delete(body)
-            .build();
-        try (Response response = client.newCall(request).execute()) {
+            .delete(body);
+        if (opalProperties.hasToken())
+          builder.header(APP_AUTH_HEADER, opalProperties.getToken());
+        try (Response response = client.newCall(builder.build()).execute()) {
           if (response.isSuccessful()) {
             log.info("Service unregistered from Opal {}", opalProperties.getServer());
           } else {

@@ -27,6 +27,8 @@ public class OpalRegistry implements Registry {
 
   private static final Logger log = LoggerFactory.getLogger(OpalRegistry.class);
 
+  private static final String APP_AUTH_HEADER = "X-App-Auth";
+
   private final NodeProperties nodeProperties;
 
   private final OpalProperties opalProperties;
@@ -57,11 +59,12 @@ public class OpalRegistry implements Registry {
       try {
         OkHttpClient client = new OkHttpClient();
         RequestBody body = makeRequestBody();
-        Request request = new Request.Builder()
+        Request.Builder builder = new Request.Builder()
             .url(opalProperties.getServer() + "/ws/apps")
-            .post(body)
-            .build();
-        try (Response response = client.newCall(request).execute()) {
+            .post(body);
+        if (opalProperties.hasToken())
+          builder.header(APP_AUTH_HEADER, opalProperties.getToken());
+        try (Response response = client.newCall(builder.build()).execute()) {
           if (response.isSuccessful()) {
             registered = true;
             log.info("Service registered in Opal {}", opalProperties.getServer());

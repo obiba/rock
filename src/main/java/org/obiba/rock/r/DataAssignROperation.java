@@ -38,7 +38,7 @@ public class DataAssignROperation extends AbstractROperation {
   @Override
   public String toString() {
     StringBuilder buffer = new StringBuilder();
-    buffer.append(symbol).append(" <- byte[").append(content == null ? 0 : content.length).append("]\n");
+    buffer.append(symbol).append(" <- byte[").append(content == null ? 0 : content.length).append("]");
     return buffer.toString();
   }
 }

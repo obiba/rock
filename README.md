@@ -66,7 +66,7 @@ are stateful.
 | `GET /r/sessions`              | List the R sessions                    | `administrator`, `manager`, `user` (only own sessions)
 | `DELETE /r/sessions`           | Close all R sessions                   | `administrator`, `manager`
 | `GET /r/session/<id>`          | Get info about a R session             | `administrator`, session owner
-| `POST /r/session/<id>/_assign` | Assign a R expression in a R session   | `administrator`, session owner
+| `POST /r/session/<id>/_assign` | Assign a R expression (`application/x-rscript`) or R data (`application/x-rdata`) in a R session | `administrator`, session owner
 | `POST /r/session/<id>/_eval`   | Evaluate a R expression in a R session | `administrator`, session owner
 | `POST /r/session/<id>/_upload` | Upload a file in a R session           | `administrator`, session owner
 | `GET /r/session/<id>/_download`| Download a file from a R session       | `administrator`, session owner

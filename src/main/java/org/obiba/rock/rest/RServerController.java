@@ -17,7 +17,9 @@ import org.obiba.rock.service.RServerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -41,9 +43,10 @@ public class RServerController {
    */
   @GetMapping
   @ResponseBody
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
-  public RServerInfo getRServerState() {
-    return rServerInfoService.getRServerInfo();
+  public RServerInfo getRServerState(@AuthenticationPrincipal User user) {
+    if (Roles.isAdmin(user) || Roles.isManager(user))
+      return rServerInfoService.getRServerInfo();
+    throw new AccessDeniedException("R server status access forbidden");
   }
 
   /**
@@ -53,12 +56,14 @@ public class RServerController {
    */
   @PutMapping
   @ResponseBody
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
-  public RServerInfo start() {
-    if (!rServerService.isRunning()) {
-      rServerService.start();
+  public RServerInfo start(@AuthenticationPrincipal User user) {
+    if (Roles.isAdmin(user) || Roles.isManager(user)) {
+      if (!rServerService.isRunning()) {
+        rServerService.start();
+      }
+      return rServerInfoService.getRServerInfo();
     }
-    return rServerInfoService.getRServerInfo();
+    throw new AccessDeniedException("R server start forbidden");
   }
 
   /**
@@ -68,7 +73,6 @@ public class RServerController {
    */
   @DeleteMapping
   @ResponseBody
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public RServerInfo stop() {
     rServerService.stop();
     return rServerInfoService.getRServerInfo();
@@ -80,7 +84,6 @@ public class RServerController {
    * @return
    */
   @GetMapping(value = "/_log", produces = "text/plain")
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public ResponseEntity<StreamingResponseBody> getRServerLog(@RequestParam(name = "limit", required = false, defaultValue = "1000") int limit) {
     StreamingResponseBody stream = out -> {
       List<String> rlog = rServerService.tailRserverLog(limit);
@@ -99,7 +102,6 @@ public class RServerController {
    * @return
    */
   @GetMapping(value = "/_version", produces = "application/octet-stream")
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public ResponseEntity<?> getRServerVersion() {
     return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rServerService.getRserverVersionRaw().asBytes());
   }

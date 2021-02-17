@@ -30,8 +30,6 @@ r:
 
 # Security
 security:
-  # whether user passwords are encoded
-  encoded: false
   users:
     # administrator, can do all
     - id: administrator

@@ -22,7 +22,7 @@ import java.util.List;
 @Component
 public class SecurityProperties {
 
-  private boolean encoded = false;
+  private boolean enabled = true;
 
   private List<User> users;
 
@@ -30,12 +30,12 @@ public class SecurityProperties {
 
   private final User defaultAdmin = new User("administrator", "password", Roles.ROCK_ADMIN);
 
-  public boolean isEncoded() {
-    return encoded;
+  public boolean isEnabled() {
+    return enabled;
   }
 
-  public void setEncoded(boolean encoded) {
-    this.encoded = encoded;
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
   public List<User> getUsers() {

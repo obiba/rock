@@ -17,13 +17,11 @@ import org.obiba.rock.security.Roles;
 import org.obiba.rock.service.RSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,8 +38,8 @@ public class RSessionsController {
    * @return
    */
   @GetMapping
-  List<RSession> getRSessions(HttpServletRequest request, @AuthenticationPrincipal User user, @RequestParam(name = "subject", required = false) String subject) {
-    if (request.isUserInRole(Roles.ROCK_ADMIN) || request.isUserInRole(Roles.ROCK_MANAGER)) {
+  List<RSession> getRSessions(@AuthenticationPrincipal User user, @RequestParam(name = "subject", required = false) String subject) {
+    if (Roles.isAdmin(user) || Roles.isManager(user)) {
       // get all/filtered sessions
       return Strings.isNullOrEmpty(subject) ? rSessionService.getRSessions()
           : rSessionService.getRSessions().stream().filter(s -> subject.equals(s.getSubject())).collect(Collectors.toList());
@@ -56,10 +54,10 @@ public class RSessionsController {
    *
    * @return
    */
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   @DeleteMapping
-  ResponseEntity<?> deleteRSessions() {
-    rSessionService.closeAllRSessions();
+  ResponseEntity<?> deleteRSessions(@AuthenticationPrincipal User user) {
+    if (Roles.isAdmin(user) || Roles.isManager(user))
+      rSessionService.closeAllRSessions();
     return ResponseEntity.noContent().build();
   }
 
@@ -70,7 +68,6 @@ public class RSessionsController {
    * @param ucb
    * @return The R session object
    */
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_USER})
   @PostMapping
   ResponseEntity<?> createRSession(@AuthenticationPrincipal User user, UriComponentsBuilder ucb) {
     RSession rSession = rSessionService.createRSession(user);

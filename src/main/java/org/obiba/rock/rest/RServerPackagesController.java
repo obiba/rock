@@ -12,13 +12,11 @@ package org.obiba.rock.rest;
 
 import com.google.common.base.Strings;
 import org.obiba.rock.domain.RStringMatrix;
-import org.obiba.rock.security.Roles;
 import org.obiba.rock.service.RPackagesService;
 import org.rosuda.REngine.REXPMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -37,7 +35,6 @@ public class RServerPackagesController {
    * @return
    */
   @GetMapping(produces = "application/octet-stream")
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public ResponseEntity<?> getPackages() {
     return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getInstalledPackagesRaw());
   }
@@ -50,7 +47,6 @@ public class RServerPackagesController {
    */
   @GetMapping(produces = "application/json")
   @ResponseBody
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public RStringMatrix getPackagesJSON() {
     return rPackagesService.getInstalledPackagesMatrix();
   }
@@ -77,7 +73,6 @@ public class RServerPackagesController {
    * @return
    */
   @PostMapping
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public ResponseEntity<?> installPackage(@RequestParam(name = "name") String name,
                                           @RequestParam(name = "ref", required = false) String ref,
                                           @RequestParam(name = "manager", defaultValue = "cran") String manager,
@@ -98,7 +93,6 @@ public class RServerPackagesController {
    * @return
    */
   @DeleteMapping
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public ResponseEntity<?> deletePackages(@RequestParam(name = "name") List<String> names) {
     names.forEach(n -> rPackagesService.removePackage(n));
     return ResponseEntity.noContent().build();
@@ -111,7 +105,6 @@ public class RServerPackagesController {
    */
   @GetMapping(value = "_datashield", produces = "application/octet-stream")
   @ResponseBody
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public ResponseEntity<?> getDataSHIELDPackages() {
     return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rPackagesService.getDataSHIELDPackagesRaw());
   }
@@ -123,7 +116,6 @@ public class RServerPackagesController {
    */
   @GetMapping(value = "_datashield", produces = "application/json")
   @ResponseBody
-  @Secured({Roles.ROLE_ADMIN, Roles.ROLE_MANAGER})
   public String getDataSHIELDPackagesJSON() throws REXPMismatchException {
     return rPackagesService.getDataSHIELDPackagesJSON();
   }

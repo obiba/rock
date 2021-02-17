@@ -12,6 +12,7 @@ package org.obiba.rock.security;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import org.obiba.rock.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,21 +22,23 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
+import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
@@ -51,18 +54,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.csrf().disable()
-        .formLogin().disable()
-        .authorizeRequests()
-        .antMatchers("/rserver/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER)
-        .antMatchers("/r/sessions/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER, Roles.ROCK_USER)
-        .antMatchers("/r/session/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_USER)
-        .antMatchers("/_check").anonymous()
-        .antMatchers("/_info").anonymous()
-        .anyRequest().denyAll()
-        .and().httpBasic().realmName("RockRealm")
-        .authenticationEntryPoint(authenticationEntryPoint)
-        .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    if (!securityProperties.isEnabled())
+      http.csrf().disable()
+          .formLogin().disable()
+          .authorizeRequests().antMatchers("/**").permitAll();
+    else
+      http.csrf().disable()
+          .formLogin().disable()
+          .authorizeRequests()
+          .antMatchers("/rserver/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER)
+          .antMatchers("/r/sessions/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER, Roles.ROCK_USER)
+          .antMatchers("/r/session/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_USER)
+          .antMatchers("/_check").anonymous()
+          .antMatchers("/_info").anonymous()
+          .anyRequest().denyAll()
+          .and().httpBasic().realmName("RockRealm")
+          .authenticationEntryPoint(authenticationEntryPoint)
+          .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
   }
 
   @Bean
@@ -72,7 +80,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
+    Map<String, PasswordEncoder> encoders = Maps.newHashMap();
+    encoders.put("noop", newNoOpPasswordEncoder());
+    encoders.put("bcrypt", new BCryptPasswordEncoder(-1, new SecureRandom()));
+    encoders.put("scrypt", new SCryptPasswordEncoder());
+    return new DelegatingPasswordEncoder("noop", encoders);
+  }
+
+  private PasswordEncoder newNoOpPasswordEncoder() {
+    return new PasswordEncoder() {
+      @Override
+      public String encode(CharSequence rawPassword) {
+        return rawPassword.toString();
+      }
+
+      @Override
+      public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        return rawPassword.toString().equals(encodedPassword);
+      }
+    };
   }
 
   @Bean
@@ -83,17 +109,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    if (!securityProperties.isEnabled()) return;
+
     List<SecurityProperties.User> users = securityProperties.getUsers();
     InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = auth.inMemoryAuthentication()
         .passwordEncoder(passwordEncoder);
     users.stream()
-        .filter(u -> !Strings.isNullOrEmpty(u.getId()))
+        .filter(u -> !Strings.isNullOrEmpty(u.getId()) && !Strings.isNullOrEmpty(u.getSecret()))
         .forEach(u -> {
           log.debug(u.getId() + ":" + u.getSecret() + ":" + Joiner.on(";").join(u.getRoles()));
           String[] roles = new String[u.getRoles().size()];
           roles = u.getRoles().stream().map(String::toUpperCase).collect(Collectors.toList()).toArray(roles);
           configurer.withUser(u.getId())
-              .password(securityProperties.isEncoded() ? u.getSecret() : passwordEncoder.encode(u.getSecret()))
+              .password(u.getSecret().startsWith("{") ? u.getSecret() : passwordEncoder.encode(u.getSecret()))
               .roles(roles);
         });
   }

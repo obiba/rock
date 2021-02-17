@@ -26,14 +26,14 @@ public class Roles {
   public static final String ROLE_USER = "ROLE_" + ROCK_USER;
 
   public static boolean isAdmin(User user) {
-    return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_ADMIN));
+    return user == null || user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_ADMIN));
   }
 
   public static boolean isManager(User user) {
-    return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_MANAGER));
+    return user == null || user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_MANAGER));
   }
 
   public static boolean isUser(User user) {
-    return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_USER));
+    return user == null || user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Roles.ROLE_USER));
   }
 }

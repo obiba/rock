@@ -78,18 +78,18 @@ public class RSessionController {
    * Assign an R object to a symbol: content is expected to be the serialized form of the R object, base64 encoded. If
    * asynchronous, the R command object is returned.
    *
-   * @param id     R session ID
-   * @param symbol The R symbol to assign in the R session.
-   * @param async  If true, the command is put in a queue and executed sequentially when possible.
+   * @param id      R session ID
+   * @param symbol  The R symbol to assign in the R session.
+   * @param async   If true, the command is put in a queue and executed sequentially when possible.
    * @param content The R object, serialized, base64 encoded.
    * @param ucb
    * @return
    */
   @PostMapping(value = "/r/session/{id}/_assign", consumes = "application/x-rdata")
   ResponseEntity<RCommand> assignData(@AuthenticationPrincipal User user,
-                                        @PathVariable String id, @RequestParam(name = "s") String symbol,
-                                        @RequestParam(name = "async", defaultValue = "false") boolean async,
-                                        @RequestBody String content, UriComponentsBuilder ucb) {
+                                      @PathVariable String id, @RequestParam(name = "s") String symbol,
+                                      @RequestParam(name = "async", defaultValue = "false") boolean async,
+                                      @RequestBody String content, UriComponentsBuilder ucb) {
     DataAssignROperation rop = new DataAssignROperation(symbol, content);
     return doAssign(user, id, rop, async, ucb);
   }
@@ -408,14 +408,14 @@ public class RSessionController {
 
   private RServeSession getRServeSession(User user, String id) {
     RServeSession session = rSessionService.getRServeSession(id);
-    if (!session.getSubject().equals(user.getUsername()) && !Roles.isAdmin(user))
+    if (!session.getSubject().equals(rSessionService.getUsername(user)) && !Roles.isAdmin(user))
       throw new AccessDeniedException("R session is not owned by authenticated user");
     return session;
   }
 
   private RServeSession getRServeSessionForManagement(User user, String id) {
     RServeSession session = rSessionService.getRServeSession(id);
-    if (!session.getSubject().equals(user.getUsername()) && (!Roles.isAdmin(user) || !Roles.isManager(user)))
+    if (!session.getSubject().equals(rSessionService.getUsername(user)) && (!Roles.isAdmin(user) || !Roles.isManager(user)))
       throw new AccessDeniedException("R session is not owned by authenticated user");
     return session;
   }

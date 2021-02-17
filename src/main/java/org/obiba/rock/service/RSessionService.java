@@ -63,8 +63,12 @@ public class RSessionService {
     return (int) rSessions.values().stream().filter(RServeSession::getBusy).count();
   }
 
+  public String getUsername(User user) {
+    return user == null ? "?" : user.getUsername();
+  }
+
   public RSession createRSession(User user) {
-    RServeSession rSession = new RServeSession(user.getUsername(), newRConnection(Roles.isAdmin(user)));
+    RServeSession rSession = new RServeSession(getUsername(user), newRConnection(Roles.isAdmin(user)));
     rSessions.put(rSession.getId(), rSession);
     return rSession;
   }

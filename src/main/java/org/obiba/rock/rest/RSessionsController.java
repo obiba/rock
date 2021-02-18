@@ -17,6 +17,7 @@ import org.obiba.rock.security.Roles;
 import org.obiba.rock.service.RSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -70,8 +71,11 @@ public class RSessionsController {
    */
   @PostMapping
   ResponseEntity<?> createRSession(@AuthenticationPrincipal User user, UriComponentsBuilder ucb) {
-    RSession rSession = rSessionService.createRSession(user);
-    return ResponseEntity.created(ucb.path("/r/session/{id}").buildAndExpand(rSession.getId()).toUri()).body(rSession);
+    if (Roles.isAdmin(user) || Roles.isUser(user)) {
+      RSession rSession = rSessionService.createRSession(user);
+      return ResponseEntity.created(ucb.path("/r/session/{id}").buildAndExpand(rSession.getId()).toUri()).body(rSession);
+    }
+    throw new AccessDeniedException("R session creation not allowed");
   }
 
 }

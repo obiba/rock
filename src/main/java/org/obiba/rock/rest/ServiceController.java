@@ -28,6 +28,11 @@ public class ServiceController {
   @Autowired
   private RServerService rServerService;
 
+  @GetMapping(value = "/", produces = "application/json")
+  ResponseEntity<String> home() {
+    return info();
+  }
+
   @GetMapping(value = "/_info", produces = "application/json")
   ResponseEntity<String> info() {
     String json = nodeProperties.asJSON();

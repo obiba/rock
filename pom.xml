@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.obiba.rock</groupId>
   <artifactId>rock</artifactId>
-  <version>0.8-SNAPSHOT</version>
+  <version>0.8.0</version>
   <name>rock</name>
   <description>R server controller with REST API</description>
 
@@ -599,7 +599,7 @@
     <connection>scm:git:https://github.com/obiba/rock.git</connection>
     <developerConnection>scm:git:https://github.com/obiba/rock.git</developerConnection>
     <url>https://github.com/obiba/rock</url>
-    <tag>rock-0.8.x</tag>
+    <tag>0.8.0</tag>
   </scm>
 
   <issueManagement>

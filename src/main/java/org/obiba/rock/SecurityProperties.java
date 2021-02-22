@@ -61,7 +61,7 @@ public class SecurityProperties {
   public static class User {
     private String id;
     private String secret;
-    private List<String> roles;
+    private List<String> roles = Lists.newArrayList(Roles.ROCK_USER.toLowerCase());
 
     public User() {
     }
@@ -89,7 +89,8 @@ public class SecurityProperties {
     }
 
     public void setRoles(List<String> roles) {
-      this.roles = roles;
+      if (roles != null && !roles.isEmpty())
+        this.roles = roles;
     }
 
     public List<String> getRoles() {

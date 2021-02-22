@@ -15,12 +15,21 @@ import org.obiba.rock.NodeProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.model.RServerInfo;
 import org.obiba.rock.model.RServerStatus;
-import org.obiba.rock.model.RSessionsCounts;
+import org.obiba.rock.model.RSessions;
+import org.obiba.rock.model.System;
+import org.obiba.rock.r.SystemInfoROperation;
+import org.rosuda.REngine.RList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 @Component
 public class RServerInfoService {
+
+  private static final Logger log = LoggerFactory.getLogger(RServerInfoService.class);
 
   @Autowired
   private RServerService rServerService;
@@ -32,6 +41,25 @@ public class RServerInfoService {
   private NodeProperties nodeProperties;
 
   public RServerInfo getRServerInfo() {
+    System sys = new System().withCores(-1).withFreeMemory(-1);
+
+    try {
+      File systemInfo = new File(Resources.getRServerHomeDir(), "conf" + File.separator + "system.info.R");
+      SystemInfoROperation rop = new SystemInfoROperation(systemInfo.getAbsolutePath());
+      rServerService.execute(rop);
+      RList rval = rop.getResult().asList();
+      for (String key : rval.keys()) {
+        if ("cores".equals(key))
+          sys.withCores(rval.at(key).asInteger());
+        else if ("freeMemory".equals(key))
+          sys.withFreeMemory(rval.at(key).asInteger());
+        else
+          sys.withAdditionalProperty(key, rval.at(key).asNativeJavaObject());
+      }
+    } catch (Exception e) {
+      log.error("Failed to extract system info from R", e);
+    }
+
     return new RServerInfo()
         .withId(nodeProperties.getId())
         .withEncoding(Resources.getRserveEncoding())
@@ -39,9 +67,10 @@ public class RServerInfoService {
         .withTags(nodeProperties.getTags())
         .withrServerStatus(new RServerStatus()
             .withRunning(rServerService.isRunning())
-            .withrSessionsCounts(new RSessionsCounts()
-            .withAdditionalProperty("total", rSessionService.getRSessionsCount())
-            .withAdditionalProperty("busy", rSessionService.getBusyRSessionsCount()))
+            .withrSessions(new RSessions()
+                .withTotal(rSessionService.getRSessionsCount())
+                .withBusy(rSessionService.getBusyRSessionsCount()))
+            .withSystem(sys)
         );
   }
 }

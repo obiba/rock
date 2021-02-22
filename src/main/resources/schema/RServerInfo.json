@@ -27,8 +27,37 @@
           "required": true,
           "default": "false"
         },
-        "rSessionsCounts": {
+        "rSessions": {
           "type": "object",
+          "properties": {
+            "total": {
+              "type": "integer",
+              "required": true,
+              "default": "-1"
+            },
+            "busy": {
+              "type": "integer",
+              "required": true,
+              "default": "-1"
+            }
+          },
+          "additionalProperties": {},
+          "required": true
+        },
+        "system": {
+          "type": "object",
+          "properties": {
+            "cores": {
+              "type": "integer",
+              "required": true,
+              "default": "-1"
+            },
+            "freeMemory": {
+              "type": "integer",
+              "required": true,
+              "default": "-1"
+            }
+          },
           "additionalProperties": {},
           "required": true
         }

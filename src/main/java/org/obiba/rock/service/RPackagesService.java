@@ -37,8 +37,6 @@ public class RPackagesService {
 
   private static final Logger log = LoggerFactory.getLogger(RPackagesService.class);
 
-  public static final String VERSION = "Version";
-
   public static final String AGGREGATE_METHODS = "AggregateMethods";
 
   public static final String ASSIGN_METHODS = "AssignMethods";

@@ -19,7 +19,8 @@ system.info <- function() {
       freeMemory <- as.integer(x)
     } else if (osName == 'Linux') {
       x <- system2('free', args='-k', stdout=TRUE)
-      x <- strsplit(x[2], " +")[[1]][4]
+      # get the available memory, not the free one
+      x <- strsplit(x[2], " +")[[1]][7]
       freeMemory <- as.integer(x)
     } else {
       warn("Only supported on Windows and Linux")

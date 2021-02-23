@@ -30,7 +30,7 @@ Rock requires to be authenticated. The following roles are defined:
 HTTP header for `Basic` authentication is required at each request: the HTTP sessions are stateless whereas the R sessions 
 are stateful.
 
-### Cluster Integration
+### Service Discovery
 
 | REST             | Description
 | ---------------- | --------------------------

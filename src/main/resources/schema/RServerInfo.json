@@ -19,49 +19,43 @@
         "type" : "string"
       }
     },
-    "rServerStatus": {
-      "type":"object",
+    "running": {
+      "type": "boolean",
+      "required": true,
+      "default": "false"
+    },
+    "sessions": {
+      "type": "object",
       "properties": {
-        "running": {
-          "type": "boolean",
+        "total": {
+          "type": "integer",
           "required": true,
-          "default": "false"
+          "default": "-1"
         },
-        "rSessions": {
-          "type": "object",
-          "properties": {
-            "total": {
-              "type": "integer",
-              "required": true,
-              "default": "-1"
-            },
-            "busy": {
-              "type": "integer",
-              "required": true,
-              "default": "-1"
-            }
-          },
-          "additionalProperties": {},
-          "required": true
-        },
-        "system": {
-          "type": "object",
-          "properties": {
-            "cores": {
-              "type": "integer",
-              "required": true,
-              "default": "-1"
-            },
-            "freeMemory": {
-              "type": "integer",
-              "required": true,
-              "default": "-1"
-            }
-          },
-          "additionalProperties": {},
-          "required": true
+        "busy": {
+          "type": "integer",
+          "required": true,
+          "default": "-1"
         }
       },
+      "additionalProperties": {},
+      "required": true
+    },
+    "system": {
+      "type": "object",
+      "properties": {
+        "cores": {
+          "type": "integer",
+          "required": true,
+          "default": "-1"
+        },
+        "freeMemory": {
+          "type": "integer",
+          "required": true,
+          "default": "-1"
+        }
+      },
+      "additionalProperties": {},
       "required": true
     }
   }

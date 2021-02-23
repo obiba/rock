@@ -14,8 +14,7 @@ package org.obiba.rock.service;
 import org.obiba.rock.NodeProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.model.RServerInfo;
-import org.obiba.rock.model.RServerStatus;
-import org.obiba.rock.model.RSessions;
+import org.obiba.rock.model.Sessions;
 import org.obiba.rock.model.System;
 import org.obiba.rock.r.SystemInfoROperation;
 import org.rosuda.REngine.RList;
@@ -43,21 +42,23 @@ public class RServerInfoService {
   public RServerInfo getRServerInfo() {
     System sys = new System().withCores(-1).withFreeMemory(-1);
 
-    try {
-      File systemInfo = new File(Resources.getRServerHomeDir(), "conf" + File.separator + "system.info.R");
-      SystemInfoROperation rop = new SystemInfoROperation(systemInfo.getAbsolutePath());
-      rServerService.execute(rop);
-      RList rval = rop.getResult().asList();
-      for (String key : rval.keys()) {
-        if ("cores".equals(key))
-          sys.withCores(rval.at(key).asInteger());
-        else if ("freeMemory".equals(key))
-          sys.withFreeMemory(rval.at(key).asInteger());
-        else
-          sys.withAdditionalProperty(key, rval.at(key).asNativeJavaObject());
+    if (rServerService.isRunning()) {
+      try {
+        File systemInfo = new File(Resources.getRServerHomeDir(), "conf" + File.separator + "system.info.R");
+        SystemInfoROperation rop = new SystemInfoROperation(systemInfo.getAbsolutePath());
+        rServerService.execute(rop);
+        RList rval = rop.getResult().asList();
+        for (String key : rval.keys()) {
+          if ("cores".equals(key))
+            sys.withCores(rval.at(key).asInteger());
+          else if ("freeMemory".equals(key))
+            sys.withFreeMemory(rval.at(key).asInteger());
+          else
+            sys.withAdditionalProperty(key, rval.at(key).asNativeJavaObject());
+        }
+      } catch (Exception e) {
+        log.error("Failed to extract system info from R", e);
       }
-    } catch (Exception e) {
-      log.error("Failed to extract system info from R", e);
     }
 
     return new RServerInfo()
@@ -65,12 +66,10 @@ public class RServerInfoService {
         .withEncoding(Resources.getRserveEncoding())
         .withVersion(rServerService.getVersion())
         .withTags(nodeProperties.getTags())
-        .withrServerStatus(new RServerStatus()
-            .withRunning(rServerService.isRunning())
-            .withrSessions(new RSessions()
-                .withTotal(rSessionService.getRSessionsCount())
-                .withBusy(rSessionService.getBusyRSessionsCount()))
-            .withSystem(sys)
-        );
+        .withRunning(rServerService.isRunning())
+        .withSessions(new Sessions()
+            .withTotal(rSessionService.getRSessionsCount())
+            .withBusy(rSessionService.getBusyRSessionsCount()))
+        .withSystem(sys);
   }
 }

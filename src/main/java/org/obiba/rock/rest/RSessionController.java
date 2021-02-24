@@ -148,7 +148,9 @@ public class RSessionController {
                                    @PathVariable String id,
                                    @RequestParam(name = "async", defaultValue = "false") boolean async,
                                    @RequestBody String script, UriComponentsBuilder ucb) {
-    RScriptROperation rop = new RScriptROperation(String.format("jsonlite::toJSON(%s, auto_unbox = TRUE)", script), false);
+    //RScriptROperation rop = new RScriptROperation(String.format("{ ..x <- %s ; tryCatch(jsonlite::toJSON(..x, auto_unbox = T), error = function(e) { jsonlite::serializeJSON(..x) }) ; rm(..x) }", script), false);
+    //RScriptROperation rop = new RScriptROperation(String.format("tryCatch(jsonlite::toJSON(%s, auto_unbox = T), error = function(e) { jsonlite::serializeJSON(%s) })", script, script), false);
+    RScriptToJSONROperation rop = new RScriptToJSONROperation(script);
     return doEval(user, id, rop, async, ucb);
   }
 

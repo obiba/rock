@@ -55,7 +55,7 @@ stop:
 	@echo
 
 _log:
-	curl -X GET --user ${user}:${password} -H "Accept: text/plain" -v localhost:${port}/rserver/_log?limit=10
+	curl -X GET --user ${user}:${password} -H "Accept: text/plain" localhost:${port}/rserver/_log?limit=10
 	@echo
 	@echo
 
@@ -65,12 +65,12 @@ packages:
 	@echo
 
 packages-datashield:
-	curl --user ${user}:${password} -H "Accept: application/json" localhost:${port}/rserver/packages/_datashield
+	curl --user ${user}:${password} localhost:${port}/rserver/packages/_datashield
 	@echo
 	@echo
 
 package:
-	curl --user ${user}:${password} -H "Accept: application/json" localhost:${port}/rserver/package/${n}
+	curl --user ${user}:${password} localhost:${port}/rserver/package/${n}
 	@echo
 	@echo
 

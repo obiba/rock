@@ -94,7 +94,7 @@ public class RServerPackagesController {
    */
   @DeleteMapping
   public ResponseEntity<?> deletePackages(@RequestParam(name = "name") List<String> names) {
-    names.forEach(n -> rPackagesService.removePackage(n));
+    if (names != null) names.forEach(n -> rPackagesService.removePackage(n));
     return ResponseEntity.noContent().build();
   }
 

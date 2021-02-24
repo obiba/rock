@@ -287,9 +287,13 @@ public class RServeSession extends RSession {
 
     private void consume(RServeCommand rCommand) {
       try {
-        rCommand.inProgress();
-        execute(rCommand.getROperation());
-        rCommand.completed();
+        // check it is still a valid command (not removed from the list)
+        if (hasRCommand(rCommand.getId())) {
+          // execute
+          rCommand.inProgress();
+          execute(rCommand.getROperation());
+          rCommand.completed();
+        }
       } catch (Exception e) {
         log.error("Error when consuming R command: {}", e.getMessage(), e);
         rCommand.failed(e.getMessage());

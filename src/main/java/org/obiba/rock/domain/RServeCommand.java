@@ -11,6 +11,7 @@
 package org.obiba.rock.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.obiba.rock.model.RCommand;
 import org.obiba.rock.r.ROperation;
 import org.obiba.rock.r.ROperationWithResult;
@@ -43,7 +44,9 @@ public class RServeCommand extends RCommand {
     return rOperation.toString();
   }
 
-  public boolean isWithResult() {
+  @JsonProperty("withResult")
+  @Override
+  public Boolean getWithResult() {
     return rOperation instanceof ROperationWithResult && asROperationWithResult().hasResult();
   }
 

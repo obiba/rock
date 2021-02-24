@@ -285,8 +285,9 @@ public class RSessionController {
    * @return
    */
   @DeleteMapping("/r/session/{id}/command/{cmdId}")
-  RCommand deleteCommand(@AuthenticationPrincipal User user, @PathVariable String id, @PathVariable String cmdId) {
-    return getRServeSession(user, id).removeRCommand(cmdId);
+  ResponseEntity<?> deleteCommand(@AuthenticationPrincipal User user, @PathVariable String id, @PathVariable String cmdId) {
+    getRServeSession(user, id).removeRCommand(cmdId);
+    return ResponseEntity.noContent().build();
   }
 
   /**
@@ -390,7 +391,7 @@ public class RSessionController {
 
   private ResponseEntity<?> getFinishedRCommandResult(RServeSession rSession, RServeCommand rCommand, boolean remove) {
     ResponseEntity<?> resp = ResponseEntity.noContent().build();
-    if (rCommand.isWithResult()) {
+    if (rCommand.getWithResult()) {
       ROperationWithResult rop = rCommand.asROperationWithResult();
       if (rop.hasResult()) {
         if (rop.hasRawResult()) {

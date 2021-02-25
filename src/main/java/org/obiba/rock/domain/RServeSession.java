@@ -131,8 +131,8 @@ public class RServeSession extends RSession {
   public synchronized String executeAsync(ROperation rop) {
     touch();
     ensureRCommandsConsumer();
-    String rCommandId = getId() + "-" + commandId++;
-    RServeCommand cmd = new RServeCommand(rCommandId, rop);
+    String rCommandId = "" + commandId++;
+    RServeCommand cmd = new RServeCommand(getId(), rCommandId, rop);
     rCommandList.add(cmd);
     rCommandQueue.offer(cmd);
     return rCommandId;

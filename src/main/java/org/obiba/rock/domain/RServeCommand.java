@@ -28,8 +28,9 @@ public class RServeCommand extends RCommand {
 
   private final ROperation rOperation;
 
-  public RServeCommand(String id, ROperation rOperation) {
+  public RServeCommand(String sessionId, String id, ROperation rOperation) {
     setId(id);
+    setSessionId(sessionId);
     this.rOperation = rOperation;
     setStatus(Status.PENDING.name());
     setCreatedDate(new Date());

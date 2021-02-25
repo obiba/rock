@@ -1,5 +1,5 @@
 skipTests = false
-version = 0.9-SNAPSHOT
+version = 1.0-SNAPSHOT
 current_dir = $(shell pwd)
 mvn_exec = mvn -Dmaven.test.skip=${skipTests}
 port = 8085

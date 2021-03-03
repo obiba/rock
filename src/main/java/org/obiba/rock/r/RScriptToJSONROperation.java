@@ -29,9 +29,8 @@ public class RScriptToJSONROperation extends AbstractROperationWithResult {
   @Override
   public void doWithConnection() {
     setResult(null);
-    eval(String.format("base::assign('..x', %s)", script));
-    REXP rval = eval("tryCatch(jsonlite::toJSON(..x, auto_unbox = T), error = function(e) { jsonlite::serializeJSON(..x) })", false);
-    eval("rm(..x)", false);
+    eval("base::assign('.rock.toJSON', function(x) { tryCatch(jsonlite::toJSON(x, auto_unbox = T), error = function(e) { jsonlite::serializeJSON(x) }) })", false);
+    REXP rval = eval(String.format(".rock.toJSON(%s)", script), false);
     setResult(rval);
   }
 

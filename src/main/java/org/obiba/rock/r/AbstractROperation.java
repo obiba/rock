@@ -118,7 +118,7 @@ public abstract class AbstractROperation implements ROperation {
       log.warn("Failed evaluating: {}", script, e);
       throw new RRuntimeException(e);
     }
-    if (evaled.inherits("try-error")) {
+    if (evaled != null && evaled.inherits("try-error")) {
       // Deal with an error
       throw new REvaluationRuntimeException("Error while evaluating '" + script + "'", evaled);
     }

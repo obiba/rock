@@ -355,7 +355,7 @@ public class RSessionController {
           return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
         else {
           try {
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(rop.getResult().asString());
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(toJSONResult(rop));
           } catch (REXPMismatchException e) {
             throw new RRuntimeException("No eval result could be extracted as a string");
           }
@@ -363,6 +363,13 @@ public class RSessionController {
       }
       throw new RRuntimeException("No eval result could be extracted");
     }
+  }
+
+  private String toJSONResult(ROperationWithResult rop) throws REXPMismatchException {
+    String json = rop.getResult().asString();
+    if ("{}".equals(json))
+      json = "null";
+    return json;
   }
 
   private void doWriteFile(InputStream in, String rootFolder, String destinationPath, boolean overwrite) throws IOException {
@@ -398,7 +405,7 @@ public class RSessionController {
           resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(rop.getRawResult().asBytes());
         } else {
           try {
-            resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(rop.getResult().asString());
+            resp = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(toJSONResult(rop));
           } catch (REXPMismatchException e) {
             throw new RRuntimeException("No eval result could be extracted as a string");
           }

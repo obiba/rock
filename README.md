@@ -10,83 +10,20 @@ In addition to that Rock aims at being:
 * safe, by using authentication and restricting the scope of activities of an R session thanks to [RAppArmor](https://cran.r-project.org/package=RAppArmor)
 * scalable, by registering itself in [consul](https://www.consul.io/) service registry and also as an [Opal](https://github.com/obiba/opal) app.
 
-Requires Java8 and [R](http://www.r-project.org/) to be installed with [Rserve](http://rforge.net/Rserve/) package.
-
-See [rockr](https://github.com/obiba/rockr) for an R implementation of a Rock server client.
+Requires Java and [R](http://www.r-project.org/) to be installed with [Rserve](http://rforge.net/Rserve/) package.
 
 * Have a bug or a question? Please create an issue on [GitHub](https://github.com/obiba/rock/issues).
 * Continuous integration is on [Travis](https://travis-ci.com/obiba/rock).
 
-## REST API
+## Documentation
 
-### Authentication
-
-Rock requires to be authenticated. The following roles are defined:
-
-* `administrator`
-* `manager`
-* `user`
-
-HTTP header for `Basic` authentication is required at each request: the HTTP sessions are stateless whereas the R sessions 
-are stateful.
-
-### Service Discovery
-
-| REST             | Description
-| ---------------- | --------------------------
-| `GET /_info`     | Get node identification for service discovery
-| `GET /_check`    | Get OK when service is up and running
-
-### R Server Administration
-
-| REST             | Description                | Roles
-| ---------------- | -------------------------- | -------
-| `GET /rserver`   | Get the status of R server | `administrator`, `manager`
-| `PUT /rserver`   | Start the R server         | `administrator`, `manager`
-| `DELETE /rserver`| Stop the R server          | `administrator`, `manager`
-| `GET /rserver/_log?limit=100`   | Tail the R server log file          | `administrator`, `manager`
-| `GET /rserver/_version`         | Get the R server version (R object) | `administrator`, `manager`
-
-### R Server Packages Administration
-
-| REST             | Description                | Roles
-| ---------------- | -------------------------- | -------
-| `GET /rserver/packages`               | Get the installed R packages as a matrix | `administrator`, `manager`
-| `DELETE /rserver/packages?name=xxx`   | Delete specified package                | `administrator`, `manager`
-| `POST /rserver/packages?name=xxx&manager=<cran\|github\|bioconductor>` | Install a R package | `administrator`, `manager`
-| `GET /rserver/package/xxx`            | Get a R package description              | `administrator`, `manager`
-| `DELETE /rserver/package/xxx`         | Delete a R package                       | `administrator`, `manager`
-| `GET /rserver/packages/_datashield`   | Get the settings of the installed [DataSHIELD](https://www.datashield.ac.uk/) R packages | `administrator`, `manager`
-
-### R Server Usage
-
-| REST             | Description                | Roles
-| ---------------- | -------------------------- | -----------------
-| `POST /r/sessions`             | Create a R session, requesting subject becomes the owner of the session | `administrator`, `user`
-| `GET /r/sessions`              | List the R sessions                    | `administrator`, `manager`, `user` (only own sessions)
-| `DELETE /r/sessions`           | Close all R sessions                   | `administrator`, `manager`
-| `GET /r/session/<id>`          | Get info about a R session             | `administrator`, session owner
-| `POST /r/session/<id>/_assign` | Assign a R expression (`application/x-rscript`) or R data (`application/x-rdata`) in a R session | `administrator`, session owner
-| `POST /r/session/<id>/_eval`   | Evaluate a R expression in a R session | `administrator`, session owner
-| `POST /r/session/<id>/_upload` | Upload a file in a R session           | `administrator`, session owner
-| `GET /r/session/<id>/_download`| Download a file from a R session       | `administrator`, session owner
-| `DELETE /r/session/<id>`       | Close a R session                      | `administrator`, session owner
+Full documentation is available at: [Rock Documentation](https://rockdoc.obiba.org)
 
 ## Usage
 
-On debian systems, R can be installed via `apt`:
+Rock is available as Debian/RPM packages and as a Docker image. See installation instructions: [Rock Installation](https://rockdoc.obiba.org/en/latest/admin/installation.html)
 
-```
-sudo apt-get install r-base r-cran-rserve
-```
-
-It is recommended to install the latest Rserve R package:
-
-```
-install.packages('Rserve',,'http://www.rforge.net/')
-```
-
-Rock is also available in Docker: [docker-rock](https://github.com/obiba/docker-rock)
+See [rockr](https://github.com/obiba/rockr) for an R implementation of a Rock server client.
 
 ## Development
 
@@ -110,7 +47,7 @@ See other Makefile targets.
 
 Have a question? Ask on our mailing list!
 
-obiba-users@googlegroups.com
+[Subscribe to obiba-users@googlegroups.com](mailto:obiba-users+subscribe@googlegroups.com)
 
 [http://groups.google.com/group/obiba-users](http://groups.google.com/group/obiba-users)
 

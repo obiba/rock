@@ -29,8 +29,8 @@ node:
 r:
   exec: /usr/bin/R
   repos: https://cloud.r-project.org,https://cran.obiba.org
-  # R session timeout in minutes
-  sessionTimeout: 1
+  # R session timeout in minutes (<0 is no timeout)
+  sessionTimeout: 240
 
 # Security
 security:

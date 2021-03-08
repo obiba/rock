@@ -9,7 +9,7 @@ node:
   # cluster name
   cluster: default
   # informative tags
-  tags: 
+  tags:
   # optional public address, required only for self-registration
 #  server: http://localhost:8085
 
@@ -29,6 +29,8 @@ node:
 r:
   exec: /usr/bin/R
   repos: https://cloud.r-project.org,https://cran.obiba.org
+  # R session timeout in minutes
+  sessionTimeout: 1
 
 # Security
 security:

@@ -24,6 +24,8 @@ public class RProperties {
 
   private List<String> repos = Lists.newArrayList("https://cloud.r-project.org", "https://cran.obiba.org");
 
+  private int sessionTimeout = 240;
+
   public String getExec() {
     return exec;
   }
@@ -39,5 +41,13 @@ public class RProperties {
   public void setRepos(List<String> repos) {
     if (repos != null && !repos.isEmpty())
       this.repos = repos;
+  }
+
+  public int getSessionTimeout() {
+    return sessionTimeout;
+  }
+
+  public void setSessionTimeout(int sessionTimeout) {
+    this.sessionTimeout = sessionTimeout;
   }
 }

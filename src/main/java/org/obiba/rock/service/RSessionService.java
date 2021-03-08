@@ -14,6 +14,7 @@ package org.obiba.rock.service;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.obiba.rock.NodeProperties;
+import org.obiba.rock.RProperties;
 import org.obiba.rock.Resources;
 import org.obiba.rock.SecurityProperties;
 import org.obiba.rock.domain.RServeSession;
@@ -25,6 +26,7 @@ import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +41,9 @@ import java.util.stream.Collectors;
 public class RSessionService {
 
   private static final Logger log = LoggerFactory.getLogger(RSessionService.class);
+
+  @Autowired
+  private RProperties rProperties;
 
   @Autowired
   private RServerService rServerService;
@@ -80,6 +85,7 @@ public class RSessionService {
   public void closeRSession(String id) {
     RServeSession rSession = rSessions.get(id);
     if (rSession == null) return;
+    log.info("Closing R session: {}", id);
     rSessions.remove(id);
     rSession.close();
   }
@@ -92,6 +98,14 @@ public class RSessionService {
     RServeSession rSession = rSessions.get(id);
     if (rSession == null) throw new RSessionNotFoundException(id);
     return rSession;
+  }
+
+  @Scheduled(fixedDelay = 600 * 1000)
+  public void checkExpiredSessions() {
+    if (rProperties.getSessionTimeout() > 0)
+      rSessions.values().stream()
+          .filter(s -> s.hasExpired(rProperties.getSessionTimeout()))
+          .forEach(s -> closeRSession(s.getId()));
   }
 
   /**

@@ -63,9 +63,10 @@ public class RServerInfoService {
 
     return new RServerInfo()
         .withId(nodeProperties.getId())
+        .withCluster(nodeProperties.getCluster())
+        .withTags(nodeProperties.getTags())
         .withEncoding(Resources.getRserveEncoding())
         .withVersion(rServerService.getVersion())
-        .withTags(nodeProperties.getTags())
         .withRunning(rServerService.isRunning())
         .withSessions(new Sessions()
             .withTotal(rSessionService.getRSessionsCount())

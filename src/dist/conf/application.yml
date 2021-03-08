@@ -6,8 +6,10 @@ server:
 node:
   # server id
   id: rserver
-  # cluster names
-  tags: default
+  # cluster name
+  cluster: default
+  # informative tags
+  tags: 
   # optional public address, required only for self-registration
 #  server: http://localhost:8085
 

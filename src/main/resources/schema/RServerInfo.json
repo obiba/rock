@@ -5,6 +5,10 @@
       "type": "string",
       "required": true
     },
+    "cluster": {
+      "type": "string",
+      "required": true
+    },
     "version": {
       "type": "string",
       "required": true

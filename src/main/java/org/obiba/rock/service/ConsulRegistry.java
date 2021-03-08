@@ -65,7 +65,7 @@ public class ConsulRegistry implements Registry {
       try {
         Registration service = ImmutableRegistration.builder()
             .id(nodeProperties.getId())
-            .name(nodeProperties.getName())
+            .name(nodeProperties.getType())
             .port(port)
             .check(Registration.RegCheck.http(nodeProperties.getServer() + "/_check", consulProperties.getInterval()))
             .tags(nodeProperties.getTags())

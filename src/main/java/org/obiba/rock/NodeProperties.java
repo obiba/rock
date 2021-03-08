@@ -26,9 +26,11 @@ public class NodeProperties {
 
   private String id = "rserver";
 
-  private String name = "rock";
+  private String type = "rock";
 
-  private List<String> tags = Lists.newArrayList("default");
+  private String cluster = "default";
+
+  private List<String> tags = Lists.newArrayList();
 
   public void setId(String id) {
     if (!Strings.isNullOrEmpty(id))
@@ -51,13 +53,22 @@ public class NodeProperties {
     return !Strings.isNullOrEmpty(server);
   }
 
-  public String getName() {
-    return name;
+  public String getType() {
+    return type;
   }
 
-  public void setName(String name) {
-    if (!Strings.isNullOrEmpty(name))
-      this.name = name;
+  public void setType(String type) {
+    if (!Strings.isNullOrEmpty(type))
+      this.type = type;
+  }
+
+  public String getCluster() {
+    return cluster;
+  }
+
+  public void setCluster(String cluster) {
+    if (!Strings.isNullOrEmpty(cluster))
+      this.cluster = cluster;
   }
 
   public void setTags(List<String> tags) {
@@ -70,10 +81,13 @@ public class NodeProperties {
   }
 
   public String asJSON() {
-    String body = String.format("\"name\": \"%s\", \"type\": \"%s\", \"tags\": [\"%s\"]", getId(), getName(), Joiner.on("\", \"").join(getTags()));
-    if (hasServer()) {
+    String body = String.format("\"id\": \"%s\", \"type\": \"%s\", \"cluster\": \"%s\"", getId(), getType(), getCluster());
+    if (tags.isEmpty())
+      body = String.format("%s,\"tags\": []", body);
+    else
+      body = String.format("%s,\"tags\": [\"%s\"]", body, Joiner.on("\", \"").join(getTags()));
+    if (hasServer())
       body = String.format("%s,\"server\": \"%s\"", body, getServer());
-    }
     return String.format("{ %s }", body);
   }
 }

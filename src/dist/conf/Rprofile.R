@@ -12,4 +12,5 @@ if (!dir.exists(libPath)) {
 # cleanup
 rm(home)
 rm(libPath)
+options(repos = c("https://cloud.r-project.org", "https://cran.obiba.org"))
 # newline required

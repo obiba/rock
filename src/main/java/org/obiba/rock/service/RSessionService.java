@@ -13,7 +13,6 @@ package org.obiba.rock.service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import org.obiba.rock.NodeProperties;
 import org.obiba.rock.RProperties;
 import org.obiba.rock.Resources;
@@ -30,13 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileSystemUtils;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -111,18 +106,6 @@ public class RSessionService {
       rSessions.values().stream()
           .filter(s -> s.hasExpired(rProperties.getSessionTimeout()))
           .forEach(s -> closeRSession(s.getId()));
-  }
-
-  @Scheduled(fixedDelay = 10 * 1000)
-  public void cleanRSessionWorkspaces() {
-    File[] workDirs = rServerService.getWorkingDirectory().listFiles(file -> file.isDirectory() && file.getName().startsWith("conn"));
-    if (workDirs != null) {
-      Set<String> sessionWorkDirs = rSessions.values().stream().map(RServeSession::getWorkDir).collect(Collectors.toSet());
-      for (File dir : workDirs) {
-        if (!sessionWorkDirs.contains(dir.getAbsolutePath()))
-          FileSystemUtils.deleteRecursively(dir);
-      }
-    }
   }
 
   /**

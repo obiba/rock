@@ -12,6 +12,7 @@ package org.obiba.rock.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.obiba.rock.RProperties;
 import org.obiba.rock.Resources;
@@ -20,6 +21,7 @@ import org.obiba.rock.r.ROperationWithResult;
 import org.obiba.rock.r.RScriptROperation;
 import org.obiba.rock.util.Tail;
 import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPRaw;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileSystemUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -115,11 +118,19 @@ public class RServerService {
 
   public ROperationWithResult execute(ROperationWithResult rop) {
     RConnection connection = newConnection();
+    String workDir = null;
     try {
+      workDir = getRWorkDir(connection);
       rop.doWithConnection(connection);
       return rop;
     } finally {
       connection.close();
+      if (!Strings.isNullOrEmpty(workDir))
+        try {
+          FileSystemUtils.deleteRecursively(new File(workDir));
+        } catch (Exception e) {
+          // ignore
+        }
     }
   }
 
@@ -183,16 +194,6 @@ public class RServerService {
     registries.forEach(Registry::register);
   }
 
-  public File getWorkingDirectory() {
-    File dir = new File(Resources.getRServerHomeDir(), "work" + File.separator + "R");
-    if (!dir.exists()) {
-      if (!dir.mkdirs()) {
-        log.error("Unable to create: {}", dir.getAbsolutePath());
-      }
-    }
-    return dir;
-  }
-
   //
   // Private methods
   //
@@ -200,6 +201,13 @@ public class RServerService {
   private boolean isRServerAlive() {
     try {
       RConnection conn = newRConnection();
+      String workDir = getRWorkDir(conn);
+      if (!Strings.isNullOrEmpty(workDir))
+        try {
+          FileSystemUtils.deleteRecursively(new File(workDir));
+        } catch (Exception e) {
+          // ignore
+        }
       conn.close();
       return true;
     } catch (RserveException e) {
@@ -343,6 +351,16 @@ public class RServerService {
     }
   }
 
+  public File getWorkingDirectory() {
+    File dir = new File(Resources.getRServerHomeDir(), "work" + File.separator + "R");
+    if (!dir.exists()) {
+      if (!dir.mkdirs()) {
+        log.error("Unable to create: {}", dir.getAbsolutePath());
+      }
+    }
+    return dir;
+  }
+
   private File getRserveLogFile() {
     File logFile = new File(Resources.getRServerHomeDir(), "logs" + File.separator + "Rserve.log");
     if (!logFile.getParentFile().exists()) {
@@ -351,5 +369,15 @@ public class RServerService {
       }
     }
     return logFile;
+  }
+
+  private String getRWorkDir(RConnection connection) {
+    try {
+      RScriptROperation rop = new RScriptROperation("base::getwd()", false);
+      rop.doWithConnection(connection);
+      return rop.getResult().asString();
+    } catch (Exception e) {
+      return null;
+    }
   }
 }

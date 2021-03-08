@@ -68,7 +68,7 @@ public class ConsulRegistry implements Registry {
       try {
         List<String> tags = Lists.newArrayList(nodeProperties.getTags());
         if (!tags.contains(nodeProperties.getCluster()))
-            tags.add(0, nodeProperties.getCluster());
+          tags.add(0, nodeProperties.getCluster());
         Registration service = ImmutableRegistration.builder()
             .id(nodeProperties.getId())
             .name(nodeProperties.getType())

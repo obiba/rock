@@ -10,6 +10,7 @@
 
 package org.obiba.rock.service;
 
+import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
@@ -23,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Perform the registering of the R service in Consul.
@@ -63,12 +66,15 @@ public class ConsulRegistry implements Registry {
         return;
       }
       try {
+        List<String> tags = Lists.newArrayList(nodeProperties.getTags());
+        if (!tags.contains(nodeProperties.getCluster()))
+            tags.add(0, nodeProperties.getCluster());
         Registration service = ImmutableRegistration.builder()
             .id(nodeProperties.getId())
             .name(nodeProperties.getType())
             .port(port)
             .check(Registration.RegCheck.http(nodeProperties.getServer() + "/_check", consulProperties.getInterval()))
-            .tags(nodeProperties.getTags())
+            .tags(tags)
             .build();
 
         AgentClient consulAgentClient = makeConsulAgentClient();

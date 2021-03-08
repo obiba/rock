@@ -183,6 +183,16 @@ public class RServerService {
     registries.forEach(Registry::register);
   }
 
+  public File getWorkingDirectory() {
+    File dir = new File(Resources.getRServerHomeDir(), "work" + File.separator + "R");
+    if (!dir.exists()) {
+      if (!dir.mkdirs()) {
+        log.error("Unable to create: {}", dir.getAbsolutePath());
+      }
+    }
+    return dir;
+  }
+
   //
   // Private methods
   //
@@ -331,16 +341,6 @@ public class RServerService {
         log.warn("Unable to delete file: " + file.getAbsolutePath());
       }
     }
-  }
-
-  private File getWorkingDirectory() {
-    File dir = new File(Resources.getRServerHomeDir(), "work" + File.separator + "R");
-    if (!dir.exists()) {
-      if (!dir.mkdirs()) {
-        log.error("Unable to create: {}", dir.getAbsolutePath());
-      }
-    }
-    return dir;
   }
 
   private File getRserveLogFile() {

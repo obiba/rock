@@ -12,5 +12,6 @@ if (!dir.exists(libPath)) {
 # cleanup
 rm(home)
 rm(libPath)
+# ensure default CRAN repositories
 options(repos = c("https://cloud.r-project.org", "https://cran.obiba.org"))
 # newline required

@@ -10,6 +10,7 @@
 
 package org.obiba.rock.service;
 
+import com.google.common.base.Joiner;
 import okhttp3.*;
 import org.obiba.rock.NodeProperties;
 import org.obiba.rock.OpalProperties;
@@ -114,7 +115,18 @@ public class OpalRegistry implements Registry {
   }
 
   private RequestBody makeRequestBody() {
-    return RequestBody.create(MediaType.get("application/json"), nodeProperties.asJSON());
+    return RequestBody.create(MediaType.get("application/json"), asOpalAppJSON());
+  }
+
+  public String asOpalAppJSON() {
+    String body = String.format("\"name\": \"%s\", \"type\": \"%s\", \"cluster\": \"%s\"", nodeProperties.getId(), nodeProperties.getType(), nodeProperties.getCluster());
+    if (nodeProperties.getTags().isEmpty())
+      body = String.format("%s,\"tags\": []", body);
+    else
+      body = String.format("%s,\"tags\": [\"%s\"]", body, Joiner.on("\", \"").join(nodeProperties.getTags()));
+    if (nodeProperties.hasServer())
+      body = String.format("%s,\"server\": \"%s\"", body, nodeProperties.getServer());
+    return String.format("{ %s }", body);
   }
 
 }

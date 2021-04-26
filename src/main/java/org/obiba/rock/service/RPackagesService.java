@@ -143,7 +143,7 @@ public class RPackagesService {
    */
   public void installBioconductorPackage(String name) {
     checkAlphanumeric(name);
-    String cmd = String.format("BiocManager::install('%s', ask = FALSE, dependencies=TRUE)", name);
+    String cmd = String.format("BiocManager::install('%s', ask = FALSE)", name);
     execute(getInstallBiocManagerPackageCommand());
     execute(cmd);
   }
@@ -230,7 +230,7 @@ public class RPackagesService {
 
   private String getInstallPackagesCommand(String name) {
     String repos = Joiner.on("','").join(getDefaultRepos());
-    return "install.packages('" + name + "', repos=c('" + repos + "'), dependencies=TRUE)";
+    return "install.packages('" + name + "', repos=c('" + repos + "'))";
   }
 
   private String getInstallRemotesPackageCommand() {
@@ -242,6 +242,6 @@ public class RPackagesService {
   }
 
   private String getInstallGitHubCommand(String name, String username, String ref) {
-    return String.format("remotes::install_github('%s/%s', ref='%s', dependencies=TRUE, upgrade=TRUE)", username, name, ref);
+    return String.format("remotes::install_github('%s/%s', ref='%s', upgrade=FALSE)", username, name, ref);
   }
 }

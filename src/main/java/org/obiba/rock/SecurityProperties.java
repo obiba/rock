@@ -17,6 +17,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ConfigurationProperties(value = "security")
 @Component
@@ -39,7 +40,12 @@ public class SecurityProperties {
   }
 
   public List<User> getUsers() {
-    return users == null ? Lists.newArrayList(defaultAdmin) : users;
+    if (users == null)
+      return Lists.newArrayList(defaultAdmin);
+    List<User> filteredUsers = users.stream()
+        .filter(u -> !Strings.isNullOrEmpty(u.getId()) && !Strings.isNullOrEmpty(u.getSecret()))
+        .collect(Collectors.toList());
+    return filteredUsers.isEmpty() ? Lists.newArrayList(defaultAdmin) : filteredUsers;
   }
 
   public void setUsers(List<User> users) {

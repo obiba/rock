@@ -81,6 +81,9 @@ case "$1" in
       find /etc/rock/ -type f | xargs chmod 640
 
       update-rc.d rock defaults >/dev/null
+      if [ -e /etc/init.d/rock ]; then
+        rm /etc/init.d/rock
+      fi
       systemctl daemon-reload
       systemctl start rock
     ;;

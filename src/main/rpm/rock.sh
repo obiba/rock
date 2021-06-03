@@ -73,7 +73,7 @@ JAVA_DEBUG=-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n
 
 # Add $JAVA_DEBUG to this line to enable remote JVM debugging (for developers)
 exec java $JAVA_OPTS -cp "$CLASSPATH" -DROCK_HOME="${ROCK_HOME}" \
-  -DROCK_DIST=${ROCK_DIST} -DROCK_LOG=${ROCK_LOG}  org.obiba.rock.Application "$@" >$ROCK_LOG/stdout.log 2>&1 &
+  -DROCK_DIST=${ROCK_DIST} -DROCK_LOG=${ROCK_LOG} org.springframework.boot.loader.JarLauncher "$@" >$ROCK_LOG/stdout.log 2>&1 &
 
 # On CentOS 'daemon' function does not initialize the pidfile
 pidfile=$(getPidFile $@)

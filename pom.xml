@@ -82,18 +82,14 @@
                     <require>R-core-devel</require>
                   </requires>
                   <mappings>
-                    <!-- Add init.d files  -->
                     <mapping>
-                      <directory>/etc/init.d</directory>
+                      <directory>/lib/systemd/system</directory>
+                      <filemode>644</filemode>
                       <directoryIncluded>false</directoryIncluded>
-                      <filemode>755</filemode>
                       <configuration>true</configuration>
                       <sources>
                         <source>
-                          <location>src/main/rpm/init.d</location>
-                          <includes>
-                            <include>rock</include>
-                          </includes>
+                          <location>src/main/rpm/rock.service</location>
                         </source>
                       </sources>
                     </mapping>
@@ -118,17 +114,6 @@
                       <sources>
                         <source>
                           <location>src/dist/conf</location>
-                        </source>
-                      </sources>
-                    </mapping>
-                    <mapping>
-                      <directory>/etc/init</directory>
-                      <filemode>644</filemode>
-                      <directoryIncluded>false</directoryIncluded>
-                      <sources>
-                        <source>
-                          <location>src/main/rpm/upstart.conf</location>
-                          <destination>rock.conf</destination>
                         </source>
                       </sources>
                     </mapping>
@@ -217,7 +202,7 @@
                       </filterset>
                     </copy>
 
-                    <copy todir="${deb.dir}/etc/init.d" file="src/main/deb/init.d/rock" />
+                    <copy todir="${deb.dir}/lib/systemd/system" file="src/main/deb/systemd/rock.service" />
                     <copy todir="${deb.dir}/etc/default" file="src/main/deb/default/rock" />
 
                     <mkdir dir="${deb.dir}/usr/share" />

@@ -63,8 +63,8 @@ installOrUpdate() {
     chkconfig --add rock
 
     # start rock
-    echo "### You can start rock service by executing:"
-    echo "sudo /etc/init.d/rock start"
+    systemctl daemon-reload
+    systemctl start rock
 
     exit 0
 }

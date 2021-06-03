@@ -17,7 +17,9 @@ set -e
 # the debian-policy package
 
 stopRserver() {
-  if which service >/dev/null 2>&1; then
+  if [ $(systemctl list-unit-files "rock.service" | wc -l) -gt 3 ]; then
+	  systemctl stop rock
+  elif which service >/dev/null 2>&1; then
     service rock stop
   elif which invoke-rc.d >/dev/null 2>&1; then
     invoke-rc.d rock stop

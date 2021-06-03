@@ -1,0 +1,14 @@
+# OBiBa/Rock systemd service file
+
+[Unit]
+Description=OBiBa Rock service
+
+[Service]
+WorkingDirectory=/var/lib/rock
+EnvironmentFile=/etc/default/rock
+User=rock
+LimitNOFILE=16384
+ExecStart=/usr/bin/java $JAVA_ARGS -cp "${ROCK_HOME}/conf:${ROCK_DIST}/lib/*" -DROCK_HOME=${ROCK_HOME} -DROCK_DIST=${ROCK_DIST} -DROCK_LOG=${ROCK_LOG} org.springframework.boot.loader.JarLauncher $ROCK_ARGS
+
+[Install]
+WantedBy=network-online.target

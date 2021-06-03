@@ -24,6 +24,8 @@ stopRserver() {
 		else
 			/etc/init.d/rock stop || true
 		fi
+	elif [ $(systemctl list-unit-files "rock.service" | wc -l) -gt 3 ]; then
+	  systemctl stop rock
 	fi
 }
 

@@ -47,6 +47,9 @@ installOrUpdate() {
       ln -s /var/log/rock /var/lib/rock/logs
     fi
 
+    # Install RServe via R
+    Rscript -e "install.packages('Rserve','/var/lib/rock/R/library','http://www.rforge.net/')"
+
     chown -R rock:adm /var/lib/rock /var/log/rock /etc/rock /tmp/rock
     chmod -R 750      /var/lib/rock /var/log/rock /etc/rock/ /tmp/rock
     find /etc/rock/ -type f | xargs chmod 640
@@ -56,14 +59,9 @@ installOrUpdate() {
       mv /etc/rock/log4j.properties /etc/rock/log4j.properties.old
     fi
 
-    # Install RServe via R
-    Rscript -e "install.packages('Rserve',,'http://www.rforge.net/')"
-
-    # auto start on reboot
-    chkconfig --add rock
-
     # start rock
     systemctl daemon-reload
+    systemctl enable rock
     systemctl start rock
 
     exit 0

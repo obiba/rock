@@ -23,9 +23,6 @@ set -e
 case "$1" in
     configure)
 
-      # Rserve package
-      Rscript -e "install.packages('Rserve',,'http://www.rforge.net/')"
-
       # Create rock user if it doesn't exist.
       if ! id rock > /dev/null 2>&1 ; then
         adduser --system --home /var/lib/rock --disabled-password rock
@@ -61,6 +58,9 @@ case "$1" in
         fi
       fi
 
+      # Rserve package
+      Rscript -e "install.packages('Rserve','/var/lib/rock/R/library','http://www.rforge.net/')"
+
       if [ ! -e /var/log/rock ] ; then
         mkdir /var/log/rock
         ln -s /var/log/rock /var/lib/rock/logs
@@ -80,11 +80,12 @@ case "$1" in
       chmod -R 750 /var/lib/rock /var/log/rock /etc/rock/ /tmp/rock
       find /etc/rock/ -type f | xargs chmod 640
 
-      update-rc.d rock defaults >/dev/null
       if [ -e /etc/init.d/rock ]; then
+        update-rc.d rock defaults >/dev/null
         rm /etc/init.d/rock
       fi
       systemctl daemon-reload
+      systemctl enable rock
       systemctl start rock
     ;;
 

@@ -64,6 +64,12 @@ case "$1" in
       if [ ! -e /var/log/rock ] ; then
         mkdir /var/log/rock
         ln -s /var/log/rock /var/lib/rock/logs
+      elif [ ! -e /var/lib/rock/logs ] ; then
+        ln -s /var/log/rock /var/lib/rock/logs
+      elif [ ! -L /var/lib/rock/logs ] ; then
+        mv /var/lib/rock/logs/* /var/log/rock
+        rmdir /var/lib/rock/logs
+        ln -s /var/log/rock /var/lib/rock/logs
       fi
 
       if [ ! -e /tmp/rock ] ; then

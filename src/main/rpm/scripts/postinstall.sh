@@ -36,6 +36,17 @@ installOrUpdate() {
       fi
     fi
 
+    if [ ! -e /var/log/rock ] ; then
+      mkdir /var/log/rock
+      ln -s /var/log/rock /var/lib/rock/logs
+    elif [ ! -e /var/lib/rock/logs ] ; then
+      ln -s /var/log/rock /var/lib/rock/logs
+    elif [ ! -L /var/lib/rock/logs ] ; then
+      mv /var/lib/rock/logs/* /var/log/rock
+      rmdir /var/lib/rock/logs
+      ln -s /var/log/rock /var/lib/rock/logs
+    fi
+
     chown -R rock:adm /var/lib/rock /var/log/rock /etc/rock /tmp/rock
     chmod -R 750      /var/lib/rock /var/log/rock /etc/rock/ /tmp/rock
     find /etc/rock/ -type f | xargs chmod 640

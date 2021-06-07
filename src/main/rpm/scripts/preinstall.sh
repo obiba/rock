@@ -6,7 +6,7 @@ $(getent passwd rock >/dev/null)
 
 if [ $? != 0 ]; then
     useradd -r -g nobody -d /var/lib/rock -s /sbin/nologin \
-        -c "User for RServer Admin" rock
+        -c "User for Rock" rock
 else
 
   # stop the service if running
@@ -20,6 +20,12 @@ else
     else
       /etc/init.d/rock stop
     fi
+  fi
+
+  # clean old init
+  if [ -e /etc/init.d/rock ]; then
+    chkconfig --del rock
+    rm -f /etc/init.d/rock
   fi
 
   # set the correct home directory

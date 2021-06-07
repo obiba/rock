@@ -32,9 +32,11 @@ if [ "$1" -eq 0 ] || [ "$1" -ge 2 ]; then
   # removing or upgrading...
   stopRserver
 
-  if [ "$1" -eq 0 ]; then
+  # clean old init
+  if [ -e /etc/init.d/rock ]; then
     # removing
     chkconfig --del rock
+    rm -f /etc/init.d/rock
   fi
 
 fi

@@ -1,101 +1,47 @@
 #!/bin/sh
 # postinst script for rock
-#
 
 set -e
 
-installOrUpdate() {
-    # RServer file structure on Debian
-    # /etc/rock: configuration
-    # /usr/share/rock: executable
-    # /var/lib/rock: data runtime
-    # /var/log: logs
+[ -r /etc/default/rock ] && . /etc/default/rock
 
-    rm -f /usr/share/rock
-    new_release="$(ls -t /usr/share/ |grep rock|head -1)"
-    ln -s /usr/share/${new_release} /usr/share/rock
+# symlink to new install
+rm -f /usr/share/rock
+new_release="$(ls -t /usr/share/ | grep rock | head -1)"
+ln -s /usr/share/${new_release} /usr/share/rock
 
-    if [ ! -e /var/lib/rock/conf ] ; then
-      ln -s /etc/rock /var/lib/rock/conf
-    fi
+# symlink to conf
+if [ ! -e /var/lib/rock/conf ]; then
+  ln -s /etc/rock /var/lib/rock/conf
+fi
 
-    # move installed r packages to the new library location
-    rlibs=/var/lib/rock/R
-    mkdir -p $rlibs
-    if [ ! -e $rlibs/library ] ; then
-      mkdir -p $rlibs/library
-      if [ -e $rlibs/x* ] ; then
-        rpkgs=`find $rlibs/x* -maxdepth 2 -mindepth 2 -type d`
-        for pkg in $rpkgs
-        do
-          pkg_name=`basename $pkg`
-          if [ ! -e $rlibs/library/$pkg_name ] ; then
-            mv $pkg $rlibs/library
-          fi
-        done
-      fi
-    fi
+# prepare R packages install location
+mkdir -p /var/lib/rock/R/library
 
-    if [ ! -e /var/log/rock ] ; then
-      mkdir /var/log/rock
-      ln -s /var/log/rock /var/lib/rock/logs
-    elif [ ! -e /var/lib/rock/logs ] ; then
-      ln -s /var/log/rock /var/lib/rock/logs
-    elif [ ! -L /var/lib/rock/logs ] ; then
-      mv /var/lib/rock/logs/* /var/log/rock
-      rmdir /var/lib/rock/logs
-      ln -s /var/log/rock /var/lib/rock/logs
-    fi
+# prepare logs location
+if [ ! -e /var/log/rock ]; then
+  mkdir /var/log/rock
+fi
+# legacy folder: move content
+if [ -d /var/lib/rock/logs ] && [ ! -L /var/lib/rock/logs ]; then
+  mv /var/lib/rock/logs/* /var/log/rock
+  rmdir /var/lib/rock/logs
+fi
+# make symlink
+if [ ! -e /var/lib/rock/logs ]; then
+  ln -s /var/log/rock /var/lib/rock/logs
+fi
 
-    # Install RServe via R
-    Rscript -e "install.packages('Rserve','/var/lib/rock/R/library','http://www.rforge.net/')"
+# Install RServe via R
+Rscript -e "install.packages('Rserve','/var/lib/rock/R/library','http://www.rforge.net/')"
 
-    chown -R rock:adm /var/lib/rock /var/log/rock /etc/rock /tmp/rock
-    chmod -R 750      /var/lib/rock /var/log/rock /etc/rock/ /tmp/rock
-    find /etc/rock/ -type f | xargs chmod 640
+chown -R rock:adm /var/lib/rock /var/log/rock /etc/rock /tmp/rock
+chmod -R 750 /var/lib/rock /var/log/rock /etc/rock/ /tmp/rock
+find /etc/rock/ -type f | xargs chmod 640
 
-    # if upgrading to 2.0, delete old log4j config
-    if [ -f "/etc/rock/log4j.properties" ]; then
-      mv /etc/rock/log4j.properties /etc/rock/log4j.properties.old
-    fi
-
-    # start rock
-    systemctl daemon-reload
-    systemctl enable rock
-    systemctl start rock
-
-    exit 0
-}
-
-# summary of how this script can be called:
-#        * <postinst> `configure' <most-recently-configured-version>
-#        * <old-postinst> `abort-upgrade' <new version>
-#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
-#          <new-version>
-#        * <postinst> `abort-remove'
-#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
-#          <failed-install-package> <version> `removing'
-#          <conflicting-package> <version>
-# for details, see http://www.debian.org/doc/debian-policy/ or
-# the debian-policy package
-
-NAME=rock
-
-[ -r /etc/default/$NAME ] && . /etc/default/$NAME
-
-case "$1" in
-  1)
-    installOrUpdate
-  ;;
-
-  2)
-    installOrUpdate
-  ;;
-
-  *)
-    echo "postinst called with unknown argument \`$1'" >&2
-    exit 1
-  ;;
-esac
+# start rock
+systemctl daemon-reload
+systemctl enable rock
+systemctl start rock
 
 exit 0

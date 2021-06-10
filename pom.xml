@@ -140,18 +140,12 @@
                     </mapping>
                     <mapping>
                       <directory>/var/lib/rock</directory>
-                      <filemode>740</filemode>
+                      <filemode>750</filemode>
                       <username>rock</username>
                       <groupname>adm</groupname>
                     </mapping>
                     <mapping>
                       <directory>/var/log/rock</directory>
-                      <filemode>740</filemode>
-                      <username>rock</username>
-                      <groupname>adm</groupname>
-                    </mapping>
-                    <mapping>
-                      <directory>/tmp/rock</directory>
                       <filemode>740</filemode>
                       <username>rock</username>
                       <groupname>adm</groupname>

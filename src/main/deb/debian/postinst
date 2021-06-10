@@ -72,12 +72,8 @@ case "$1" in
         ln -s /var/log/rock /var/lib/rock/logs
       fi
 
-      if [ ! -e /tmp/rock ] ; then
-        mkdir /tmp/rock
-      fi
-
-      chown -R rock:adm /var/lib/rock /var/log/rock /etc/rock /tmp/rock
-      chmod -R 750 /var/lib/rock /var/log/rock /etc/rock/ /tmp/rock
+      chown -R rock:adm /var/lib/rock /var/log/rock /etc/rock
+      chmod -R 750 /var/lib/rock /var/log/rock /etc/rock
       find /etc/rock/ -type f | xargs chmod 640
 
       if [ -e /etc/init.d/rock ]; then

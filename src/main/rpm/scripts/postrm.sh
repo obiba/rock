@@ -7,7 +7,7 @@ case "$1" in
 	0)
     userdel -f rock || true
     unlink /usr/share/rock
-    rm -rf /run/rock /var/log/rock /tmp/rock
+    rm -rf /run/rock /var/log/rock
   ;;
 esac
 

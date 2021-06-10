@@ -35,8 +35,8 @@ fi
 # Install RServe via R
 Rscript -e "install.packages('Rserve','/var/lib/rock/R/library','http://www.rforge.net/')"
 
-chown -R rock:adm /var/lib/rock /var/log/rock /etc/rock /tmp/rock
-chmod -R 750 /var/lib/rock /var/log/rock /etc/rock/ /tmp/rock
+chown -R rock:adm /var/lib/rock /var/log/rock /etc/rock
+chmod -R 750 /var/lib/rock /var/log/rock /etc/rock
 find /etc/rock/ -type f | xargs chmod 640
 
 # start rock

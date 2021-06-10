@@ -15,15 +15,9 @@ if [ ! -e /var/lib/rock/conf ]; then
   ln -s /etc/rock /var/lib/rock/conf
 fi
 
-# prepare R packages install location
-mkdir -p /var/lib/rock/R/library
 
-# prepare logs location
-if [ ! -e /var/log/rock ]; then
-  mkdir /var/log/rock
-fi
 # legacy folder: move content
-if [ -d /var/lib/rock/logs ] && [ ! -L /var/lib/rock/logs ]; then
+if [ ! -L /var/lib/rock/logs ]; then
   mv /var/lib/rock/logs/* /var/log/rock
   rmdir /var/lib/rock/logs
 fi
@@ -33,7 +27,11 @@ if [ ! -e /var/lib/rock/logs ]; then
 fi
 
 # Install RServe via R
+# prepare R packages install location (not managed by RPM)
+mkdir -p /var/lib/rock/R/library
 Rscript -e "install.packages('Rserve','/var/lib/rock/R/library','http://www.rforge.net/')"
+chown -R rock:adm /var/lib/rock/R
+chmod -R 750 /var/lib/rock/R
 
 # start rock
 systemctl daemon-reload

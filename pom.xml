@@ -159,6 +159,14 @@
                     <scriptFile>src/main/rpm/scripts/postinstall.sh</scriptFile>
                     <fileEncoding>utf-8</fileEncoding>
                   </postinstallScriptlet>
+                  <pretransScriptlet>
+                    <scriptFile>src/main/rpm/scripts/pretrans.sh</scriptFile>
+                    <fileEncoding>utf-8</fileEncoding>
+                  </pretransScriptlet>
+                  <posttransScriptlet>
+                    <scriptFile>src/main/rpm/scripts/posttrans.sh</scriptFile>
+                    <fileEncoding>utf-8</fileEncoding>
+                  </posttransScriptlet>
                   <preremoveScriptlet>
                     <scriptFile>src/main/rpm/scripts/prerm.sh</scriptFile>
                     <fileEncoding>utf-8</fileEncoding>

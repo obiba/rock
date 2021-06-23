@@ -1,22 +1,22 @@
 #clean up old stuff
 # clean old init
 if [ -e /etc/init.d/rock ]; then
-  service %{name} stop
+  service rock stop
   chkconfig --del rock
   rm -f /etc/init.d/rock
   systemctl daemon-reload
 fi
 # legacy folder: move content
-if [ ! -L "%{_sharedstatedir}/%{name}/logs" ]; then
+if [ ! -L "/var/lib/rock/logs" ]; then
   # exits any logs?
-  if [ -n "$(ls -A %{_sharedstatedir}/%{name}/logs)" ]; then
-	mkdir -p %{_localstatedir}/log/%{name}
-  	mv %{_sharedstatedir}/%{name}/logs/* %{_localstatedir}/log/%{name}
+  if [ -n "$(ls -A /var/lib/rock/logs)" ]; then
+	mkdir -p /var/log/rock
+  	mv /var/lib/rock/logs/* /var/log/rock
   fi
-  rm -rf %{_sharedstatedir}/%{name}/logs
+  rm -rf /var/lib/rock/logs
 fi
 # make symlink
-if [ ! -e "%{_sharedstatedir}/%{name}/logs" ]; then
-  ln -s %{_localstatedir}/log/%{name} %{_sharedstatedir}/%{name}/logs
+if [ ! -e "/var/lib/rock/logs" ]; then
+  ln -s /var/log/rock /var/lib/rock/logs
 fi
 exit 0

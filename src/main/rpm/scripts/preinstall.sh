@@ -1,5 +1,5 @@
-getent group %{name} >/dev/null || groupadd -r %{name}
-getent passwd %{name} >/dev/null || \
-	  useradd -r -g %{name} -d %{_sharedstatedir}/%{name} -s /sbin/nologin \
-	  -C "%{name} service user" %{name}
+getent group rock >/dev/null || groupadd -r rock
+getent passwd rock >/dev/null || \
+	  useradd -r -g rock -d /var/lib/rock -s /sbin/nologin \
+	  -C "rock service user" rock
 exit 0

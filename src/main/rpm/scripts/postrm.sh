@@ -1,1 +1,1 @@
-%systemd_postun_with_restart %{name}.service
+systemctl try-restart rock.service

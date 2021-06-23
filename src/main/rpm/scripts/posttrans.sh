@@ -1,5 +1,5 @@
 #!/bin/bash
 # for update from System-V
-systemctl preset %{name}.service
-systemctl start %{name}.service
+systemctl preset rock.service
+systemctl start rock.service
 exit 0

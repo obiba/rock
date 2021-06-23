@@ -6,5 +6,8 @@ Rscript -e "install.packages('Rserve','/var/lib/rock/R/library','http://www.rfor
 chown -R rock:rock /var/lib/rock/R
 chmod -R 750 /var/lib/rock/R
 # for clean install
-systemctl --no-reload preset rock.service
+if [ $1 -eq 1 ] ; then
+  # Initial installation
+  systemctl preset rock.service >/dev/null 2>&1 || :
+fi
 exit 0

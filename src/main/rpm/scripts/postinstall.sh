@@ -5,6 +5,8 @@ mkdir -p /var/lib/rock/R/library
 Rscript -e "install.packages('Rserve','/var/lib/rock/R/library','http://www.rforge.net/')"
 chown -R rock:rock /var/lib/rock/R
 chmod -R 750 /var/lib/rock/R
+rm -f /usr/share/rock
+ln -s /usr/share/rock-* /usr/share/rock
 # for clean install
 if [ $1 -eq 1 ] ; then
   # Initial installation

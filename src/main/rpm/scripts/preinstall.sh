@@ -1,30 +1,4 @@
-#!/bin/sh
-
-getent group adm >/dev/null || groupadd -r adm
-
-$(getent passwd rock >/dev/null)
-
-if [ $? != 0 ]; then
-    useradd -r -g nobody -d /var/lib/rock -s /sbin/nologin \
-        -c "User for RServer Admin" rock
-else
-
-  # stop the service if running
-  if service rock status > /dev/null; then
-    if which service >/dev/null 2>&1; then
-      service rock stop
-    elif which invoke-rc.d >/dev/null 2>&1; then
-      invoke-rc.d rock stop
-    else
-      /etc/init.d/rock stop
-    fi
-  fi
-
-  # set the correct home directory
-  usermod -d /var/lib/rock rock
-
-  # set the group
-  usermod -g nobody rock
-fi
-
+getent group rock >/dev/null || groupadd -r rock
+getent passwd rock >/dev/null || \
+	  useradd -r -g rock -d /var/lib/rock -s /sbin/nologin -c "rock service user" rock
 exit 0

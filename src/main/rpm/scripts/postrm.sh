@@ -1,28 +1,14 @@
-#!/bin/sh
-# postrm script for rock
-#
-
-set -e
-
-# summary of how this script can be called:
-#        * <postrm> `remove'
-#        * <postrm> `purge'
-#        * <old-postrm> `upgrade' <new-version>
-#        * <new-postrm> `failed-upgrade' <old-version>
-#        * <new-postrm> `abort-install'
-#        * <new-postrm> `abort-install' <old-version>
-#        * <new-postrm> `abort-upgrade' <old-version>
-#        * <disappearer's-postrm> `disappear' <overwriter>
-#          <overwriter-version>
-# for details, see http://www.debian.org/doc/debian-policy/ or
-# the debian-policy package
-
+systemctl daemon-reload >/dev/null 2>&1 || :
 case "$1" in
 	0)
-    userdel -f rock || true
+    # Package removal, not upgrade
     unlink /usr/share/rock
-    rm -rf /run/rock /var/log/rock /tmp/rock
+    # Remove logs and data
+    rm -rf /var/lib/rock /var/log/rock /etc/rock /usr/share/rock-*
+  ;;
+  1)
+    # Package upgrade, not removal
+    find /usr/share/rock-* -empty -type d -delete
+    systemctl try-restart rock.service >/dev/null 2>&1 || :
   ;;
 esac
-
-exit 0

@@ -46,7 +46,7 @@
     <maven-deploy-plugin.version>2.8.1</maven-deploy-plugin.version>
     <maven-jsonschema2pojo-plugin.version>1.0.2</maven-jsonschema2pojo-plugin.version>
     <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
-    <rpm-maven-plugin.version>2.1.4</rpm-maven-plugin.version>
+    <rpm-maven-plugin.version>2.2.0</rpm-maven-plugin.version>
   </properties>
 
   <profiles>
@@ -70,7 +70,7 @@
                   <name>rock</name>
                   <needarch>noarch</needarch>
                   <version>${project.version}</version>
-                  <!--<license>see /usr/share/doc/opal/copyright</license>-->
+                  <license>GPLv3</license>
                   <group>Applications/Engineering</group>
                   <packager>OBiBa</packager>
                   <prefix>/usr/share</prefix>
@@ -82,18 +82,14 @@
                     <require>R-core-devel</require>
                   </requires>
                   <mappings>
-                    <!-- Add init.d files  -->
                     <mapping>
-                      <directory>/etc/init.d</directory>
+                      <directory>/lib/systemd/system</directory>
+                      <filemode>644</filemode>
                       <directoryIncluded>false</directoryIncluded>
-                      <filemode>755</filemode>
                       <configuration>true</configuration>
                       <sources>
                         <source>
-                          <location>src/main/rpm/init.d</location>
-                          <includes>
-                            <include>rock</include>
-                          </includes>
+                          <location>src/main/rpm/rock.service</location>
                         </source>
                       </sources>
                     </mapping>
@@ -122,17 +118,6 @@
                       </sources>
                     </mapping>
                     <mapping>
-                      <directory>/etc/init</directory>
-                      <filemode>644</filemode>
-                      <directoryIncluded>false</directoryIncluded>
-                      <sources>
-                        <source>
-                          <location>src/main/rpm/upstart.conf</location>
-                          <destination>rock.conf</destination>
-                        </source>
-                      </sources>
-                    </mapping>
-                    <mapping>
                       <directory>/etc/default</directory>
                       <filemode>644</filemode>
                       <directoryIncluded>false</directoryIncluded>
@@ -155,18 +140,12 @@
                     </mapping>
                     <mapping>
                       <directory>/var/lib/rock</directory>
-                      <filemode>740</filemode>
+                      <filemode>750</filemode>
                       <username>rock</username>
                       <groupname>adm</groupname>
                     </mapping>
                     <mapping>
                       <directory>/var/log/rock</directory>
-                      <filemode>740</filemode>
-                      <username>rock</username>
-                      <groupname>adm</groupname>
-                    </mapping>
-                    <mapping>
-                      <directory>/tmp/rock</directory>
                       <filemode>740</filemode>
                       <username>rock</username>
                       <groupname>adm</groupname>
@@ -180,6 +159,14 @@
                     <scriptFile>src/main/rpm/scripts/postinstall.sh</scriptFile>
                     <fileEncoding>utf-8</fileEncoding>
                   </postinstallScriptlet>
+                  <pretransScriptlet>
+                    <scriptFile>src/main/rpm/scripts/pretrans.sh</scriptFile>
+                    <fileEncoding>utf-8</fileEncoding>
+                  </pretransScriptlet>
+                  <posttransScriptlet>
+                    <scriptFile>src/main/rpm/scripts/posttrans.sh</scriptFile>
+                    <fileEncoding>utf-8</fileEncoding>
+                  </posttransScriptlet>
                   <preremoveScriptlet>
                     <scriptFile>src/main/rpm/scripts/prerm.sh</scriptFile>
                     <fileEncoding>utf-8</fileEncoding>
@@ -217,7 +204,7 @@
                       </filterset>
                     </copy>
 
-                    <copy todir="${deb.dir}/etc/init.d" file="src/main/deb/init.d/rock" />
+                    <copy todir="${deb.dir}/usr/lib/systemd/system" file="src/main/deb/systemd/rock.service" />
                     <copy todir="${deb.dir}/etc/default" file="src/main/deb/default/rock" />
 
                     <mkdir dir="${deb.dir}/usr/share" />

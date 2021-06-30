@@ -28,7 +28,7 @@ case "$1" in
         userdel -f rock || true
 
         # Remove logs and data
-        rm -rf /var/lib/rock /var/log/rock /tmp/rock /etc/rock /usr/share/rock-*
+        rm -rf /var/lib/rock /var/log/rock /etc/rock /usr/share/rock-*
     ;;
 
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)

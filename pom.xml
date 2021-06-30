@@ -204,7 +204,7 @@
                       </filterset>
                     </copy>
 
-                    <copy todir="${deb.dir}/lib/systemd/system" file="src/main/deb/systemd/rock.service" />
+                    <copy todir="${deb.dir}/usr/lib/systemd/system" file="src/main/deb/systemd/rock.service" />
                     <copy todir="${deb.dir}/etc/default" file="src/main/deb/default/rock" />
 
                     <mkdir dir="${deb.dir}/usr/share" />

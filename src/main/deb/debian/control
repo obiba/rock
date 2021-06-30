@@ -9,7 +9,7 @@ Homepage: http://www.obiba.org
 Package: rock
 Architecture: all
 Pre-Depends: debconf, coreutils (>= 6.10)
-Depends: adduser, psmisc, procps, r-base-core
+Depends: adduser, r-base-core
 Recommends: oracle-java8-installer | openjdk-8-jdk | openjdk-8-jdk-headless | openjdk-8-jre | openjdk-8-jre-headless
 Description: OBiBa R server controller
  R server administration tool that allows to control remotely a R server through REST

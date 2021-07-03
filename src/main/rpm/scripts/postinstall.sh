@@ -10,6 +10,9 @@ if [ ! -e /var/lib/rock/logs ]; then
   mkdir -p /var/log/rock
   ln -s /var/log/rock /var/lib/rock/logs
 fi
+if [ ! -e /var/lib/rock/conf ] ; then
+  ln -s /etc/rock /var/lib/rock/conf
+fi
 rm -f /usr/share/rock
 find /usr/share/rock-* -empty -type d -delete
 ln -s /usr/share/rock-* /usr/share/rock

@@ -2,7 +2,7 @@
 # Install RServe via R
 # prepare R packages install location (not managed by RPM)
 mkdir -p /var/lib/rock/R/library
-Rscript -e "install.packages('Rserve', repos = 'http://www.rforge.net/')"
+Rscript -e "install.packages('Rserve', lib = .libPaths()[2], repos = 'http://www.rforge.net/')"
 chown -R rock:rock /var/lib/rock/R
 chmod -R 750 /var/lib/rock/R
 # make symlink

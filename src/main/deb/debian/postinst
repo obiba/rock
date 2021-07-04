@@ -59,7 +59,7 @@ case "$1" in
       fi
 
       # Rserve package
-      Rscript -e "install.packages('Rserve', repos = 'http://www.rforge.net/')"
+      Rscript -e "install.packages('Rserve', lib = .libPaths()[2], repos = 'http://www.rforge.net/')"
 
       if [ ! -e /var/log/rock ] ; then
         mkdir /var/log/rock

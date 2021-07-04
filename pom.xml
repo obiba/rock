@@ -83,7 +83,7 @@
                   </requires>
                   <mappings>
                     <mapping>
-                      <directory>/lib/systemd/system</directory>
+                      <directory>/usr/lib/systemd/system</directory>
                       <filemode>644</filemode>
                       <directoryIncluded>false</directoryIncluded>
                       <configuration>true</configuration>

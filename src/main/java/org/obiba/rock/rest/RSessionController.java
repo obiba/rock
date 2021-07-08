@@ -11,6 +11,7 @@
 package org.obiba.rock.rest;
 
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
@@ -37,6 +38,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -176,7 +178,7 @@ public class RSessionController {
                                @RequestParam(value = "overwrite", required = false, defaultValue = "false") boolean overwrite,
                                @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {
     RServeSession rServeSession = getRServeSession(user, id);
-    String destinationPath = Strings.isNullOrEmpty(path) ? file.getOriginalFilename() : path;
+    String destinationPath = Strings.isNullOrEmpty(path) ? file.getOriginalFilename() : decodeParameter(path);
     try {
       doWriteFile(file.getInputStream(), temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), destinationPath, overwrite);
     } catch (IOException e) {
@@ -201,7 +203,8 @@ public class RSessionController {
                     @RequestParam(value = "path", required = false) String path,
                     @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {
     RServeSession rServeSession = getRServeSession(user, id);
-    File sourceFile = new File(temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), path);
+
+    File sourceFile = new File(temp ? rServeSession.getTempDir() : rServeSession.getWorkDir(), decodeParameter(path));
 
     // verify file exist and is regular
     if (!sourceFile.exists()) {
@@ -326,6 +329,15 @@ public class RSessionController {
   //
   // Private methods
   //
+
+  private String decodeParameter(String param) {
+    if (Strings.isNullOrEmpty(param)) return param;
+    try {
+      return URLDecoder.decode(param, "utf-8");
+    } catch (UnsupportedEncodingException e) {
+      return param;
+    }
+  }
 
   private ResponseEntity<RCommand> doAssign(User user, String id, ROperation rop, boolean async, UriComponentsBuilder ucb) {
     RServeSession rSession = getRServeSession(user, id);

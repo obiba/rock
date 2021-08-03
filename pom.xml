@@ -107,7 +107,7 @@
                     </mapping>
                     <mapping>
                       <directory>/etc/rock</directory>
-                      <filemode>640</filemode>
+                      <filemode>750</filemode>
                       <username>rock</username>
                       <groupname>adm</groupname>
                       <configuration>true</configuration>

@@ -86,7 +86,7 @@
                       <directory>/usr/lib/systemd/system</directory>
                       <filemode>644</filemode>
                       <directoryIncluded>false</directoryIncluded>
-                      <configuration>true</configuration>
+                      <configuration>noreplace</configuration>
                       <sources>
                         <source>
                           <location>src/main/rpm/rock.service</location>
@@ -110,7 +110,7 @@
                       <filemode>750</filemode>
                       <username>rock</username>
                       <groupname>adm</groupname>
-                      <configuration>true</configuration>
+                      <configuration>noreplace</configuration>
                       <sources>
                         <source>
                           <location>src/dist/conf</location>
@@ -121,6 +121,7 @@
                       <directory>/etc/default</directory>
                       <filemode>644</filemode>
                       <directoryIncluded>false</directoryIncluded>
+                      <configuration>noreplace</configuration>
                       <sources>
                         <source>
                           <location>src/main/rpm/rock.default</location>

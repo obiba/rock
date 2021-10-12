@@ -2,6 +2,8 @@
 
 [Unit]
 Description=OBiBa Rock service
+# Wait for network
+After=network-online.target
 
 [Service]
 WorkingDirectory=/var/lib/rock
@@ -13,4 +15,4 @@ StandardError=file:/var/log/rock/stderr.log
 ExecStart=/usr/share/rock/bin/start.sh
 
 [Install]
-WantedBy=network-online.target
+WantedBy=multi-user.target

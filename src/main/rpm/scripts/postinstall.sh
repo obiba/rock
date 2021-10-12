@@ -23,9 +23,6 @@ fi
 if [ ! -e /var/lib/rock/conf ] ; then
   ln -s /etc/rock /var/lib/rock/conf
 fi
-rm -f /usr/share/rock
-find /usr/share/rock-* -empty -type d -delete
-ln -s /usr/share/rock-* /usr/share/rock
 # for clean install
 if [ $1 -eq 1 ] ; then
   # Initial installation

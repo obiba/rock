@@ -86,7 +86,6 @@
                       <directory>/usr/lib/systemd/system</directory>
                       <filemode>644</filemode>
                       <directoryIncluded>false</directoryIncluded>
-                      <configuration>noreplace</configuration>
                       <sources>
                         <source>
                           <location>src/main/rpm/rock.service</location>

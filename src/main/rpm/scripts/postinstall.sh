@@ -23,9 +23,4 @@ fi
 if [ ! -e /var/lib/rock/conf ] ; then
   ln -s /etc/rock /var/lib/rock/conf
 fi
-# for clean install
-if [ $1 -eq 1 ] ; then
-  # Initial installation
-  systemctl preset rock.service >/dev/null 2>&1 || :
-fi
 exit 0

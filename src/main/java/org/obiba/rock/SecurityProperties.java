@@ -107,6 +107,7 @@ public class SecurityProperties {
   public static class AppArmor {
     private boolean enabled;
     private String profile;
+    private boolean strict;
 
     public boolean isEnabled() {
       return enabled;
@@ -122,6 +123,14 @@ public class SecurityProperties {
 
     public void setProfile(String profile) {
       this.profile = profile;
+    }
+
+    public boolean isStrict() {
+      return strict;
+    }
+
+    public void setStrict(boolean strict) {
+      this.strict = strict;
     }
   }
 }

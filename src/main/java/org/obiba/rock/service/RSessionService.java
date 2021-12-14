@@ -129,7 +129,7 @@ public class RSessionService {
         conn.setStringEncoding(Resources.getRserveEncoding());
       }
 
-      if (!admin && securityProperties.withAppArmor()) {
+      if (securityProperties.withAppArmor() && (securityProperties.getAppArmor().isStrict() || !admin)) {
         conn.eval(String.format("RAppArmor::aa_change_profile('%s')", securityProperties.getAppArmor().getProfile()));
       }
 

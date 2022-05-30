@@ -1,4 +1,4 @@
-# Rock [![Build Status](https://travis-ci.com/obiba/rock.svg?branch=master)](https://travis-ci.com/obiba/rock)
+# Rock [![Build Status](https://app.travis-ci.com/obiba/rock.svg?branch=master)](https://app.travis-ci.com/github/obiba/rock)
 
 Rock is an [R](http://www.r-project.org/) server with a REST API. It is based on the [Rserve](http://rforge.net/Rserve/) R package and exposes the following REST web services:
 

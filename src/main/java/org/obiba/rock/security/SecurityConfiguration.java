@@ -45,12 +45,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   @Autowired
   private SecurityProperties securityProperties;
 
-  @Autowired
-  private PasswordEncoder passwordEncoder;
-
-  @Autowired
-  private BasicAuthenticationEntryPoint authenticationEntryPoint;
-
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     if (!securityProperties.isEnabled())
@@ -69,17 +63,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           .antMatchers("/_info").permitAll()
           .anyRequest().denyAll()
           .and().httpBasic().realmName("RockRealm")
-          .authenticationEntryPoint(authenticationEntryPoint)
+          .authenticationEntryPoint(getBasicAuthenticationEntryPoint())
           .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
   }
 
-  @Bean
-  public BasicAuthenticationEntryPoint getBasicAuthenticationEntryPoint() {
+  private BasicAuthenticationEntryPoint getBasicAuthenticationEntryPoint() {
     return new CustomBasicAuthenticationEntryPoint();
   }
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
+  private PasswordEncoder newPasswordEncoder() {
     Map<String, PasswordEncoder> encoders = Maps.newHashMap();
     encoders.put("noop", newNoOpPasswordEncoder());
     encoders.put("bcrypt", new BCryptPasswordEncoder(-1, new SecureRandom()));
@@ -111,6 +103,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     if (!securityProperties.isEnabled()) return;
 
+    PasswordEncoder passwordEncoder = newPasswordEncoder();
     List<SecurityProperties.User> users = securityProperties.getUsers();
     InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = auth.inMemoryAuthentication()
         .passwordEncoder(passwordEncoder);

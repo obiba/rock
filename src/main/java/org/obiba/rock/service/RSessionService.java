@@ -46,9 +46,6 @@ public class RSessionService {
   private RProperties rProperties;
 
   @Autowired
-  private RServerService rServerService;
-
-  @Autowired
   private NodeProperties nodeProperties;
 
   @Autowired
@@ -146,8 +143,8 @@ public class RSessionService {
     return "127.0.0.1";
   }
 
-  private int getPort() {
-    return rServerService.getPort();
+  public int getPort() {
+    return Resources.getRservePort();
   }
 
 }

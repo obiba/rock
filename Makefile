@@ -1,5 +1,5 @@
 skipTests = false
-version = 1.1-SNAPSHOT
+version = 2.0-SNAPSHOT
 current_dir = $(shell pwd)
 mvn_exec = mvn -Dmaven.test.skip=${skipTests}
 port = 8085
@@ -98,6 +98,3 @@ session:
 	curl -X GET --user ${user}:${password} localhost:${port}/r/session/${sid}
 	@echo
 	@echo
-
-consul:
-	consul agent -dev -advertise=127.0.0.1

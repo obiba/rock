@@ -11,10 +11,10 @@
 package org.obiba.rock.rest;
 
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import jakarta.servlet.http.HttpServletResponse;
 import org.obiba.rock.domain.RServeCommand;
 import org.obiba.rock.domain.RServeSession;
 import org.obiba.rock.model.RCommand;
@@ -32,10 +32,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -171,7 +170,7 @@ public class RSessionController {
   @PostMapping(value = "/r/session/{id}/_upload", consumes = "multipart/form-data")
   ResponseEntity<?> uploadFile(@AuthenticationPrincipal User user,
                                @PathVariable String id,
-                               @RequestParam("file") CommonsMultipartFile file,
+                               @RequestParam("file") MultipartFile file,
                                @RequestParam(value = "path", required = false) String path,
                                @RequestParam(value = "overwrite", required = false, defaultValue = "false") boolean overwrite,
                                @RequestParam(value = "temp", required = false, defaultValue = "false") boolean temp) {

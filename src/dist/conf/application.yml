@@ -13,13 +13,6 @@ node:
   # optional public address, required only for self-registration
 #  server: http://localhost:8085
 
-# Consul service self-registration
-#consul:
-#  server: http://localhost:8500
-#  token:
-#  # health check interval
-#  interval: 10
-
 # Opal app self-registration
 #opal:
 #  server: http://localhost:8080

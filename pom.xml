@@ -3,19 +3,19 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.obiba.rock</groupId>
   <artifactId>rock</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>2.0-SNAPSHOT</version>
   <name>rock</name>
   <description>R server controller with REST API</description>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.7.11</version>
+    <version>3.1.8</version>
   </parent>
 
   <properties>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
 
     <install.dir>/usr/share</install.dir>
     <rock.dir>${install.dir}/rock-${project.version}</rock.dir>
@@ -29,20 +29,18 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <bcprov.version>1.70</bcprov.version>
-    <consul-client.version>1.5.3</consul-client.version>
     <fileupload.version>1.4</fileupload.version>
-    <guava.version>31.1-jre</guava.version>
-    <jackson.version>2.14.3</jackson.version>
+    <guava.version>33.0.0-jre</guava.version>
+    <jackson.version>2.15.3</jackson.version>
+    <jakarta-servlet.version>5.0.0</jakarta-servlet.version>
     <junit.version>4.13.2</junit.version>
-    <okhttp.version>4.10.0</okhttp.version>
+    <okhttp.version>4.12.0</okhttp.version>
     <rserve.version>0.6-8.1</rserve.version>
-    <slf4j.version>1.7.36</slf4j.version>
-    <spring.security.version>2.7.11</spring.security.version>
-    <snakeyaml.version>1.33</snakeyaml.version>
+    <slf4j.version>2.0.9</slf4j.version>
+    <snakeyaml.version>2.2</snakeyaml.version>
 
     <!-- maven plugins -->
     <github-release-plugin.version>1.2.0</github-release-plugin.version>
-    <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
     <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
     <maven-build-helper-plugin.version>3.2.0</maven-build-helper-plugin.version>
     <maven-deploy-plugin.version>2.8.1</maven-deploy-plugin.version>
@@ -182,6 +180,7 @@
             </executions>
           </plugin>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
@@ -432,12 +431,6 @@
   <dependencies>
 
     <dependency>
-      <groupId>com.orbitz.consul</groupId>
-      <artifactId>consul-client</artifactId>
-      <version>${consul-client.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
       <version>${okhttp.version}</version>
@@ -483,7 +476,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
-      <version>${spring.security.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -550,7 +542,8 @@
       <artifactId>jcl-over-slf4j</artifactId>
       <version>${slf4j.version}</version>
       <scope>runtime</scope>
-    </dependency><dependency>
+    </dependency>
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
@@ -560,7 +553,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
-      <scope>compile</scope>
     </dependency>
 
     <dependency>

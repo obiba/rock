@@ -18,53 +18,65 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
 
   @Autowired
   private SecurityProperties securityProperties;
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    configure(http);
+    return http.build();
+  }
+
+  //
+  // Private methods
+  //
+
+  private void configure(HttpSecurity http) throws Exception {
     if (!securityProperties.isEnabled())
-      http.csrf().disable()
-          .formLogin().disable()
-          .authorizeRequests().antMatchers("/**").permitAll();
+      http
+          .csrf(AbstractHttpConfigurer::disable)
+          .authorizeHttpRequests((configurer) -> configurer.requestMatchers("/**").permitAll());
     else
-      http.csrf().disable()
-          .formLogin().disable()
-          .authorizeRequests()
-          .antMatchers("/rserver/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER)
-          .antMatchers("/r/sessions/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER, Roles.ROCK_USER)
-          .antMatchers("/r/session/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_USER)
-          .antMatchers("/").permitAll()
-          .antMatchers("/_check").permitAll()
-          .antMatchers("/_info").permitAll()
-          .anyRequest().denyAll()
-          .and().httpBasic().realmName("RockRealm")
-          .authenticationEntryPoint(getBasicAuthenticationEntryPoint())
-          .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+      http
+          .csrf(AbstractHttpConfigurer::disable)
+          .formLogin(AbstractHttpConfigurer::disable)
+          .authorizeHttpRequests((configurer) -> configurer
+              .requestMatchers("/rserver/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER)
+              .requestMatchers("/r/sessions/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER, Roles.ROCK_USER)
+              .requestMatchers("/r/session/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_USER)
+              .requestMatchers("/").permitAll()
+              .requestMatchers("/_check").permitAll()
+              .requestMatchers("/_info").permitAll()
+              .anyRequest().denyAll())
+          .httpBasic((configurer) -> configurer
+              .realmName("RockRealm")
+              .authenticationEntryPoint(getBasicAuthenticationEntryPoint()))
+          .sessionManagement((configurer) -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
   }
 
   private BasicAuthenticationEntryPoint getBasicAuthenticationEntryPoint() {
@@ -75,7 +87,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     Map<String, PasswordEncoder> encoders = Maps.newHashMap();
     encoders.put("noop", newNoOpPasswordEncoder());
     encoders.put("bcrypt", new BCryptPasswordEncoder(-1, new SecureRandom()));
-    encoders.put("scrypt", new SCryptPasswordEncoder());
+    encoders.put("pbkdf2", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+    encoders.put("scrypt", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
     return new DelegatingPasswordEncoder("noop", encoders);
   }
 
@@ -94,28 +107,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  public AuthenticationManager authenticationManagerBean() throws Exception {
-    // FIXME required to prevent spring boot auto-config
-    return super.authenticationManagerBean();
-  }
+  public UserDetailsService userDetailsService() {
+    InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 
-  @Override
-  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    if (!securityProperties.isEnabled()) return;
+    if (!securityProperties.isEnabled()) return manager;
 
     PasswordEncoder passwordEncoder = newPasswordEncoder();
     List<SecurityProperties.User> users = securityProperties.getUsers();
-    InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = auth.inMemoryAuthentication()
-        .passwordEncoder(passwordEncoder);
     users.forEach(u -> {
       log.debug(u.getId() + ":" + u.getSecret() + ":" + Joiner.on(";").join(u.getRoles()));
       String[] roles = new String[u.getRoles().size()];
-      roles = u.getRoles().stream().map(String::toUpperCase).collect(Collectors.toList()).toArray(roles);
-      configurer.withUser(u.getId())
+      roles = u.getRoles().stream().map(String::toUpperCase).toList().toArray(roles);
+      manager.createUser(User.withUsername(u.getId())
           .password(u.getSecret().startsWith("{") ? u.getSecret() : passwordEncoder.encode(u.getSecret()))
-          .roles(roles);
+          .roles(roles)
+          .build());
     });
+    return manager;
   }
-
 
 }

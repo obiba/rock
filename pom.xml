@@ -29,7 +29,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <bcprov.version>1.70</bcprov.version>
-    <fileupload.version>1.4</fileupload.version>
+    <fileupload.version>1.5</fileupload.version>
     <guava.version>33.0.0-jre</guava.version>
     <jackson.version>2.15.3</jackson.version>
     <jakarta-servlet.version>5.0.0</jakarta-servlet.version>

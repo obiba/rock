@@ -21,19 +21,18 @@ import org.obiba.rock.r.ROperationWithResult;
 import org.obiba.rock.r.RScriptROperation;
 import org.obiba.rock.util.Tail;
 import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPRaw;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -42,7 +41,7 @@ import java.util.*;
  * Service to manage RServer process.
  */
 @Component
-public class RServerService {
+public class RServerService implements InitializingBean, DisposableBean {
 
   private static final Logger log = LoggerFactory.getLogger(RServerService.class);
 
@@ -72,14 +71,14 @@ public class RServerService {
     return rserveStatus == 0;
   }
 
-  @PostConstruct
-  public void initialize() {
+  @Override
+  public void afterPropertiesSet() throws Exception {
     start();
     if (isRunning()) registerService();
   }
 
-  @PreDestroy
-  public void close() {
+  @Override
+  public void destroy() throws Exception {
     stop();
     unregisterService();
   }

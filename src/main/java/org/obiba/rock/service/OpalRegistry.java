@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Perform the registering of the R service in a Opal server.
  */
@@ -115,7 +117,7 @@ public class OpalRegistry implements Registry {
   }
 
   private RequestBody makeRequestBody() {
-    return RequestBody.create(MediaType.get("application/json"), asOpalAppJSON());
+    return RequestBody.create(asOpalAppJSON(), MediaType.get("application/json"));
   }
 
   public String asOpalAppJSON() {

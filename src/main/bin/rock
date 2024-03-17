@@ -9,7 +9,7 @@ esac
 if [ -z "$JAVA_OPTS" ]
 then
   # Set default JAVA_OPTS
-  export JAVA_OPTS="-Xmx2G"
+  export JAVA_OPTS="-Xmx128M -XX:+UseG1GC"
 fi
 
 # The directory containing the server shell script

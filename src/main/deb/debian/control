@@ -10,7 +10,7 @@ Package: rock
 Architecture: all
 Pre-Depends: debconf, coreutils (>= 6.10)
 Depends: adduser, procps, r-base-core
-Recommends: openjdk-17-jdk | openjdk-17-jdk-headless | openjdk-17-jre | openjdk-17-jre-headless
+Recommends: openjdk-21-jdk | openjdk-21-jdk-headless | openjdk-21-jre | openjdk-21-jre-headless
 Description: OBiBa R server controller
  R server administration tool that allows to control remotely a R server through REST
  web services. This ensures a safe execution context of arbitrary R scripts on

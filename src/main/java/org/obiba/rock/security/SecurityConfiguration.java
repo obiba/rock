@@ -85,25 +85,16 @@ public class SecurityConfiguration {
 
   private PasswordEncoder newPasswordEncoder() {
     Map<String, PasswordEncoder> encoders = Maps.newHashMap();
-    encoders.put("noop", newNoOpPasswordEncoder());
+    encoders.put("noop", new NoOpPasswordEncoder());
     encoders.put("bcrypt", new BCryptPasswordEncoder(-1, new SecureRandom()));
     encoders.put("pbkdf2", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
     encoders.put("scrypt", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
     return new DelegatingPasswordEncoder("noop", encoders);
   }
 
-  private PasswordEncoder newNoOpPasswordEncoder() {
-    return new PasswordEncoder() {
-      @Override
-      public String encode(CharSequence rawPassword) {
-        return rawPassword.toString();
-      }
-
-      @Override
-      public boolean matches(CharSequence rawPassword, String encodedPassword) {
-        return rawPassword.toString().equals(encodedPassword);
-      }
-    };
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new NoOpPasswordEncoder();
   }
 
   @Bean
@@ -126,4 +117,15 @@ public class SecurityConfiguration {
     return manager;
   }
 
+  private static class NoOpPasswordEncoder implements PasswordEncoder {
+    @Override
+    public String encode(CharSequence rawPassword) {
+      return rawPassword.toString();
+    }
+
+    @Override
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+      return rawPassword.toString().equals(encodedPassword.replace("{noop}", ""));
+    }
+  }
 }

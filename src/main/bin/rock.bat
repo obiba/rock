@@ -23,7 +23,7 @@ set CLASSPATH=%ROCK_HOME%\conf;%ROCK_DIST%\lib\*
 set JAVA_DEBUG=-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n
 
 rem Add %JAVA_DEBUG% to this line to enable remote JVM debugging (for developers)
-java %JAVA_OPTS% -cp "%CLASSPATH%" -DROCK_HOME="%ROCK_HOME%" -DROCK_DIST=%ROCK_DIST% org.springframework.boot.loader.JarLauncher %*
+java %JAVA_OPTS% -cp "%CLASSPATH%" -DROCK_HOME="%ROCK_HOME%" -DROCK_DIST=%ROCK_DIST% org.springframework.boot.loader.launch.JarLauncher %*
 goto :END
 
 :DEFAULT_JAVA_OPTS

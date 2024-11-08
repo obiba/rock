@@ -27,7 +27,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <bcprov.version>1.70</bcprov.version>
+    <bcprov.version>1.78</bcprov.version>
     <fileupload.version>1.5</fileupload.version>
     <guava.version>33.0.0-jre</guava.version>
     <jackson.version>2.15.3</jackson.version>
@@ -527,7 +527,7 @@
 
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>
+      <artifactId>bcprov-jdk18on</artifactId>
       <version>${bcprov.version}</version>
     </dependency>
 

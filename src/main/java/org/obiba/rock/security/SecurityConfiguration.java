@@ -94,7 +94,7 @@ public class SecurityConfiguration {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new NoOpPasswordEncoder();
+    return newPasswordEncoder();
   }
 
   @Bean

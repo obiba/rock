@@ -13,6 +13,12 @@ if (!dir.exists(libPath)) {
 # cleanup
 rm(home)
 rm(libPath)
+# Hint for using RSPM(https://packagemanager.posit.co)
+# You must often modify the HTTPUserAgent header when using the OS R
+# The correct header can be determined by https://docs.posit.co/rspm/admin/serving-binaries/#binary-user-agents
+# Sample for RHEL-9
+# options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"])))
+
 # ensure default CRAN repositories
-options(repos = c("https://cloud.r-project.org", "https://cran.obiba.org"))
+# This will be done in the yml file(/etc/rock/application.yml)
 # newline required

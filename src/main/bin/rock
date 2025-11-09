@@ -51,4 +51,4 @@ fi
 JAVA_DEBUG=-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n
 
 # Add $JAVA_DEBUG to this line to enable remote JVM debugging (for developers)
-java $JAVA_OPTS -cp "$CLASSPATH" -DROCK_HOME="${ROCK_HOME}" -DROCK_DIST=${ROCK_DIST} -DROCK_LOG=${ROCK_LOG} org.springframework.boot.loader.launch.JarLauncher $@
+exec java $JAVA_OPTS -cp "$CLASSPATH" -DROCK_HOME="${ROCK_HOME}" -DROCK_DIST=${ROCK_DIST} -DROCK_LOG=${ROCK_LOG} org.springframework.boot.loader.launch.JarLauncher $@

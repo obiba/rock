@@ -10,7 +10,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.7</version>
+    <version>4.0.1</version>
   </parent>
 
   <properties>
@@ -30,14 +30,14 @@
     <bcprov.version>1.78</bcprov.version>
     <fileupload.version>1.6.0</fileupload.version>
     <guava.version>33.4.8-jre</guava.version>
-    <jackson.version>2.19.0</jackson.version>
+    
     <jakarta-servlet.version>5.0.0</jakarta-servlet.version>
     <junit.version>4.13.2</junit.version>
     <okhttp.version>4.12.0</okhttp.version>
     <rserve.version>0.6-8.1</rserve.version>
     <servlet-api.version>6.1.0-M2</servlet-api.version>
-    <slf4j.version>2.0.9</slf4j.version>
-    <snakeyaml.version>2.2</snakeyaml.version>
+    <slf4j.version>2.0.16</slf4j.version>
+    <snakeyaml.version>2.3</snakeyaml.version>
 
     <!-- maven plugins -->
     <github-release-plugin.version>1.6.0</github-release-plugin.version>
@@ -461,7 +461,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
       <exclusions>
         <exclusion>
           <groupId>org.springframework.boot</groupId>
@@ -531,17 +531,7 @@
       <version>${bcprov.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
+    
 
     <dependency>
       <groupId>org.slf4j</groupId>

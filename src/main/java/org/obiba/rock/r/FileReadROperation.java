@@ -21,6 +21,10 @@ public class FileReadROperation extends AbstractROperation {
   private final File destination;
 
   public FileReadROperation(String fileName, File destination) {
+    // Validate file path to prevent directory traversal
+    if (fileName == null || fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+      throw new IllegalArgumentException("Invalid file path: contains illegal characters");
+    }
     this.fileName = fileName;
     this.destination = destination;
   }

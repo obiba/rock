@@ -21,6 +21,10 @@ public class FileWriteROperation extends AbstractROperation {
   private final File source;
 
   public FileWriteROperation(String fileName, File source) {
+    // Validate file path to prevent directory traversal
+    if (fileName == null || fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+      throw new IllegalArgumentException("Invalid file path: contains illegal characters");
+    }
     this.fileName = fileName;
     this.source = source;
   }

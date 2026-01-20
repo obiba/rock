@@ -19,14 +19,16 @@ public class ExceptionErrorMessage extends ErrorMessage {
   public ExceptionErrorMessage(String status, Exception exception, String... args) {
     setStatus(status);
     setKey(exception.getClass().getSimpleName());
-    setMessage(exception.getMessage());
+    // Use generic message to prevent information disclosure
+    setMessage("An error occurred");
     setArgs(Lists.newArrayList(args));
   }
 
   public ExceptionErrorMessage(HttpStatus status, Exception exception, String... args) {
     setStatus(status.value() + "");
     setKey(exception.getClass().getSimpleName());
-    setMessage(exception.getMessage());
+    // Use generic message to prevent information disclosure
+    setMessage("An error occurred");
     setArgs(Lists.newArrayList(args));
   }
 }

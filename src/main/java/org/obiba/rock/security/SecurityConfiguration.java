@@ -59,24 +59,24 @@ public class SecurityConfiguration {
   private void configure(HttpSecurity http) throws Exception {
     if (!securityProperties.isEnabled())
       http
-          .csrf(AbstractHttpConfigurer::disable)
-          .authorizeHttpRequests((configurer) -> configurer.requestMatchers("/**").permitAll());
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests((configurer) -> configurer.requestMatchers("/**").permitAll());
     else
       http
-          .csrf(AbstractHttpConfigurer::disable)
-          .formLogin(AbstractHttpConfigurer::disable)
-          .authorizeHttpRequests((configurer) -> configurer
-              .requestMatchers("/rserver/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER)
-              .requestMatchers("/r/sessions/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER, Roles.ROCK_USER)
-              .requestMatchers("/r/session/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_USER)
-              .requestMatchers("/").permitAll()
-              .requestMatchers("/_check").permitAll()
-              .requestMatchers("/_info").permitAll()
-              .anyRequest().denyAll())
-          .httpBasic((configurer) -> configurer
-              .realmName("RockRealm")
-              .authenticationEntryPoint(getBasicAuthenticationEntryPoint()))
-          .sessionManagement((configurer) -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        .csrf(AbstractHttpConfigurer::disable)
+        .formLogin(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests((configurer) -> configurer
+            .requestMatchers("/rserver/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER)
+            .requestMatchers("/r/sessions/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_MANAGER, Roles.ROCK_USER)
+            .requestMatchers("/r/session/**").hasAnyRole(Roles.ROCK_ADMIN, Roles.ROCK_USER)
+            .requestMatchers("/").permitAll()
+            .requestMatchers("/_check").permitAll()
+            .requestMatchers("/_info").permitAll()
+            .anyRequest().denyAll())
+        .httpBasic((configurer) -> configurer
+            .realmName("Rock")
+            .authenticationEntryPoint(getBasicAuthenticationEntryPoint()))
+        .sessionManagement((configurer) -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
   }
 
   private BasicAuthenticationEntryPoint getBasicAuthenticationEntryPoint() {
@@ -85,11 +85,10 @@ public class SecurityConfiguration {
 
   private PasswordEncoder newPasswordEncoder() {
     Map<String, PasswordEncoder> encoders = Maps.newHashMap();
-    encoders.put("noop", new NoOpPasswordEncoder());
     encoders.put("bcrypt", new BCryptPasswordEncoder(-1, new SecureRandom()));
     encoders.put("pbkdf2", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
     encoders.put("scrypt", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
-    return new DelegatingPasswordEncoder("noop", encoders);
+    return new DelegatingPasswordEncoder("bcrypt", encoders);
   }
 
   @Bean
@@ -109,8 +108,13 @@ public class SecurityConfiguration {
       log.debug(u.getId() + ":" + u.getSecret() + ":" + Joiner.on(";").join(u.getRoles()));
       String[] roles = new String[u.getRoles().size()];
       roles = u.getRoles().stream().map(String::toUpperCase).toList().toArray(roles);
+      String encodedPassword = u.getSecret().startsWith("{") ? u.getSecret() : passwordEncoder.encode(u.getSecret());
+      // Validate password is not empty and follows expected format
+      if (encodedPassword == null || encodedPassword.isEmpty() || encodedPassword.length() < 8) {
+        throw new IllegalArgumentException("Password must be at least 8 characters long");
+      }
       manager.createUser(User.withUsername(u.getId())
-          .password(u.getSecret().startsWith("{") ? u.getSecret() : passwordEncoder.encode(u.getSecret()))
+          .password(encodedPassword)
           .roles(roles)
           .build());
     });

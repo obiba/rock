@@ -26,12 +26,12 @@ public class CustomBasicAuthenticationEntryPoint extends BasicAuthenticationEntr
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.setContentType("application/json");
     PrintWriter writer = response.getWriter();
-    writer.println("{\"status\": \"401\", \"key\": \"UnAuthorized\", \"message\": \"" + authEx.getMessage() + "\"}");
+    writer.println("{\"status\": \"401\", \"key\": \"UnAuthorized\", \"message\": \"Authentication failed\"}");
   }
 
   @Override
   public void afterPropertiesSet() {
-    setRealmName("RockRealm");
+    setRealmName("Rock");
     super.afterPropertiesSet();
   }
 }

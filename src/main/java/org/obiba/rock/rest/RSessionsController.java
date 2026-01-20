@@ -40,6 +40,11 @@ public class RSessionsController {
    */
   @GetMapping
   List<RSession> getRSessions(@AuthenticationPrincipal User user, @RequestParam(name = "subject", required = false) String subject) {
+    // Validate subject parameter
+    if (subject != null && (subject.contains("..") || subject.contains("/"))) {
+      throw new IllegalArgumentException("Invalid subject parameter: contains illegal characters");
+    }
+    
     if (Roles.isAdmin(user) || Roles.isManager(user)) {
       // get all/filtered sessions
       return Strings.isNullOrEmpty(subject) ? rSessionService.getRSessions()

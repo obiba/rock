@@ -15,5 +15,5 @@ rm(home)
 rm(libPath)
 # default repos for install.packages() called from R sessions;
 # packages installed via the REST API use r.repos in application.yml
-options(repos = c("https://cloud.r-project.org", "https://cran.obiba.org"))
+options(repos = c("https://cloud.r-project.org"))
 # newline required

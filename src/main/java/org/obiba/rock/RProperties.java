@@ -22,7 +22,7 @@ public class RProperties {
 
   private String exec = "/usr/bin/R";
 
-  private List<String> repos = Lists.newArrayList("https://cloud.r-project.org", "https://cran.obiba.org");
+  private List<String> repos = Lists.newArrayList("https://cloud.r-project.org");
 
   private int sessionTimeout = 240;
 

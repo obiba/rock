@@ -13,11 +13,13 @@ package org.obiba.rock;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
 @EnableConfigurationProperties
+@ImportRuntimeHints(NativeHints.class)
 public class Application {
 
   public static void main(String... args) throws Exception {

@@ -42,8 +42,8 @@ class NativeHints implements RuntimeHintsRegistrar {
       hints.reflection().registerType(TypeReference.of(className),
           MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS);
     }
-    // R scripts loaded from the classpath
-    hints.resources().registerPattern("*.R");
+    // R script loaded from the classpath
+    hints.resources().registerPattern(".datashieldFind.R");
     // serialized as its runtime type, controllers declare RCommand
     new BindingReflectionHintsRegistrar().registerReflectionHints(hints.reflection(), RServeCommand.class);
   }

@@ -27,7 +27,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <bcprov.version>1.84</bcprov.version>
+    <bcprov.version>1.86</bcprov.version>
     <fileupload.version>1.6.0</fileupload.version>
     <guava.version>33.4.8-jre</guava.version>
     
